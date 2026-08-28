@@ -123,7 +123,10 @@ Operations, Automation, NSX, Tools
 - **인코딩**: 한글 등 비ASCII 문자가 깨지지 않으려면 `.ps1` 파일이 UTF-8 BOM으로 저장되어 있어야 합니다 (Windows PowerShell 5.1은 BOM이 없으면 시스템 코드페이지로 잘못 해석할 수 있습니다).
 - **PowerShell 버전**: Windows PowerShell 5.1 기준으로 검증되었습니다. `pwsh`(PowerShell 7+)에서도 대부분 동작하지만 별도로 검증하지는 않았습니다.
 
-- <img width="2146" height="1183" alt="image" src="https://github.com/user-attachments/assets/6432d84f-7ba2-4f59-84e9-0a9f0b7e8ce3" />
+## HTML output
+<img width="2146" height="1183" alt="image" src="https://github.com/user-attachments/assets/6432d84f-7ba2-4f59-84e9-0a9f0b7e8ce3" />
+
+## CSV output
 <img width="1896" height="847" alt="image" src="https://github.com/user-attachments/assets/6e111ab6-37dd-4b4b-85b5-1e22314fe6da" />
 
 
