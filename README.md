@@ -1,6 +1,6 @@
 # vSphere Audit Reporter
 
-기존에 수집된 vSphere 보안 감사(security hardening audit) 로그(txt)를 읽어서, 보기 좋은 HTML 리포트 한 장으로 정리해 주는 PowerShell 스크립트입니다. `auditreporter.ps1` 스크립트 하나로 동작하며, vCenter 접속이나 Office(Excel/PowerPoint) 설치 없이도 실행됩니다.
+기존에 수집된 vSphere 보안 감사(security hardening audit) 로그(txt)를 읽어서, 보기 좋은 HTML 리포트 한 장으로 정리해 주는 PowerShell 스크립트입니다. `auditreporter.ps1` 스크립트 하나로 동작합니다.
 
 ## 주요 특징
 
@@ -60,11 +60,11 @@ audit\
 
 ```
 audit\
-└── AuditReport_20260228_143000\
+└── Output_20260228_143000\
     └── audit_report.html
 ```
 
-- 폴더명은 `AuditReport_yyyyMMdd_HHmmss` 형식으로, 실행할 때마다 새로 생성되어 이전 결과를 덮어쓰지 않습니다.
+- 폴더명은 `Output_yyyyMMdd_HHmmss` 형식으로, 실행할 때마다 새로 생성되어 이전 결과를 덮어쓰지 않습니다.
 - `audit_report.html`은 브라우저로 열어서 바로 확인할 수 있으며, 인터넷 연결 없이도 동작하는 단일 HTML 파일입니다(첨부된 `audit_report.html`이 실제 실행 결과 예시입니다).
 - 스크립트 실행이 끝나면 결과 폴더가 자동으로 열립니다.
 
