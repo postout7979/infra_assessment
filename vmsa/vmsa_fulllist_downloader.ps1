@@ -67,6 +67,17 @@
 #    data-label div table either, the page's plain visible text is scanned
 #    for "<product name> ... <version>" mentions so at least Product +
 #    Version can still be recovered instead of leaving the matrix empty.
+# 8. Also writes, alongside the 8 category CSVs, 8 category Excel workbooks
+#    (.xlsx) into a VMSA_Excel_<timestamp>/ folder - same 8 fixed categories
+#    (ESX / vCenter / VMware Cloud Foundation / VMware vSphere Foundation /
+#    Operations / Automation / NSX / Tools). Inside each workbook, EVERY
+#    ADVISORY IN THAT CATEGORY GETS ITS OWN WORKSHEET (named by its
+#    AdvisoryID), with its Response Matrix rendered as a real Excel table
+#    (one column per matrix field, one row per Product/Version/CVE entry) -
+#    the same column layout as the HTML report's matrix table. An advisory
+#    with no usable Response Matrix data (FixedInfo blank or "Check Link for
+#    details") gets no worksheet and is left out entirely; a category with no
+#    qualifying advisories at all gets no workbook file.
 # =============================================================================
 
 param(
@@ -1289,4 +1300,291 @@ $CategorySummary | ForEach-Object {
     Write-Host ("       {0,-28} {1,4} advisories -> {2}" -f $_.Category, $_.Count, (Split-Path $_.File -Leaf)) -ForegroundColor Gray
 }
 
-Write-Host "`n[DONE] Total: $($AllRecords.Count) | New this run: $($NewRecords.Count) | Reused: $KnownCount | Unique CVEs: $($CveIndex.Count) | Category CSVs: $CategoryCsvDir" -ForegroundColor Green
+# =============================================================================
+# 8. Write per-category Excel workbooks - same 8 categories as the CSV split
+#    above (reusing $CategoryMap / $CategoryDefs already built in Step 7), but
+#    as .xlsx workbooks with ONE WORKSHEET PER VMSA ADVISORY, each sheet
+#    rendering that advisory's Response Matrix as a real Excel table. An
+#    advisory with no usable Response Matrix is skipped (no sheet); a
+#    category with zero qualifying advisories gets no workbook file at all.
+#    Requires the "ImportExcel" PowerShell module (installed automatically
+#    for the current user if missing) - no Microsoft Excel installation is
+#    needed, it writes .xlsx files directly.
+# =============================================================================
+Write-Host "[8] Writing per-category Excel workbooks (one worksheet per VMSA with a Response Matrix)..." -ForegroundColor Cyan
+
+$ExcelModuleOk = $true
+if (-not (Get-Module -ListAvailable -Name ImportExcel)) {
+    try {
+        Write-Host "    ImportExcel module not found - installing for current user..." -ForegroundColor Yellow
+        Install-Module -Name ImportExcel -Scope CurrentUser -Force -AllowClobber -ErrorAction Stop
+    } catch {
+        Write-Warning "    Could not install the ImportExcel module ($($_.Exception.Message)) - skipping Excel workbook generation. CSV/JSON/HTML outputs above are unaffected."
+        $ExcelModuleOk = $false
+    }
+}
+if ($ExcelModuleOk) {
+    try {
+        Import-Module ImportExcel -ErrorAction Stop
+    } catch {
+        Write-Warning "    Could not load the ImportExcel module ($($_.Exception.Message)) - skipping Excel workbook generation."
+        $ExcelModuleOk = $false
+    }
+}
+
+if ($ExcelModuleOk) {
+
+# Same 9 columns as the HTML report's matrix table (MATRIX_HEADERS), so the
+# Excel output and the HTML report always agree on layout.
+$MatrixHeaders = @("VMware Product","Version","Running On","CVE","CVSSv3","Severity","Fixed Version","Workarounds","Additional Documentation")
+
+# Splits one "Product | Version | ..." (or "Product | Component | Version |
+# ...") Response Matrix row into the same 9 mapped columns as the HTML
+# report's client-side mapRow()/extractProductVersion() functions, so the
+# Excel table and the HTML table always show the same thing for the same row.
+function ConvertTo-MatrixColumns {
+    param([string[]]$Cols)
+
+    $out = @("","","","","","","","","")
+    if ($Cols.Count -eq 0) { return $out }
+
+    function Test-Emptyish($v) { return ([string]::IsNullOrWhiteSpace($v)) -or ($v -match '^(?i)(n/a|-)$') }
+    function Test-LooksLikeVersion($v) { return (-not [string]::IsNullOrWhiteSpace($v)) -and ($v -match '^\d') }
+
+    $col0 = $Cols[0]
+    $col1 = if ($Cols.Count -gt 1) { $Cols[1] } else { "" }
+    $col2 = if ($Cols.Count -gt 2) { $Cols[2] } else { "" }
+
+    $component = $null
+    $version   = ""
+    $dataStart = 2
+    if ($Cols.Count -ge 3 -and -not (Test-Emptyish $col1) -and -not (Test-LooksLikeVersion $col1) -and (Test-LooksLikeVersion $col2)) {
+        $component = $col1
+        $version   = $col2
+        $dataStart = 3
+    } else {
+        $version   = $col1
+        $dataStart = 2
+    }
+    if (-not (Test-Emptyish $version) -and -not (Test-LooksLikeVersion $version)) { $version = "N/A" }
+
+    $out[0] = if ($component) { "$col0 ($component)" } else { $col0 }
+    $out[1] = $version
+
+    $cveIdx = -1
+    $sevIdx = -1
+    for ($i = $dataStart; $i -lt $Cols.Count; $i++) {
+        if ($cveIdx -eq -1 -and $Cols[$i] -match 'CVE-\d{4}-\d{4,7}') { $cveIdx = $i }
+    }
+    for ($i = $dataStart; $i -lt $Cols.Count; $i++) {
+        if ($Cols[$i] -match '^(?i)(critical|important|high|moderate|medium|low)$') { $sevIdx = $i; break }
+    }
+
+    if ($cveIdx -gt $dataStart) { $out[2] = ($Cols[$dataStart..($cveIdx - 1)] -join " / ") }
+    if ($cveIdx -ne -1) { $out[3] = $Cols[$cveIdx] }
+
+    if ($sevIdx -ne -1) {
+        $out[5] = $Cols[$sevIdx]
+        if (($sevIdx - 1) -ge $dataStart -and $Cols[$sevIdx - 1] -match '^\d+(\.\d+)?(\s*[-,]\s*\d+(\.\d+)?)*$') {
+            $out[4] = $Cols[$sevIdx - 1]
+        }
+        $restStart = $sevIdx + 1
+        $rest = if ($restStart -lt $Cols.Count) { @($Cols[$restStart..($Cols.Count - 1)]) } else { @() }
+        $out[6] = if ($rest.Count -gt 0) { $rest[0] } else { "" }
+        $out[7] = if ($rest.Count -gt 1) { $rest[1] } else { "" }
+        $out[8] = if ($rest.Count -gt 2) { $rest[2] } else { "" }
+    } else {
+        $startIdx = if ($cveIdx -ne -1) { $cveIdx + 1 } else { $dataStart }
+        $rest = if ($startIdx -lt $Cols.Count) { @($Cols[$startIdx..($Cols.Count - 1)]) } else { @() }
+        $out[6] = if ($rest.Count -gt 0) { $rest[0] } else { "" }
+        $out[7] = if ($rest.Count -gt 1) { $rest[1] } else { "" }
+        $out[8] = if ($rest.Count -gt 2) { $rest[2] } else { "" }
+    }
+
+    return $out
+}
+
+# Turns one advisory's FixedInfo string into an array of mapped 9-column
+# row objects (empty array = "no usable Response Matrix" -> caller skips it).
+function Get-MatrixTableRows {
+    param([string]$FixedInfo)
+
+    $result = New-Object System.Collections.Generic.List[Object]
+    if ([string]::IsNullOrWhiteSpace($FixedInfo) -or $FixedInfo -eq "Check Link for details") { return $result }
+
+    foreach ($row in ($FixedInfo -split "<br\s*/?>")) {
+        $rowTrim = $row.Trim()
+        if ([string]::IsNullOrWhiteSpace($rowTrim)) { continue }
+        $cols = @($rowTrim -split "\|" | ForEach-Object { $_.Trim() })
+        $mapped = ConvertTo-MatrixColumns -Cols $cols
+        if ([string]::IsNullOrWhiteSpace($mapped[0])) { continue }
+        $result.Add([PSCustomObject][ordered]@{
+            "VMware Product"           = $mapped[0]
+            "Version"                  = $mapped[1]
+            "Running On"               = $mapped[2]
+            "CVE"                      = $mapped[3]
+            "CVSSv3"                   = $mapped[4]
+            "Severity"                 = $mapped[5]
+            "Fixed Version"            = $mapped[6]
+            "Workarounds"              = $mapped[7]
+            "Additional Documentation" = $mapped[8]
+        })
+    }
+    return $result
+}
+
+# Converts a 1-based column number to its Excel letter (1->A, 26->Z, 27->AA).
+function Get-ExcelColumnLetter {
+    param([int]$ColumnNumber)
+    $letter = ""
+    $n = $ColumnNumber
+    while ($n -gt 0) {
+        $rem = ($n - 1) % 26
+        $letter = [char](65 + $rem) + $letter
+        $n = [int](($n - $rem - 1) / 26)
+    }
+    return $letter
+}
+
+# Writes one cell by (row, column) using a string address ("B5") rather than
+# the worksheet's [row, col] numeric indexer - on some ImportExcel/EPPlus
+# version combinations that numeric two-argument indexer does not bind the
+# way PowerShell expects and .Cells[$row,$col] comes back as an object with
+# no .Value property ("PropertyAssignmentException"). Addressing by string
+# ("A1" style) is the indexer overload that reliably works everywhere.
+function Set-CellValue {
+    param($Worksheet, [int]$Row, [int]$Col, $Value, [switch]$Bold)
+    $addr = "$(Get-ExcelColumnLetter -ColumnNumber $Col)$Row"
+    $Worksheet.Cells[$addr].Value = $Value
+    if ($Bold) { $Worksheet.Cells[$addr].Style.Font.Bold = $true }
+}
+
+# Builds an "A1:I20"-style range address string from two (row,col) corners.
+function Get-ExcelRangeAddress {
+    param([int]$StartRow, [int]$StartCol, [int]$EndRow, [int]$EndCol)
+    $startAddr = "$(Get-ExcelColumnLetter -ColumnNumber $StartCol)$StartRow"
+    $endAddr   = "$(Get-ExcelColumnLetter -ColumnNumber $EndCol)$EndRow"
+    return "$startAddr`:$endAddr"
+}
+
+# Excel worksheet names: max 31 chars, and \ / ? * [ ] : are illegal - also
+# de-duplicates in the (normally impossible) case two AdvisoryIDs collide
+# after sanitizing.
+function ConvertTo-SafeSheetName {
+    param([string]$Name, [System.Collections.Generic.List[string]]$UsedNames)
+
+    $safe = ($Name -replace '[\\/\?\*\[\]:]', '_').Trim()
+    if ([string]::IsNullOrWhiteSpace($safe)) { $safe = "Sheet" }
+    if ($safe.Length -gt 31) { $safe = $safe.Substring(0, 31) }
+
+    $base = $safe
+    $n = 1
+    while ($UsedNames.Contains($safe)) {
+        $suffix  = "_$n"
+        $maxBase = [Math]::Max(1, 31 - $suffix.Length)
+        $safe    = $base.Substring(0, [Math]::Min($base.Length, $maxBase)) + $suffix
+        $n++
+    }
+    return $safe
+}
+
+$ExcelDir = Join-Path $CurrentDir "VMSA_Excel_$Timestamp"
+New-Item -ItemType Directory -Path $ExcelDir -Force | Out-Null
+
+$ExcelSummary = New-Object System.Collections.Generic.List[Object]
+
+foreach ($catName in $CategoryDefs.Keys) {
+    $SafeName  = ConvertTo-SafeFileName -Name $catName
+    $ExcelPath = Join-Path $ExcelDir "VMSA_$SafeName.xlsx"
+    if (Test-Path $ExcelPath) { Remove-Item $ExcelPath -Force }
+
+    $Entries = @($CategoryMap[$catName].Values | Sort-Object { $_.Record.Published } -Descending)
+
+    # Pre-filter to advisories that actually have usable Response Matrix rows -
+    # an advisory whose FixedInfo is blank/"Check Link for details", or whose
+    # every row fails to yield even a Product name, never gets a block below
+    # (nothing left over to clean up afterwards).
+    $Qualifying = New-Object System.Collections.Generic.List[Object]
+    foreach ($entry in $Entries) {
+        $MatrixRows = Get-MatrixTableRows -FixedInfo $entry.Record.FixedInfo
+        if ($MatrixRows.Count -gt 0) {
+            $Qualifying.Add([PSCustomObject]@{ Record = $entry.Record; Rows = $MatrixRows })
+        }
+    }
+
+    if ($Qualifying.Count -eq 0) {
+        $ExcelSummary.Add([PSCustomObject]@{ Category = $catName; Advisories = 0; File = "(skipped - no Response Matrix data)" })
+        continue
+    }
+
+    $pkg       = Open-ExcelPackage -Path $ExcelPath -Create
+    $SheetName = ConvertTo-SafeSheetName -Name $catName -UsedNames (New-Object System.Collections.Generic.List[string])
+    $ws        = Add-Worksheet -ExcelPackage $pkg -WorksheetName $SheetName
+
+    # Single worksheet: every qualifying advisory's meta info + its Response
+    # Matrix table, stacked one block after another going down the sheet,
+    # newest advisory first (same order as the category CSV).
+    $r = 1
+    $BlockIndex = 0
+    foreach ($q in $Qualifying) {
+        $rec = $q.Record
+        $BlockIndex++
+
+        # --- Advisory meta block (Field/Value pair rows) ---
+        $MetaPairs = @(
+            @("Advisory ID", $rec.AdvisoryID),
+            @("Title",       $rec.Title),
+            @("Severity",    $rec.Severity),
+            @("CVSS",        $rec.CVSS),
+            @("Published",   $rec.Published),
+            @("Link",        $rec.Link)
+        )
+        foreach ($pair in $MetaPairs) {
+            Set-CellValue -Worksheet $ws -Row $r -Col 1 -Value $pair[0] -Bold
+            Set-CellValue -Worksheet $ws -Row $r -Col 2 -Value $pair[1]
+            $r++
+        }
+        $r++   # blank row before this advisory's Response Matrix table
+
+        # --- Response Matrix table (header row + one row per matrix entry) ---
+        $TableStartRow = $r
+        for ($c = 0; $c -lt $MatrixHeaders.Count; $c++) {
+            Set-CellValue -Worksheet $ws -Row $TableStartRow -Col ($c + 1) -Value $MatrixHeaders[$c] -Bold
+        }
+        $rr = $TableStartRow + 1
+        foreach ($row in $q.Rows) {
+            Set-CellValue -Worksheet $ws -Row $rr -Col 1 -Value $row.'VMware Product'
+            Set-CellValue -Worksheet $ws -Row $rr -Col 2 -Value $row.'Version'
+            Set-CellValue -Worksheet $ws -Row $rr -Col 3 -Value $row.'Running On'
+            Set-CellValue -Worksheet $ws -Row $rr -Col 4 -Value $row.'CVE'
+            Set-CellValue -Worksheet $ws -Row $rr -Col 5 -Value $row.'CVSSv3'
+            Set-CellValue -Worksheet $ws -Row $rr -Col 6 -Value $row.'Severity'
+            Set-CellValue -Worksheet $ws -Row $rr -Col 7 -Value $row.'Fixed Version'
+            Set-CellValue -Worksheet $ws -Row $rr -Col 8 -Value $row.'Workarounds'
+            Set-CellValue -Worksheet $ws -Row $rr -Col 9 -Value $row.'Additional Documentation'
+            $rr++
+        }
+        $TableEndRow = $rr - 1
+
+        $RangeAddr  = Get-ExcelRangeAddress -StartRow $TableStartRow -StartCol 1 -EndRow $TableEndRow -EndCol $MatrixHeaders.Count
+        $TableRange = $ws.Cells[$RangeAddr]
+        $TableName  = "Matrix_$BlockIndex`_" + ($rec.AdvisoryID -replace '[^A-Za-z0-9_]', '_')
+        Add-ExcelTable -Range $TableRange -TableName $TableName -TableStyle Medium9
+
+        $r = $TableEndRow + 3   # two blank rows before the next advisory's block
+    }
+
+    if ($ws.Dimension) { $ws.Cells[$ws.Dimension.Address].AutoFitColumns() }
+    Close-ExcelPackage -ExcelPackage $pkg
+    $ExcelSummary.Add([PSCustomObject]@{ Category = $catName; Advisories = $Qualifying.Count; File = $ExcelPath })
+}
+
+Write-Host "    -> Excel workbooks written to $ExcelDir" -ForegroundColor Gray
+$ExcelSummary | ForEach-Object {
+    $fileLabel = if ($_.Advisories -gt 0) { Split-Path $_.File -Leaf } else { $_.File }
+    Write-Host ("       {0,-28} {1,4} advisory(ies) -> {2}" -f $_.Category, $_.Advisories, $fileLabel) -ForegroundColor Gray
+}
+
+} # end if $ExcelModuleOk
+
+Write-Host "`n[DONE] Total: $($AllRecords.Count) | New this run: $($NewRecords.Count) | Reused: $KnownCount | Unique CVEs: $($CveIndex.Count) | Category CSVs: $CategoryCsvDir | Category Excel: $ExcelDir" -ForegroundColor Green
