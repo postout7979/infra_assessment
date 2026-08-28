@@ -20,6 +20,10 @@
 #    CVE_Lookup_<timestamp>.html - a single search box where typing a CVE ID
 #    (full or partial) instantly filters the list to matching CVEs and shows
 #    their description/CVSS/severity/references/related VMSA advisories.
+#    Both files are written into their own CVE_Lookup_<timestamp>/ output
+#    folder (created next to this script) - only CVE_Lookup_Cache.json stays
+#    directly next to the script itself, since it's the fixed-name cache
+#    every run (regardless of that run's output folder) reads and updates.
 #
 # Usage:
 #   .\VMSA_CVE_Lookup.ps1 -CveListCsv .\VMSA_CVE_List_20260828-1529.csv
@@ -49,9 +53,15 @@ if ($DelayMs -le 0) {
 }
 
 $Timestamp     = Get-Date -Format "yyyyMMdd-HHmm"
+# Cache JSON stays right next to the script (fixed name, no timestamp, no
+# subfolder) so every run - regardless of output folder - finds and reuses
+# it. The CSV/HTML results for THIS run go into their own timestamped output
+# folder instead of being dropped loose next to the script.
 $CachePath     = Join-Path $CurrentDir "CVE_Lookup_Cache.json"
-$OutCsvPath    = Join-Path $CurrentDir "CVE_Lookup_Results_$Timestamp.csv"
-$OutHtmlPath   = Join-Path $CurrentDir "CVE_Lookup_$Timestamp.html"
+$OutputDir     = Join-Path $CurrentDir "CVE_Lookup_$Timestamp"
+New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
+$OutCsvPath    = Join-Path $OutputDir "CVE_Lookup_Results_$Timestamp.csv"
+$OutHtmlPath   = Join-Path $OutputDir "CVE_Lookup_$Timestamp.html"
 $NvdApiUrl     = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 
 # These two ServicePointManager settings work around a common Windows
