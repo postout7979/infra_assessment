@@ -122,3 +122,6 @@ Operations, Automation, NSX, Tools
 - **캐시 파일명 규칙**: `VMSA_FullList_Data.json`, `CVE_Lookup_Cache.json`처럼 이름에 날짜가 없는 파일은 누적 캐시이며 재실행 시마다 갱신됩니다. 반면 CSV/HTML은 실행할 때마다 타임스탬프가 붙어 새로 생성되므로, 이전 실행 결과가 덮어써지지 않습니다.
 - **인코딩**: 한글 등 비ASCII 문자가 깨지지 않으려면 `.ps1` 파일이 UTF-8 BOM으로 저장되어 있어야 합니다 (Windows PowerShell 5.1은 BOM이 없으면 시스템 코드페이지로 잘못 해석할 수 있습니다).
 - **PowerShell 버전**: Windows PowerShell 5.1 기준으로 검증되었습니다. `pwsh`(PowerShell 7+)에서도 대부분 동작하지만 별도로 검증하지는 않았습니다.
+
+- <img width="2146" height="1183" alt="image" src="https://github.com/user-attachments/assets/6432d84f-7ba2-4f59-84e9-0a9f0b7e8ce3" />
+
