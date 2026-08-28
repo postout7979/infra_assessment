@@ -124,4 +124,6 @@ Operations, Automation, NSX, Tools
 - **PowerShell 버전**: Windows PowerShell 5.1 기준으로 검증되었습니다. `pwsh`(PowerShell 7+)에서도 대부분 동작하지만 별도로 검증하지는 않았습니다.
 
 - <img width="2146" height="1183" alt="image" src="https://github.com/user-attachments/assets/6432d84f-7ba2-4f59-84e9-0a9f0b7e8ce3" />
+<img width="1896" height="847" alt="image" src="https://github.com/user-attachments/assets/6e111ab6-37dd-4b4b-85b5-1e22314fe6da" />
+
 
