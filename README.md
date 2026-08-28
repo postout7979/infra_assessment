@@ -1,6 +1,8 @@
 # vSphere Audit Reporter
 
-기존에 수집된 vSphere 보안 감사(security hardening audit) 로그(txt)를 읽어서, 보기 좋은 HTML 리포트 한 장으로 정리해 주는 PowerShell 스크립트입니다. `auditreporter.ps1` 스크립트 하나로 동작합니다.
+https://github.com/vmware/vcf-security-and-compliance-guidelines/tree/main/security-configuration-hardening-guide/vsphere
+
+VMware github의 security-configuration-hardening-guide/vsphere의 스크립트 수행 결과 폴더의 로그(txt)를 읽어서, 보기 좋은 HTML 리포트 한 장으로 정리해 주는 PowerShell 스크립트입니다. `auditreporter.ps1` 스크립트 하나로 동작합니다.
 
 ## 주요 특징
 
