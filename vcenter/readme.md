@@ -1,4 +1,5 @@
 # Get_VC_DailyReport.ps1
+# 
 
 vCenter 종합 인벤토리/성능/스토리지/VM 상세 리포트 생성 스크립트입니다.
 VCF Operations 없이 **PowerCLI만으로** 동작하며, 실행하면 vCenter 로그인 정보를 받아
@@ -86,6 +87,7 @@ VCF Operations 없이 **PowerCLI만으로** 동작하며, 실행하면 vCenter �
 | `11_PerfDistribution_*.csv` | 성능 분포 요약 |
 | `LicenseKeys_*.csv` | vCenter/ESXi 라이센스 키 (HTML에는 미포함) |
 | `VCenterReport_*.html` | 위 내용을 종합한 HTML 리포트(1~11번 섹션, 라이센스 제외) |
+| `EmailReport_*.html` | 위와 같은 내용을 이메일 본문에 붙여넣기 좋은 형태(표 기반 레이아웃, 인라인 스타일)로 재구성한 버전. Outlook/Gmail 등에서 깨지지 않도록 CSS 변수·flexbox·그라데이션을 쓰지 않음 |
 
 빈 결과(예: 오래된 스냅샷이 하나도 없음)는 해당 CSV 생성을 건너뛰고 경고만 표시합니다 — 정상 동작입니다.
 
