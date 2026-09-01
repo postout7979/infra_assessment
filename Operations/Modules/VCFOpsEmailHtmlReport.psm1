@@ -16,13 +16,35 @@
 
 Import-Module (Join-Path $PSScriptRoot "VCFOpsTheme.psm1")
 
-$Script:EmailFont = "Arial,'Malgun Gothic',sans-serif"
+$Script:EmailFont = "Arial,'Malgun Gothic',Helvetica,sans-serif"
+
+# 첨부 참고 스타일(EmailReport 예시)의 색상 팔레트를 그대로 적용합니다.
+# (참고 파일은 구조/문구가 다른 별도 리포트이며, 여기서는 "색상"만 동일하게 맞춥니다.)
+# 상태 배지(위험/주의/정상)는 참고 파일에 대응 요소가 없어 기존 $StatusColor를 유지합니다.
+$Script:EC = @{
+    page_bg        = "f1f4f9"  # 페이지(바깥) 배경
+    card_bg        = "ffffff"  # 카드/컨테이너 배경
+    border         = "dde1e8"  # 테두리
+    text_primary   = "171923"  # 본문 텍스트
+    text_muted     = "8b93a7"  # 흐린/보조 텍스트
+    subsection     = "4a5062"  # 소제목(라벨) 텍스트
+    accent         = "4f46e5"  # 섹션 타이틀 좌측 강조 바
+    banner_bg      = "3730a3"  # 상단 배너 배경
+    banner_title   = "ffffff"  # 배너 제목 텍스트
+    banner_subtle  = "c7d2fe"  # 배너 부제/메타 텍스트
+    th_bg          = "1c2130"  # 테이블 헤더(th) 배경
+    th_text        = "ffffff"  # 테이블 헤더(th) 텍스트
+    row_even       = "ffffff"  # 테이블 짝수 행 배경
+    row_odd        = "f6f8fb"  # 테이블 홀수 행 배경
+    stat_bg        = "fafafc"  # 통계 타일 배경
+    footer_bg      = "f6f8fb"  # 푸터 배경
+}
 
 function Get-EmailArrowHtml {
     param([double]$Delta)
     if ($Delta -gt 0) { return "<span style=`"color:#$($Colors.coral_dark);font-weight:bold;`">▲$(Format-Number ([Math]::Abs($Delta)))</span>" }
     if ($Delta -lt 0) { return "<span style=`"color:#$($Colors.mint_dark);font-weight:bold;`">▼$(Format-Number ([Math]::Abs($Delta)))</span>" }
-    return "<span style=`"color:#$($Colors.text_secondary);`">–0.0</span>"
+    return "<span style=`"color:#$($Script:EC.text_muted);`">–0.0</span>"
 }
 
 function Get-EmailBadgeHtml {
@@ -54,35 +76,39 @@ function Build-EmailSectionHeader {
     param([string]$Icon, [string]$Title, [string]$Desc)
     return @"
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 10px;">
-  <tr><td style="font-size:16px;font-weight:bold;color:#$($Colors.text_primary);font-family:$Script:EmailFont;">$Icon $Title</td></tr>
-  <tr><td style="font-size:11.5px;color:#$($Colors.text_muted);font-family:$Script:EmailFont;padding-top:2px;padding-bottom:8px;">$Desc</td></tr>
+  <tr><td style="font-size:14px;font-weight:bold;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;border-left:4px solid #$($Script:EC.accent);padding-left:8px;">$Icon $Title</td></tr>
+  <tr><td style="font-size:11.5px;color:#$($Script:EC.text_muted);font-family:$Script:EmailFont;padding-top:2px;padding-bottom:8px;padding-left:12px;">$Desc</td></tr>
 </table>
 "@
 }
 
 function Build-EmailDataTable {
     # 헤더 배열 + 행(각 행은 셀 HTML 문자열의 배열) -> 인라인 style 기반 <table>
+    # 첨부 참고 스타일과 동일하게: 진한 네이비 헤더(#th_bg) + 흰 글자, 짝/홀수 행 교차 배경.
     param([string[]]$Headers, $Rows, [string]$EmptyMessage = "데이터가 없습니다")
 
     $theadCells = ($Headers | ForEach-Object {
-        "<th align=`"left`" style=`"padding:8px 10px;background-color:#$($Colors.surface_alt);color:#$($Colors.text_secondary);font-size:11.5px;font-family:$Script:EmailFont;border-bottom:1px solid #$($Colors.border);white-space:nowrap;`">$_</th>"
+        "<th align=`"left`" style=`"padding:7px 10px;background-color:#$($Script:EC.th_bg);color:#$($Script:EC.th_text);font-size:10.5px;font-family:$Script:EmailFont;text-transform:uppercase;letter-spacing:.02em;border:1px solid #$($Script:EC.th_bg);white-space:nowrap;`">$_</th>"
     }) -join ""
 
     $rowList = @($Rows)
     if ($rowList.Count -eq 0) {
-        $bodyRows = "<tr><td colspan=`"$($Headers.Count)`" align=`"center`" style=`"padding:16px;color:#$($Colors.text_muted);font-size:12px;font-family:$Script:EmailFont;`">$EmptyMessage</td></tr>"
+        $bodyRows = "<tr><td colspan=`"$($Headers.Count)`" align=`"center`" style=`"padding:16px;background-color:#$($Script:EC.row_even);border:1px solid #$($Script:EC.border);color:#$($Script:EC.text_muted);font-size:12px;font-family:$Script:EmailFont;`">$EmptyMessage</td></tr>"
     }
     else {
+        $i = 0
         $bodyRows = ($rowList | ForEach-Object {
+            $rowBg = if ($i % 2 -eq 0) { $Script:EC.row_even } else { $Script:EC.row_odd }
+            $i++
             $tds = ($_ | ForEach-Object {
-                "<td style=`"padding:7px 10px;border-bottom:1px solid #$($Colors.border);font-size:12.5px;color:#$($Colors.text_primary);font-family:$Script:EmailFont;`">$_</td>"
+                "<td style=`"padding:6px 10px;background-color:#$rowBg;border:1px solid #$($Script:EC.border);font-size:12px;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;`">$_</td>"
             }) -join ""
             "<tr>$tds</tr>"
         }) -join ""
     }
 
     return @"
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #$($Colors.border);border-collapse:collapse;margin-bottom:6px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #$($Script:EC.border);border-collapse:collapse;margin-bottom:6px;">
   <tr>$theadCells</tr>
   $bodyRows
 </table>
@@ -98,13 +124,13 @@ function Build-EmailHeaderHtml {
     } else { "비교 기준일: <b>비교 없음</b>" }
 
     return @"
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#$($Colors.primary_tint);border-radius:12px;margin-bottom:6px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#$($Script:EC.banner_bg);margin-bottom:6px;">
   <tr><td style="padding:20px;font-family:$Script:EmailFont;">
-    <div style="font-size:11px;font-weight:bold;letter-spacing:.04em;color:#$($Colors.primary_dark);text-transform:uppercase;">VCF Operations · Capacity &amp; Health Report</div>
-    <div style="font-size:20px;font-weight:bold;color:#$($Colors.text_primary);margin:8px 0 4px;">$($m.CustomerName) 가상화 인프라 운영 현황 리포트</div>
-    <div style="font-size:12.5px;color:#$($Colors.text_secondary);margin-bottom:12px;">$($m.VCenterScope)</div>
-    <div style="font-size:12px;color:#$($Colors.text_secondary);line-height:1.7;">
-      조회 기준일: <b>$cur</b><br>
+    <div style="font-size:11px;font-weight:bold;letter-spacing:.04em;color:#$($Script:EC.banner_subtle);text-transform:uppercase;">VCF Operations · Capacity &amp; Health Report</div>
+    <div style="font-size:19px;font-weight:bold;color:#$($Script:EC.banner_title);margin:8px 0 4px;">$($m.CustomerName) 가상화 인프라 운영 현황 리포트</div>
+    <div style="font-size:12.5px;color:#$($Script:EC.banner_subtle);margin-bottom:12px;">$($m.VCenterScope)</div>
+    <div style="font-size:12px;color:#$($Script:EC.banner_subtle);line-height:1.7;">
+      조회 기준일: <b style="color:#$($Script:EC.banner_title);">$cur</b><br>
       $cmpLine<br>
       생성: $($m.GeneratedBy)
     </div>
@@ -118,7 +144,7 @@ function Build-EmailExecSummarySection {
     $cmpLabel = Get-EmailCompareDaysLabel -Meta $Data.Meta
     $rows = @($Data.PerfSummary | ForEach-Object {
         $p = $_
-        $deltaCell = if ($p.HasComparison) { Get-EmailArrowHtml -Delta ($p.Current - $p.Previous) } else { "<span style=`"color:#$($Colors.text_muted);`">비교 없음</span>" }
+        $deltaCell = if ($p.HasComparison) { Get-EmailArrowHtml -Delta ($p.Current - $p.Previous) } else { "<span style=`"color:#$($Script:EC.text_muted);`">비교 없음</span>" }
         , @($p.Label, "$(Format-Number $p.Current) $($p.Unit)", "$(Format-Number $p.Previous) $($p.Unit)", $deltaCell)
     })
     $head = Build-EmailSectionHeader -Icon "Σ" -Title "Executive Summary" -Desc "최근 인프라 성능 요약 ($cmpLabel 대비)"
@@ -133,7 +159,7 @@ function Build-EmailInventorySection {
         $deltaCell = if ($inv.HasComparison) {
             $srcTag = if ($inv.PSObject.Properties.Name -contains "CompareSource" -and $inv.CompareSource -eq "metric") { " (실측)" } else { "" }
             "$(Get-EmailArrowHtml -Delta $inv.Delta) ($(Format-Number $inv.DeltaPct)%)$srcTag"
-        } else { "<span style=`"color:#$($Colors.text_muted);`">비교 없음</span>" }
+        } else { "<span style=`"color:#$($Script:EC.text_muted);`">비교 없음</span>" }
         $note = if ($inv.PSObject.Properties.Name -contains "PoweredOnCount") {
             "켜짐 $($inv.PoweredOnCount.ToString('N0'))대 / 꺼짐 $($inv.PoweredOffCount.ToString('N0'))대"
         } else { "" }
@@ -157,7 +183,7 @@ function Build-EmailClusterSection {
         $contCell = "<span style=`"color:#$($StatusColor[$contSt].fg);font-weight:bold;`">$($cm.CpuContentionPct)%</span>"
 
         , @(
-            "$($cm.Name)<br><span style=`"color:#$($Colors.text_muted);font-size:11px;`">$($cm.Datacenter)</span>",
+            "$($cm.Name)<br><span style=`"color:#$($Script:EC.text_muted);font-size:11px;`">$($cm.Datacenter)</span>",
             "$($cm.HostCount)대", "$($cm.VmCount)대",
             $cpuCell, $memCell, $stoCell, $contCell,
             (Get-EmailBadgeHtml -Status $cm.Status)
@@ -174,7 +200,7 @@ function Build-EmailDatastoreSection {
     $rows = @($Data.DatastoreInfo | ForEach-Object {
         $d = $_
         $usedPct = if ($d.CapacityGb -gt 0) { [Math]::Round($d.UsedGb / $d.CapacityGb * 100, 1) } else { 0 }
-        $deltaCell = if ($d.HasComparison) { Get-EmailArrowHtml -Delta $d.DeltaUsedGb } else { "<span style=`"color:#$($Colors.text_muted);`">비교 없음</span>" }
+        $deltaCell = if ($d.HasComparison) { Get-EmailArrowHtml -Delta $d.DeltaUsedGb } else { "<span style=`"color:#$($Script:EC.text_muted);`">비교 없음</span>" }
         , @($d.Name, $d.Cluster, "$(Format-Number $d.CapacityGb) GB", "$(Format-Number $d.UsedGb) GB ($usedPct%)", $deltaCell, "$(Format-Number $d.FreeGb) GB")
     })
     $anyComparison = [bool]($Data.DatastoreInfo | Where-Object { $_.HasComparison } | Select-Object -First 1)
@@ -207,9 +233,9 @@ function Build-EmailHostsSection {
     $memRows = Get-TopRows -List $memTop -ValueProp "MemPct" -Warn $Threshold.mem_warning -Crit $Threshold.mem_critical
     $contRows = Get-TopRows -List $contTop -ValueProp "CpuContentionPct" -Warn $Threshold.cpu_contention_warning -Crit $Threshold.cpu_contention_critical
 
-    $sub1 = "<div style=`"font-weight:bold;font-size:13px;margin:4px 0 6px;color:#$($Colors.text_primary);font-family:$Script:EmailFont;`">CPU 사용률 Top10</div>"
-    $sub2 = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Colors.text_primary);font-family:$Script:EmailFont;`">MEM 사용률 Top10</div>"
-    $sub3 = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Colors.text_primary);font-family:$Script:EmailFont;`">CPU 경합률 Top10</div>"
+    $sub1 = "<div style=`"font-weight:bold;font-size:13px;margin:4px 0 6px;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;`">CPU 사용률 Top10</div>"
+    $sub2 = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;`">MEM 사용률 Top10</div>"
+    $sub3 = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;`">CPU 경합률 Top10</div>"
 
     $cpuTable = Build-EmailDataTable -Headers @("#", "호스트명", "클러스터", "CPU 사용률", "상태") -Rows $cpuRows
     $memTable = Build-EmailDataTable -Headers @("#", "호스트명", "클러스터", "MEM 사용률", "상태") -Rows $memRows
@@ -242,9 +268,9 @@ function Build-EmailVmTopListsSection {
         $diskRows += , @("$i", $v.Name, $v.Cluster, $v.Datastore, "$($v.ReadLatencyMs) ms", "$($v.WriteLatencyMs) ms", (Get-EmailBadgeHtml -Status $st))
     }
 
-    $sub1 = "<div style=`"font-weight:bold;font-size:13px;margin:4px 0 6px;color:#$($Colors.text_primary);font-family:$Script:EmailFont;`">vCPU 사용률 Top10</div>"
-    $sub2 = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Colors.text_primary);font-family:$Script:EmailFont;`">CPU 경합(Ready) Top10</div>"
-    $sub3 = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Colors.text_primary);font-family:$Script:EmailFont;`">가상디스크 레이턴시 Top10</div>"
+    $sub1 = "<div style=`"font-weight:bold;font-size:13px;margin:4px 0 6px;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;`">vCPU 사용률 Top10</div>"
+    $sub2 = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;`">CPU 경합(Ready) Top10</div>"
+    $sub3 = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;`">가상디스크 레이턴시 Top10</div>"
 
     $cpuTable = Build-EmailDataTable -Headers @("#", "VM명", "클러스터", "호스트", "vCPU", "사용률", "상태") -Rows $cpuRows
     $readyTable = Build-EmailDataTable -Headers @("#", "VM명", "클러스터", "호스트", "vCPU", "Ready %", "상태") -Rows $readyRows
@@ -268,10 +294,10 @@ function Build-EmailOpsNotesSection {
 function Build-EmailBreakdownTable {
     param([string]$Title, $Rows, [int]$Total)
     $tblRows = @($Rows | ForEach-Object {
-        $deltaCell = if ($_.HasComparison) { Get-EmailArrowHtml -Delta $_.Delta } else { "<span style=`"color:#$($Colors.text_muted);`">비교 없음</span>" }
+        $deltaCell = if ($_.HasComparison) { Get-EmailArrowHtml -Delta $_.Delta } else { "<span style=`"color:#$($Script:EC.text_muted);`">비교 없음</span>" }
         , @($_.Label, "$($_.Count)대", "$($_.Pct)%", $deltaCell)
     })
-    $sub = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Colors.text_primary);font-family:$Script:EmailFont;`">$Title <span style=`"font-weight:normal;color:#$($Colors.text_muted);font-size:11px;`">(전체 $Total 대)</span></div>"
+    $sub = "<div style=`"font-weight:bold;font-size:13px;margin:14px 0 6px;color:#$($Script:EC.text_primary);font-family:$Script:EmailFont;`">$Title <span style=`"font-weight:normal;color:#$($Script:EC.text_muted);font-size:11px;`">(전체 $Total 대)</span></div>"
     $table = Build-EmailDataTable -Headers @("구분", "수량", "비중", "증감") -Rows $tblRows
     return "$sub$table"
 }
@@ -355,7 +381,6 @@ function New-VCFOpsEmailHtmlReport {
         (Build-EmailThickDiskSection -Data $Data)
         (Build-EmailSharedDiskSection -Data $Data)
         (Build-EmailVmPerformanceSection -Data $Data)
-        "<div style=`"text-align:center;color:#$($Colors.text_muted);font-size:11px;margin-top:26px;font-family:$Script:EmailFont;`">$($Data.Meta.GeneratedBy) &middot; 생성 시각 $(Get-Date -Format 'yyyy-MM-dd HH:mm')</div>"
     )
     $body = $bodyParts -join ""
     $title = "$($Data.Meta.CustomerName) 가상화 인프라 운영 현황 리포트 (이메일용)"
@@ -369,12 +394,15 @@ function New-VCFOpsEmailHtmlReport {
 <meta name="x-apple-disable-message-reformatting">
 <title>$title</title>
 </head>
-<body style="margin:0;padding:0;background-color:#$($Colors.bg);">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#$($Colors.bg);">
+<body style="margin:0;padding:0;background-color:#$($Script:EC.page_bg);">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#$($Script:EC.page_bg);">
 <tr><td align="center" style="padding:20px 12px;">
-<table role="presentation" width="680" cellpadding="0" cellspacing="0" border="0" style="max-width:680px;width:100%;background-color:#$($Colors.surface);border-radius:12px;">
+<table role="presentation" width="680" cellpadding="0" cellspacing="0" border="0" style="max-width:680px;width:100%;background-color:#$($Script:EC.card_bg);border:1px solid #$($Script:EC.border);">
 <tr><td style="padding:20px;">
 $body
+</td></tr>
+<tr><td style="padding:12px 20px;background-color:#$($Script:EC.footer_bg);border-top:1px solid #$($Script:EC.border);text-align:center;">
+<div style="color:#$($Script:EC.text_muted);font-size:11px;font-family:$Script:EmailFont;">$($Data.Meta.GeneratedBy) &middot; 생성 시각 $(Get-Date -Format 'yyyy-MM-dd HH:mm')</div>
 </td></tr>
 </table>
 </td></tr>
