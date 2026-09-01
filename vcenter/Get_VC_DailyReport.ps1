@@ -154,21 +154,26 @@ function Get-InventorySummaryReport {
 function Get-PerformanceSummaryReport {
     param($Clusters, $VMHosts, $StartTime, $FinishTime)
 
-    Write-Host "[Perf] Querying host CPU/Mem/latency stats ($StartTime to $FinishTime, 1 batch call)..."
-    $hostStats = Get-Stat -Entity $VMHosts -Stat @("cpu.usage.average","cpu.usagemhz.average","mem.usage.average","mem.consumed.average","cpu.latency.average") `
+    Write-Host "[Perf] Querying host CPU/Mem/ready stats ($StartTime to $FinishTime, 1 batch call)..."
+    $hostStats = Get-Stat -Entity $VMHosts -Stat @("cpu.usage.average","cpu.usagemhz.average","mem.usage.average","mem.consumed.average","cpu.ready.summation") `
         -Start $StartTime -Finish $FinishTime -ErrorAction SilentlyContinue
 
     $hostRows = foreach ($h in $VMHosts) {
         $capacityGHz = [math]::Round((($h.ExtensionData.Hardware.CpuInfo.NumCpuCores * $h.ExtensionData.Hardware.CpuInfo.Hz) / 1e9), 2)
+        # cpu.latency.average is often empty/unpopulated in many environments, so host-level
+        # CPU contention is derived from cpu.ready.summation instead (same approach as the
+        # VM-level CPU Ready % calculation) - this is the aggregate ready time across all
+        # VMs on the host, converted to a percentage.
+        $hostReadySum = ($hostStats | Where-Object { $_.Entity.Id -eq $h.Id -and $_.MetricId -eq "cpu.ready.summation" } | Select-Object -ExpandProperty Value | Measure-Object -Average).Average
         [PSCustomObject]@{
-            HostName       = $h.Name
+            HostName       = (ConvertTo-MaskedHostName -HostName $h.Name)
             ClusterName    = $h.Parent.Name
             CpuUsagePct    = Get-AvgStat -StatResults $hostStats -EntityId $h.Id -MetricId "cpu.usage.average"
             CpuUsageGHz    = [math]::Round(((Get-AvgStat -StatResults $hostStats -EntityId $h.Id -MetricId "cpu.usagemhz.average")) / 1000, 2)
             CpuCapacityGHz = $capacityGHz
             MemUsagePct    = Get-AvgStat -StatResults $hostStats -EntityId $h.Id -MetricId "mem.usage.average"
             MemUsageGB     = [math]::Round(((Get-AvgStat -StatResults $hostStats -EntityId $h.Id -MetricId "mem.consumed.average")) / 1MB, 2)
-            CpuContentionPct = Get-AvgStat -StatResults $hostStats -EntityId $h.Id -MetricId "cpu.latency.average"
+            CpuContentionPct = ConvertTo-Pct -ReadySummationMs $hostReadySum
         }
     }
     $hostRows = @($hostRows)
@@ -213,26 +218,97 @@ function Get-PerformanceSummaryReport {
 # [Mode 2] 3. Storage summary (shared datastores)
 # ---------------------------------------------------------------------------
 function Get-StorageSummaryReport {
-    param($Datastores, $StartTime, $FinishTime)
+    param($Datastores)
 
     $sharedDs = @($Datastores | Where-Object { $_.ExtensionData.Host.Count -gt 1 })
 
-    Write-Host "[Storage] Querying datastore latency/IOPS stats ($($sharedDs.Count) shared datastores, 1 batch call)..."
-    $dsStats = if ($sharedDs.Count -gt 0) {
-        Get-Stat -Entity $sharedDs -Stat @("datastore.totalReadLatency.average","datastore.totalWriteLatency.average","datastore.numberReadAveraged.average","datastore.numberWriteAveraged.average") `
-            -Start $StartTime -Finish $FinishTime -ErrorAction SilentlyContinue
-    } else { @() }
-
     $rows = foreach ($ds in $sharedDs) {
         [PSCustomObject]@{
-            DatastoreName  = $ds.Name
-            CapacityGB     = [math]::Round($ds.CapacityGB, 1)
-            UsedGB         = [math]::Round(($ds.CapacityGB - $ds.FreeSpaceGB), 1)
-            FreeGB         = [math]::Round($ds.FreeSpaceGB, 1)
-            ReadLatencyMs  = Get-AvgStat -StatResults $dsStats -EntityId $ds.Id -MetricId "datastore.totalReadLatency.average"
-            WriteLatencyMs = Get-AvgStat -StatResults $dsStats -EntityId $ds.Id -MetricId "datastore.totalWriteLatency.average"
-            ReadIOPS       = Get-AvgStat -StatResults $dsStats -EntityId $ds.Id -MetricId "datastore.numberReadAveraged.average"
-            WriteIOPS      = Get-AvgStat -StatResults $dsStats -EntityId $ds.Id -MetricId "datastore.numberWriteAveraged.average"
+            DatastoreName = $ds.Name
+            CapacityGB    = [math]::Round($ds.CapacityGB, 1)
+            UsedGB        = [math]::Round(($ds.CapacityGB - $ds.FreeSpaceGB), 1)
+            FreeGB        = [math]::Round($ds.FreeSpaceGB, 1)
+        }
+    }
+
+    return @($rows)
+}
+
+function Get-InstanceStat {
+    param($GroupItems, [string]$MetricId)
+    $vals = $GroupItems | Where-Object { $_.MetricId -eq $MetricId } | Select-Object -ExpandProperty Value
+    if (-not $vals) { return $null }
+    return [math]::Round((($vals | Measure-Object -Average).Average), 2)
+}
+
+# Per-host, per-datastore Latency/Throughput/IOPS (Total/Read/Write each) - shows which
+# host is driving load on a shared datastore, not just the datastore-wide aggregate.
+function Get-HostDatastorePerfReport {
+    param($VMHosts, $Datastores, $StartTime, $FinishTime)
+
+    $sharedDs = @($Datastores | Where-Object { $_.ExtensionData.Host.Count -gt 1 })
+
+    # vCenter reports these per-host datastore counters keyed by an "Instance" identifier
+    # that is usually the datastore name but can be a UUID/URL depending on version - map
+    # every identifier we can derive from each datastore object so a lookup miss is rare.
+    # If DatastoreName below ever shows a raw GUID-looking string instead of a friendly
+    # name, that means this environment uses an identifier not covered here - add it.
+    $dsNameByKey = @{}
+    foreach ($ds in $sharedDs) {
+        $dsNameByKey[$ds.Name] = $ds.Name
+        if ($ds.ExtensionData.Info.Url) { $dsNameByKey[$ds.ExtensionData.Info.Url] = $ds.Name }
+        if ($ds.Id) { $dsNameByKey[$ds.Id] = $ds.Name }
+    }
+
+    $statKeys = @(
+        "datastore.totalReadLatency.average",
+        "datastore.totalWriteLatency.average",
+        "datastore.read.average",
+        "datastore.write.average",
+        "datastore.numberReadAveraged.average",
+        "datastore.numberWriteAveraged.average"
+    )
+
+    Write-Host "[Storage] Querying per-host datastore latency/throughput/IOPS stats ($($VMHosts.Count) hosts, 1 batch call)..."
+    $stats = Get-Stat -Entity $VMHosts -Stat $statKeys -Instance "*" -Start $StartTime -Finish $FinishTime -ErrorAction SilentlyContinue
+
+    # One row per (host, datastore instance) pair
+    $groups = @($stats | Where-Object { $_.Instance } | Group-Object { "$($_.Entity.Id)|$($_.Instance)" })
+
+    $rows = foreach ($g in $groups) {
+        $sample = $g.Group[0]
+        $dsName = if ($dsNameByKey.ContainsKey($sample.Instance)) { $dsNameByKey[$sample.Instance] } else { $sample.Instance }
+
+        $readLatMs     = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.totalReadLatency.average"
+        $writeLatMs    = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.totalWriteLatency.average"
+        $readTputKBps  = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.read.average"
+        $writeTputKBps = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.write.average"
+        $readIops      = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.numberReadAveraged.average"
+        $writeIops     = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.numberWriteAveraged.average"
+
+        $totalIops = [math]::Round((($readIops + $writeIops)), 2)
+        # "Total" latency is IOPS-weighted between read and write (falls back to a simple
+        # average if IOPS data is unavailable) - there is no single vSphere counter for it.
+        $totalLatMs = if (($readIops + $writeIops) -gt 0) {
+            [math]::Round(((($readLatMs * $readIops) + ($writeLatMs * $writeIops)) / ($readIops + $writeIops)), 2)
+        } elseif ($readLatMs -or $writeLatMs) {
+            [math]::Round(((@($readLatMs, $writeLatMs) | Where-Object { $_ } | Measure-Object -Average).Average), 2)
+        } else { $null }
+        $totalTputKBps = [math]::Round((($readTputKBps + $writeTputKBps)), 2)
+
+        [PSCustomObject]@{
+            HostName            = (ConvertTo-MaskedHostName -HostName $sample.Entity.Name)
+            ClusterName         = $sample.Entity.Parent.Name
+            DatastoreName       = $dsName
+            LatencyTotalMs      = $totalLatMs
+            LatencyReadMs       = $readLatMs
+            LatencyWriteMs      = $writeLatMs
+            ThroughputTotalKBps = $totalTputKBps
+            ThroughputReadKBps  = $readTputKBps
+            ThroughputWriteKBps = $writeTputKBps
+            IopsTotal           = $totalIops
+            IopsRead            = $readIops
+            IopsWrite           = $writeIops
         }
     }
 
@@ -272,7 +348,7 @@ function Get-VmPerformanceTopLists {
 
         [PSCustomObject]@{
             ClusterName    = $vm.VMHost.Parent.Name
-            HostName       = $vm.VMHost.Name
+            HostName       = (ConvertTo-MaskedHostName -HostName $vm.VMHost.Name)
             VmName         = $vm.Name
             NumCpu         = $vm.NumCpu
             MemoryGB       = $vm.MemoryGB
@@ -308,7 +384,7 @@ function Get-OldSnapshotReport {
         if ($snaps.Count -eq 0) { continue }
         [PSCustomObject]@{
             ClusterName    = $vm.VMHost.Parent.Name
-            HostName       = $vm.VMHost.Name
+            HostName       = (ConvertTo-MaskedHostName -HostName $vm.VMHost.Name)
             VmName         = $vm.Name
             SnapshotCount  = $snaps.Count
             OldestAgeDays  = [math]::Round(((Get-Date) - ($snaps | Sort-Object Created | Select-Object -First 1).Created).TotalDays, 1)
@@ -329,7 +405,7 @@ function Get-ConnectedDeviceReport {
         foreach ($drive in $cd) {
             [PSCustomObject]@{
                 ClusterName = $vm.VMHost.Parent.Name
-                HostName    = $vm.VMHost.Name
+                HostName    = (ConvertTo-MaskedHostName -HostName $vm.VMHost.Name)
                 VmName      = $vm.Name
                 DeviceType  = "CD/DVD"
                 MediaPath   = $drive.IsoPath
@@ -353,7 +429,7 @@ function Get-VmInventoryReport {
         if ($disks.Count -eq 0) {
             [PSCustomObject]@{
                 VmName        = $vm.Name
-                HostName      = $vm.VMHost.Name
+                HostName      = (ConvertTo-MaskedHostName -HostName $vm.VMHost.Name)
                 ClusterName   = $vm.VMHost.Parent.Name
                 NumCpu        = $vm.NumCpu
                 CpuTopology   = "$sockets socket(s) x $coresPerSocket core(s)"
@@ -367,7 +443,7 @@ function Get-VmInventoryReport {
             foreach ($d in $disks) {
                 [PSCustomObject]@{
                     VmName        = $vm.Name
-                    HostName      = $vm.VMHost.Name
+                    HostName      = (ConvertTo-MaskedHostName -HostName $vm.VMHost.Name)
                     ClusterName   = $vm.VMHost.Parent.Name
                     NumCpu        = $vm.NumCpu
                     CpuTopology   = "$sockets socket(s) x $coresPerSocket core(s)"
@@ -441,7 +517,7 @@ function Get-SharedDiskReport {
         foreach ($d in $sharedDisks) {
             [PSCustomObject]@{
                 ClusterName = $vm.VMHost.Parent.Name
-                HostName    = $vm.VMHost.Name
+                HostName    = (ConvertTo-MaskedHostName -HostName $vm.VMHost.Name)
                 VmName      = $vm.Name
                 DiskLabel   = $d.Name
                 CapacityGB  = [math]::Round($d.CapacityGB, 1)
@@ -463,7 +539,7 @@ function Get-RdmDiskReport {
         foreach ($d in $rdmDisks) {
             [PSCustomObject]@{
                 ClusterName = $vm.VMHost.Parent.Name
-                HostName    = $vm.VMHost.Name
+                HostName    = (ConvertTo-MaskedHostName -HostName $vm.VMHost.Name)
                 VmName      = $vm.Name
                 DiskLabel   = $d.Name
                 DiskType    = $d.DiskType
@@ -511,6 +587,104 @@ function Get-VmPerfDistributionSummary {
 }
 
 # ---------------------------------------------------------------------------
+# [Extra] License key collection (CSV output only - not included in the HTML report)
+# ---------------------------------------------------------------------------
+
+# Masks a host name for the license CSV:
+#   - IPv4 address: first three octets replaced with "*", last octet kept
+#     e.g. 192.168.10.101 -> *.*.*.101
+#   - FQDN whose domain suffix is not "vcf.local": short name kept, domain
+#     replaced with vcf.local  e.g. esxi01.corp.local -> esxi01.vcf.local
+#   - FQDN already ending in vcf.local, or a bare short name with no domain:
+#     left unchanged
+function ConvertTo-MaskedHostName {
+    param([string]$HostName)
+
+    if ([string]::IsNullOrWhiteSpace($HostName)) { return $HostName }
+
+    if ($HostName -match '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$') {
+        # Mask everything up through the 3rd octet (before the 3rd dot) unconditionally -
+        # each of the first 3 octets becomes a single "*" regardless of its digit count;
+        # only the 4th octet stays visible.
+        $octets = $HostName.Split('.')
+        return "*.*.*.$($octets[3])"
+    }
+
+    if ($HostName -match '\.') {
+        if ($HostName -notmatch '\.vcf\.local$') {
+            $shortName = $HostName.Split('.')[0]
+            return "$shortName.vcf.local"
+        }
+    }
+
+    return $HostName
+}
+
+function Get-LicenseInventoryReport {
+    param($VMHosts)
+
+    # Bulk-query every entity's assigned license key in one call (QueryAssignedLicenses($null)
+    # returns assignments for all entities - hosts and vCenter itself - avoiding a per-host
+    # API call). No -Server is passed anywhere here: PowerCLI uses the current connection
+    # context automatically, and passing a bare hostname string to -Server is what caused
+    # the earlier "System.ArgumentException" (it expects a connection object, not a string).
+    $licenseLookup = @{}
+    try {
+        $si = Get-View ServiceInstance -ErrorAction Stop
+        $licManager = Get-View $si.Content.LicenseManager -ErrorAction Stop
+        if ($licManager.LicenseAssignmentManager) {
+            $licAssignMgr = Get-View $licManager.LicenseAssignmentManager -ErrorAction Stop
+            $allAssignments = $licAssignMgr.QueryAssignedLicenses($null)
+            foreach ($a in $allAssignments) {
+                $licenseLookup[$a.EntityId] = $a.AssignedLicense
+            }
+            Write-Host "[License] Bulk assignment query complete ($($licenseLookup.Count) entries)."
+        }
+    } catch {
+        Write-Warning "Failed to retrieve license assignment info, license keys will show as N/A: $($_.Exception.Message)"
+    }
+
+    # Any assignment entry whose EntityId doesn't match a host's MoRef is the vCenter's own
+    # license (or another non-host entity) - report those as separate "vCenter" rows.
+    $hostMorefs = @{}
+    foreach ($h in $VMHosts) { $hostMorefs[$h.ExtensionData.MoRef.Value] = $true }
+
+    $vcRows = foreach ($entityId in $licenseLookup.Keys) {
+        if ($hostMorefs.ContainsKey($entityId)) { continue }
+        try {
+            $lic = $licenseLookup[$entityId]
+            [PSCustomObject]@{
+                Source     = "vCenter"
+                Type       = "vCenter"
+                Name       = $lic.Name
+                EditionKey = $lic.EditionKey
+                LicenseKey = $lic.LicenseKey
+            }
+        } catch {
+            Write-Warning "License row build failed for entity '$entityId': $($_.Exception.GetType().FullName) - $($_.Exception.Message)"
+        }
+    }
+
+    $hostRows = foreach ($h in $VMHosts) {
+        try {
+            $moref = $h.ExtensionData.MoRef.Value
+            $assigned = if ($licenseLookup.ContainsKey($moref)) { $licenseLookup[$moref] } else { $null }
+            [PSCustomObject]@{
+                Source     = $h.Parent.Name
+                Type       = "ESXi Host"
+                Name       = ConvertTo-MaskedHostName -HostName $h.Name
+                EditionKey = if ($assigned) { $assigned.EditionKey } else { $null }
+                LicenseKey = if ($assigned) { $assigned.LicenseKey } else { $h.LicenseKey }
+            }
+        } catch {
+            Write-Warning "License lookup failed for host '$($h.Name)': $($_.Exception.GetType().FullName) - $($_.Exception.Message)"
+        }
+    }
+
+    return (@($vcRows) + @($hostRows))
+}
+
+# ---------------------------------------------------------------------------
 # [Mode 2] HTML rendering helpers
 # ---------------------------------------------------------------------------
 function Get-StatusBadgeClass {
@@ -553,7 +727,9 @@ function ConvertTo-TableCard {
 
 function ConvertTo-SectionHead {
     param([string]$Id, [string]$Title, [string]$Desc)
-    return "<div class=`"section-head`" id=`"$Id`"><div><h2>$Title</h2><div class=`"desc`">$Desc</div></div></div>"
+    $num = if ($Title -match '^(\d+)\.') { $Matches[1] } else { '' }
+    $titleText = $Title -replace '^\d+\.\s*', ''
+    return "<div class=`"section-head`" id=`"$Id`"><span class=`"sh-num`">$num</span><div><h2>$titleText</h2><div class=`"desc`">$Desc</div></div></div>"
 }
 
 function ConvertTo-KpiCard {
@@ -594,7 +770,7 @@ function ConvertTo-ClusterPerfCard {
     <div class="mrow-top"><span class="mlabel">Memory</span><span class="mval">$MemUsageGB / $MemCapacityGB GB &nbsp;($MemUsagePct%)</span></div>
     <div class="bar-track"><div class="bar-fill" style="width:$memWidth%;background:$memBarColor;"></div></div>
   </div>
-  <div class="sub-stats"><div class="sub-stat">CPU Contention <b>$CpuContentionPct%</b></div></div>
+  <div class="sub-stats"><div class="sub-stat">CPU Ready <b>$CpuContentionPct%</b></div></div>
 </div>
 "@
 }
@@ -654,6 +830,171 @@ function ConvertTo-StackedBarSummary {
 }
 
 # ---------------------------------------------------------------------------
+# [Extra] Email-safe HTML report (table-based layout, inline styles only -
+# no CSS variables, flexbox, or gradients, since most email clients -
+# especially Outlook's Word-based rendering engine - don't support those).
+# Saved as its own file; paste its content into an email body or use it as
+# the -Body for Send-MailMessage -BodyAsHtml.
+# ---------------------------------------------------------------------------
+function ConvertTo-EmailTable {
+    param($Data, [string[]]$Columns, [string]$Title)
+
+    $titleHtml = if ($Title) {
+        "<div style=`"font-size:11px;font-weight:bold;color:#4a5062;text-transform:uppercase;letter-spacing:.03em;margin:14px 0 6px;font-family:Arial,Helvetica,sans-serif;`">$Title</div>"
+    } else { "" }
+
+    $arr = @($Data | Where-Object { $null -ne $_ })
+    if ($arr.Count -eq 0) {
+        return "$titleHtml<div style=`"font-size:12px;color:#8b93a7;padding:4px 0 10px;font-family:Arial,Helvetica,sans-serif;`">No data.</div>"
+    }
+    if (-not $Columns) { $Columns = $arr[0].PSObject.Properties.Name }
+
+    $headerCells = ($Columns | ForEach-Object {
+        "<th style=`"background-color:#1c2130;color:#ffffff;font-size:10.5px;text-transform:uppercase;letter-spacing:.02em;padding:7px 10px;text-align:left;border:1px solid #1c2130;font-family:Arial,Helvetica,sans-serif;`">$_</th>"
+    }) -join ""
+
+    $rowIndex = 0
+    $rows = foreach ($item in $arr) {
+        $bg = if ($rowIndex % 2 -eq 0) { "#ffffff" } else { "#f6f8fb" }
+        $rowIndex++
+        $cells = ($Columns | ForEach-Object {
+            "<td style=`"padding:6px 10px;font-size:12px;color:#171923;border:1px solid #dde1e8;background-color:$bg;font-family:Arial,Helvetica,sans-serif;`">$($item.$_)</td>"
+        }) -join ""
+        "<tr>$cells</tr>"
+    }
+
+    return "$titleHtml<table role=`"presentation`" width=`"100%`" cellpadding=`"0`" cellspacing=`"0`" style=`"border-collapse:collapse;margin-bottom:6px;`"><tr>$headerCells</tr>$($rows -join "`n")</table>"
+}
+
+function ConvertTo-EmailKpiCell {
+    param([string]$Label, $Value, [string]$Unit = "")
+    return "<td width=`"33%`" align=`"center`" style=`"padding:10px 6px;border:1px solid #dde1e8;background-color:#fafafc;font-family:Arial,Helvetica,sans-serif;`"><div style=`"font-size:10.5px;color:#8b93a7;text-transform:uppercase;letter-spacing:.03em;`">$Label</div><div style=`"font-size:19px;font-weight:bold;color:#171923;margin-top:4px;`">$Value<span style=`"font-size:11px;font-weight:normal;color:#8b93a7;`"> $Unit</span></div></td>"
+}
+
+function ConvertTo-EmailSectionHead {
+    param([string]$Title)
+    return "<div style=`"font-size:14px;font-weight:bold;color:#171923;margin:4px 0 10px;font-family:Arial,Helvetica,sans-serif;border-left:4px solid #4f46e5;padding-left:8px;`">$Title</div>"
+}
+
+function Get-EmailHtmlReport {
+    param($VCenterServer, $DaysBack, $DateStr, $Inventory, $Perf, $Storage, $HostDsPerf, $VmPerf, $OldSnapshots, $ConnectedDevices, $Distribution, $SharedDisks, $RdmDisks, $PerfDistribution)
+
+    $vcenterLabel = $VCenterServer -join ', '
+
+    $body = @"
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#f1f4f9;font-family:Arial,Helvetica,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f4f9;">
+<tr><td align="center" style="padding:20px 10px;">
+<table role="presentation" width="640" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border:1px solid #dde1e8;">
+
+<tr><td style="background-color:#3730a3;padding:20px 22px;">
+  <div style="color:#ffffff;font-size:19px;font-weight:bold;font-family:Arial,Helvetica,sans-serif;">vCenter Comprehensive Report</div>
+  <div style="color:#c7d2fe;font-size:12px;margin-top:4px;font-family:Arial,Helvetica,sans-serif;">$vcenterLabel</div>
+  <div style="color:#c7d2fe;font-size:11px;margin-top:8px;font-family:Arial,Helvetica,sans-serif;">Generated $DateStr &nbsp;|&nbsp; Window: last $DaysBack day(s)</div>
+</td></tr>
+
+<tr><td style="padding:18px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "1. Inventory Summary")
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+<tr>
+$(ConvertTo-EmailKpiCell -Label "Datacenters" -Value $Inventory.Overall.DatacenterCount)
+$(ConvertTo-EmailKpiCell -Label "Clusters" -Value $Inventory.Overall.ClusterCount)
+$(ConvertTo-EmailKpiCell -Label "ESXi Hosts" -Value $Inventory.Overall.HostCount)
+</tr>
+<tr>
+$(ConvertTo-EmailKpiCell -Label "VMs (On/Off)" -Value "$($Inventory.Overall.VmPoweredOn)/$($Inventory.Overall.VmPoweredOff)")
+$(ConvertTo-EmailKpiCell -Label "Total Cores" -Value $Inventory.Overall.TotalCores)
+$(ConvertTo-EmailKpiCell -Label "Total Memory" -Value $Inventory.Overall.TotalMemoryGB -Unit "GB")
+</tr>
+</table>
+$(ConvertTo-EmailTable -Data $Inventory.PerCluster -Title "Per-Cluster")
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "2. Performance Summary")
+<div style="font-size:12px;color:#4a5062;margin-bottom:8px;font-family:Arial,Helvetica,sans-serif;">Overall Avg CPU: <b>$($Perf.OverallAvgCpuPct)%</b> &nbsp;|&nbsp; Overall Avg Mem: <b>$($Perf.OverallAvgMemPct)%</b></div>
+$(ConvertTo-EmailTable -Data $Perf.PerCluster -Title "Per-Cluster CPU/Memory")
+$(ConvertTo-EmailTable -Data $Perf.Top3CpuHosts -Columns @('HostName','ClusterName','CpuUsagePct') -Title "Top 3 Hosts by CPU")
+$(ConvertTo-EmailTable -Data $Perf.Top3MemHosts -Columns @('HostName','ClusterName','MemUsagePct') -Title "Top 3 Hosts by Memory")
+$(ConvertTo-EmailTable -Data $Perf.Top3ReadyHosts -Columns @('HostName','ClusterName','CpuContentionPct') -Title "Top 3 Hosts by CPU Ready %")
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "3. Storage Summary")
+$(ConvertTo-EmailTable -Data $Storage -Title "Shared Datastore Capacity")
+$(ConvertTo-EmailTable -Data $HostDsPerf -Title "Per-Host Datastore Latency / Throughput / IOPS")
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "4. VM Performance Top 5 Lists")
+$(ConvertTo-EmailTable -Data $VmPerf.Top5CpuUsage -Title "Top 5 by vCPU Usage %")
+$(ConvertTo-EmailTable -Data $VmPerf.Top5CpuReady -Title "Top 5 by vCPU Ready %")
+$(ConvertTo-EmailTable -Data $VmPerf.Top5MemUsage -Title "Top 5 by vMEM Usage %")
+$(ConvertTo-EmailTable -Data $VmPerf.Top5WriteLatency -Title "Top 5 by Virtual Disk Write Latency")
+$(ConvertTo-EmailTable -Data $VmPerf.Top5ReadLatency -Title "Top 5 by Virtual Disk Read Latency")
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "5. Old Snapshots")
+$(ConvertTo-EmailTable -Data $OldSnapshots)
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "6. VMs With a Connected Virtual Device")
+$(ConvertTo-EmailTable -Data $ConnectedDevices)
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "7. VM Inventory")
+<div style="font-size:12px;color:#8b93a7;font-family:Arial,Helvetica,sans-serif;">See the 07_VmInventory CSV file for the complete list.</div>
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "8. VM Distribution")
+$(ConvertTo-EmailTable -Data $Distribution.ByGuestOS -Title "Guest OS")
+$(ConvertTo-EmailTable -Data $Distribution.ByTools -Title "VMware Tools Status / Version")
+$(ConvertTo-EmailTable -Data $Distribution.ByHwVersion -Title "Virtual Hardware Version")
+$(ConvertTo-EmailTable -Data $Distribution.ByVCpuBucket -Title "vCPU Buckets")
+$(ConvertTo-EmailTable -Data $Distribution.ByVMemBucket -Title "vMEM Buckets")
+$(ConvertTo-EmailTable -Data $Distribution.ByDiskFormat -Title "Thin / Thick Disk Count")
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "9. Shared (Multi-Writer) Virtual Disks")
+$(ConvertTo-EmailTable -Data $SharedDisks)
+</td></tr>
+
+<tr><td style="padding:14px 22px 6px;">
+$(ConvertTo-EmailSectionHead -Title "10. RDM Disks")
+$(ConvertTo-EmailTable -Data $RdmDisks)
+</td></tr>
+
+<tr><td style="padding:14px 22px 18px;">
+$(ConvertTo-EmailSectionHead -Title "11. VM Performance Distribution Summary")
+$(ConvertTo-EmailTable -Data $PerfDistribution)
+</td></tr>
+
+<tr><td style="background-color:#f6f8fb;padding:14px 22px;text-align:center;border-top:1px solid #dde1e8;">
+  <div style="font-size:11px;color:#8b93a7;font-family:Arial,Helvetica,sans-serif;">Full detail (VM inventory, distribution breakdowns, etc.) is available in the CSV files and the full HTML report.</div>
+</td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>
+"@
+
+    return $body
+}
+
+# ---------------------------------------------------------------------------
 # [Mode 2] Full comprehensive report pipeline
 # ---------------------------------------------------------------------------
 function Invoke-ComprehensiveVCenterReport {
@@ -672,6 +1013,11 @@ function Invoke-ComprehensiveVCenterReport {
     if (-not (Test-Path $OutputFolder)) { New-Item -ItemType Directory -Path $OutputFolder | Out-Null }
     $dateStr = (Get-Date).ToString("yyyyMMdd")
 
+    # Display-only masked vCenter name(s) - same FQDN-domain rule as ESXi hosts (short name
+    # kept, domain replaced with vcf.local). The real $VCenterServer is still used for the
+    # actual connection; this masked version is only for what appears in generated reports.
+    $maskedVCenterServer = @($VCenterServer | ForEach-Object { ConvertTo-MaskedHostName -HostName $_ })
+
     Write-Host "`n[1/11] Inventory summary..."
     $inventory = Get-InventorySummaryReport -Datacenters $datacenters -Clusters $clusters -VMHosts $vmhosts -VMs $vms
     Export-CsvSafe -Data @($inventory.Overall)    -Path "$OutputFolder\01_InventoryOverall_$dateStr.csv"
@@ -685,8 +1031,11 @@ function Invoke-ComprehensiveVCenterReport {
     Export-CsvSafe -Data $perf.Top3ReadyHosts   -Path "$OutputFolder\02_Top3ReadyHosts_$dateStr.csv"
 
     Write-Host "[3/11] Storage summary..."
-    $storage = Get-StorageSummaryReport -Datastores $datastores -StartTime $start -FinishTime $finish
+    $storage = Get-StorageSummaryReport -Datastores $datastores
     Export-CsvSafe -Data $storage -Path "$OutputFolder\03_SharedDatastores_$dateStr.csv"
+
+    $hostDsPerf = Get-HostDatastorePerfReport -VMHosts $vmhosts -Datastores $datastores -StartTime $start -FinishTime $finish
+    Export-CsvSafe -Data $hostDsPerf -Path "$OutputFolder\03_HostDatastorePerf_$dateStr.csv"
 
     Write-Host "[4/11] VM performance Top5 lists..."
     $vmPerf = Get-VmPerformanceTopLists -VMs $vms -StartTime $start -FinishTime $finish
@@ -729,6 +1078,24 @@ function Invoke-ComprehensiveVCenterReport {
     $perfDistribution = Get-VmPerfDistributionSummary -VmPerfRows $vmPerf.AllRows
     Export-CsvSafe -Data $perfDistribution -Path "$OutputFolder\11_PerfDistribution_$dateStr.csv"
 
+    Write-Host "`n[License] Collecting vCenter and ESXi host license keys (CSV only, not included in HTML)..."
+    try {
+        $licenseInfo = Get-LicenseInventoryReport -VMHosts $vmhosts
+        Export-CsvSafe -Data $licenseInfo -Path "$OutputFolder\LicenseKeys_$dateStr.csv"
+    } catch {
+        Write-Warning "License key collection failed - skipping LicenseKeys CSV."
+        Write-Warning "  Exception type : $($_.Exception.GetType().FullName)"
+        Write-Warning "  Message        : $($_.Exception.Message)"
+        if ($_.Exception.InnerException) {
+            Write-Warning "  Inner type     : $($_.Exception.InnerException.GetType().FullName)"
+            Write-Warning "  Inner message  : $($_.Exception.InnerException.Message)"
+        }
+        Write-Warning "  Position       : $($_.InvocationInfo.PositionMessage)"
+        if ($_.ScriptStackTrace) {
+            Write-Warning "  Stack trace    : $($_.ScriptStackTrace)"
+        }
+    }
+
     Write-Host "`n[Export] Generating HTML summary..."
     $htmlPath = "$OutputFolder\VCenterReport_$dateStr.html"
 
@@ -751,117 +1118,154 @@ function Invoke-ComprehensiveVCenterReport {
 <head><meta charset="utf-8"><title>vCenter Comprehensive Report $dateStr</title>
 <style>
 :root{
-  --bg:#f5f6fb; --surface:#ffffff; --surface-alt:#f0f2fa; --border:#e3e6f2;
-  --text:#2e3148; --text2:#6b7090; --muted:#9498b0;
-  --primary:#6c7fe8; --primary-dark:#4c5fcb; --primary-tint:#e7eafb;
-  --mint:#7fd8c4; --mint-dark:#2f9c82; --mint-tint:#e3f7f1;
-  --peach:#f6b88a; --peach-dark:#c97a33; --peach-tint:#fceadc;
-  --coral:#f08c8c; --coral-dark:#c84b4b; --coral-tint:#fce3e3;
-  --sky:#8fc7f2; --sky-dark:#3e7fb0; --sky-tint:#e7f3fc;
-  --good-bg:var(--mint-tint); --good-text:var(--mint-dark);
-  --warn-bg:var(--peach-tint); --warn-text:var(--peach-dark);
-  --crit-bg:var(--coral-tint); --crit-text:var(--coral-dark);
-  --info-bg:var(--sky-tint); --info-text:var(--sky-dark);
-  --neutral-bg:#eeeeee; --neutral-text:#666666;
+  --bg:#f3f4f7; --surface:#ffffff; --surface-alt:#fafafc; --border:#dde1e8; --border-strong:#c7cdda;
+  --text:#171923; --text2:#4a5062; --muted:#8b93a7;
+  --accent:#4f46e5; --accent-tint:#eef0fe;
+  --head-bg:#1c2130; --head-text:#e7e9f1;
+  --good:#0e9f6e; --good-tint:#e7f9f1; --good-text:#04693f;
+  --warn:#e08e0b; --warn-tint:#fef3e0; --warn-text:#8a5406;
+  --crit:#e0393e; --crit-tint:#fdeaea; --crit-text:#a11c20;
+  --info:#0e8fd8; --info-tint:#e6f4fc; --info-text:#0a5c8a;
+  --neutral-tint:#eef0f3; --neutral-text:#4d5361;
 }
 *{box-sizing:border-box;}
 html,body{margin:0; padding:0; background:var(--bg); color:var(--text);
-  font-family:"Segoe UI",Arial,sans-serif; font-size:15px; line-height:1.6;}
-.wrap{max-width:1280px; margin:0 auto; padding:0 28px 80px;}
-.hero{background:linear-gradient(135deg, var(--primary-tint) 0%, var(--sky-tint) 60%, var(--mint-tint) 100%);
-  padding:36px 28px 28px; border-radius:0 0 24px 24px; margin-bottom:6px;}
-.hero-inner{max-width:1280px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;}
-.hero-eyebrow{color:var(--primary-dark); font-weight:700; letter-spacing:.04em; font-size:12.5px; text-transform:uppercase;}
-.hero h1{font-size:26px; font-weight:800; margin:8px 0 6px; color:var(--text);}
-.hero .sub{color:var(--text2); font-size:13.5px;}
-.hero .meta-box{background:rgba(255,255,255,.7); border-radius:14px; padding:12px 18px; font-size:13px; color:var(--text2); min-width:220px;}
-.hero .meta-box b{color:var(--text);}
-.nav{position:sticky; top:0; z-index:50; background:rgba(245,246,251,.94); backdrop-filter:blur(6px);
-  border-bottom:1px solid var(--border); padding:9px 28px; display:flex; gap:4px; flex-wrap:wrap;}
-.nav a{color:var(--text2); text-decoration:none; font-size:12.5px; font-weight:600; padding:6px 12px;
-  border-radius:20px; white-space:nowrap;}
-.nav a:hover{background:var(--primary-tint); color:var(--primary-dark);}
-section{margin:36px 0;}
-.section-head{margin-bottom:16px; padding-top:8px;}
-.section-head h2{font-size:19px; font-weight:800; margin:0; color:var(--text);}
-.section-head .desc{color:var(--muted); font-size:12.5px; margin-top:2px;}
-.grid2,.grid3,.grid4{display:flex; flex-wrap:wrap; gap:16px;}
-.grid2>*{flex:1 1 calc(50% - 16px); min-width:280px;}
-.grid3>*{flex:1 1 calc(33.333% - 16px); min-width:260px;}
-.grid4>*{flex:1 1 calc(25% - 14px); min-width:200px;}
-.card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px 20px;
-  box-shadow:0 2px 12px rgba(46,49,72,.05);}
-.kpi-card .label{font-size:12.5px; color:var(--text2); font-weight:600;}
-.kpi-card .value{font-size:26px; font-weight:800; margin:6px 0 2px; color:var(--text);}
-.kpi-card .value .unit{font-size:13px; font-weight:600; color:var(--muted); margin-left:4px;}
-.kpi-card .kpi-sub{font-size:11.5px; color:var(--text2); margin-top:4px;}
-.cluster-card .ch{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
-.cluster-card .ch .name{font-weight:800; font-size:15px;}
-.cluster-card .ch .dc{font-size:11.5px; color:var(--muted);}
-.metric-row{margin-bottom:10px;}
-.metric-row .mrow-top{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px;}
-.metric-row .mrow-top .mlabel{color:var(--text2); font-weight:600;}
-.metric-row .mrow-top .mval{font-weight:700; color:var(--text);}
-.bar-track{height:8px; border-radius:6px; background:var(--surface-alt); overflow:hidden;}
-.bar-fill{height:100%; border-radius:6px;}
-.sub-stats{display:flex; gap:14px; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border);}
-.sub-stat{font-size:11.5px; color:var(--text2);}
+  font-family:"Segoe UI",Arial,sans-serif; font-size:14px; line-height:1.55;}
+
+/* --- Top navbar --- */
+.topnav{position:sticky; top:0; z-index:100; background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border); padding:0 26px; display:flex; align-items:center; height:52px; gap:6px;
+  overflow-x:auto; white-space:nowrap;}
+.topnav .brand{font-weight:800; font-size:14px; margin-right:18px; flex:0 0 auto; color:var(--text);}
+.topnav a{display:inline-flex; align-items:center; gap:7px; padding:0 11px; height:52px; color:var(--text2);
+  text-decoration:none; font-size:12px; font-weight:700; border-bottom:2px solid transparent; flex:0 0 auto;}
+.topnav a:hover{color:var(--text); border-bottom-color:var(--border-strong);}
+.topnav a .dot{width:7px; height:7px; border-radius:50%; flex:0 0 auto;}
+
+/* --- Hero --- */
+.hero{background:linear-gradient(115deg,#3730a3 0%,#5b21b6 42%,#1d4ed8 100%); color:#fff; padding:30px 30px 26px;}
+.hero-inner{max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;}
+.hero h1{font-size:23px; font-weight:800; margin:0 0 5px;}
+.hero .sub{opacity:.82; font-size:12.5px;}
+.hero .chips{display:flex; gap:8px; flex-wrap:wrap;}
+.hero .chip{background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); border-radius:7px;
+  padding:6px 13px; font-size:11.5px; font-weight:600;}
+.hero .chip b{font-weight:800; margin-left:5px;}
+
+/* --- Main --- */
+.main{max-width:1400px; margin:0 auto; padding:26px 30px 90px;}
+
+section{margin:34px 0; padding-left:14px; border-left:3px solid var(--accent);}
+.section-head{margin-bottom:14px; display:flex; align-items:flex-start; gap:12px;}
+.section-head .sh-num{
+  flex:0 0 auto; width:26px; height:26px; border-radius:7px; background:var(--accent); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;
+}
+.section-head h2{font-size:15.5px; font-weight:800; margin:2px 0 0; color:var(--text);}
+.section-head .desc{color:var(--muted); font-size:11.5px; margin-top:3px;}
+
+.grid2,.grid3,.grid4{display:flex; flex-wrap:wrap; gap:14px;}
+.grid2>*{flex:1 1 calc(50% - 14px); min-width:260px;}
+.grid3>*{flex:1 1 calc(33.333% - 14px); min-width:250px;}
+.grid4>*{flex:1 1 calc(25% - 11px); min-width:180px;}
+
+.card{background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent);
+  border-radius:8px; padding:16px 18px; box-shadow:0 1px 3px rgba(20,20,40,.06);}
+
+.kpi-card .label{font-size:11px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:.04em;}
+.kpi-card .value{font-size:25px; font-weight:800; margin:7px 0 2px; color:var(--text); font-variant-numeric:tabular-nums;}
+.kpi-card .value .unit{font-size:12px; font-weight:600; color:var(--muted); margin-left:4px;}
+.kpi-card .kpi-sub{font-size:11px; color:var(--text2); margin-top:4px;}
+
+.cluster-card .ch{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+.cluster-card .ch .name{font-weight:800; font-size:13.5px;}
+.cluster-card .ch .dc{font-size:11px; color:var(--muted);}
+.metric-row{margin-bottom:9px;}
+.metric-row .mrow-top{display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:4px;}
+.metric-row .mrow-top .mlabel{color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:.03em; font-size:10.5px;}
+.metric-row .mrow-top .mval{font-weight:700; color:var(--text); font-variant-numeric:tabular-nums;}
+.bar-track{height:6px; border-radius:4px; background:var(--surface-alt); overflow:hidden; border:1px solid var(--border);}
+.bar-fill{height:100%; border-radius:4px;}
+.sub-stats{display:flex; gap:14px; margin-top:10px; padding-top:9px; border-top:1px solid var(--border);}
+.sub-stat{font-size:11px; color:var(--text2);}
 .sub-stat b{color:var(--text); font-weight:800; margin-left:4px;}
-.table-card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:8px 8px 12px;
-  box-shadow:0 2px 12px rgba(46,49,72,.05); overflow:hidden; margin-bottom:6px;}
-table{width:100%; border-collapse:collapse; font-size:13px;}
-thead th{background:var(--surface-alt); color:var(--text2); font-weight:700; text-align:left; padding:9px 12px; font-size:12px;}
-tbody td{padding:8px 12px; border-bottom:1px solid var(--border); color:var(--text);}
-tbody tr:hover td{background:var(--primary-tint);}
-.badge{display:inline-block; padding:3px 12px; border-radius:14px; background:var(--info-bg); color:var(--info-text); font-weight:600; font-size:12px; margin-right:6px;}
-.badge-good{display:inline-block; padding:2px 10px; border-radius:12px; background:var(--good-bg); color:var(--good-text); font-weight:700; font-size:12px;}
-.badge-warn{display:inline-block; padding:2px 10px; border-radius:12px; background:var(--warn-bg); color:var(--warn-text); font-weight:700; font-size:12px;}
-.badge-crit{display:inline-block; padding:2px 10px; border-radius:12px; background:var(--crit-bg); color:var(--crit-text); font-weight:700; font-size:12px;}
-.badge-info{display:inline-block; padding:2px 10px; border-radius:12px; background:var(--info-bg); color:var(--info-text); font-weight:700; font-size:12px;}
-.badge-neutral{display:inline-block; padding:2px 10px; border-radius:12px; background:var(--neutral-bg); color:var(--neutral-text); font-weight:700; font-size:12px;}
-.subhead{font-size:12px; color:var(--muted); margin:14px 4px 6px; font-weight:700; letter-spacing:.2px;}
-.note{color:var(--muted); font-size:12px;}
-.bd-title{font-weight:800; font-size:13.5px; color:var(--text); margin:14px 4px 10px;}
-.bd-title .bd-total{font-weight:600; font-size:11.5px; color:var(--muted); margin-left:6px;}
-.bd-row{display:flex; align-items:center; gap:10px; margin:0 4px 8px; font-size:12px;}
+
+.table-card{background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent);
+  border-radius:8px; padding:0; box-shadow:0 1px 3px rgba(20,20,40,.06); overflow:hidden; margin-bottom:6px;}
+table{width:100%; border-collapse:collapse; font-size:12.5px;}
+thead th{background:var(--head-bg); color:var(--head-text); font-weight:700; text-align:left; padding:9px 12px;
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; border-right:1px solid rgba(255,255,255,.10);}
+thead th:last-child{border-right:none;}
+tbody td{padding:8px 12px; border-bottom:1px solid var(--border); border-right:1px solid var(--border);
+  color:var(--text); font-variant-numeric:tabular-nums;}
+tbody td:last-child{border-right:none;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:nth-child(even) td{background:var(--surface-alt);}
+tbody tr:hover td{background:var(--accent-tint);}
+
+.badge{display:inline-block; padding:3px 11px; border-radius:6px; background:var(--info-tint); color:var(--info-text); font-weight:700; font-size:11px; margin-right:6px;}
+.badge-good{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--good-tint); color:var(--good-text); font-weight:700; font-size:11px;}
+.badge-warn{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--warn-tint); color:var(--warn-text); font-weight:700; font-size:11px;}
+.badge-crit{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--crit-tint); color:var(--crit-text); font-weight:700; font-size:11px;}
+.badge-info{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--info-tint); color:var(--info-text); font-weight:700; font-size:11px;}
+.badge-neutral{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--neutral-tint); color:var(--neutral-text); font-weight:700; font-size:11px;}
+
+.subhead{font-size:11px; color:var(--muted); margin:14px 4px 6px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;}
+.note{color:var(--muted); font-size:11.5px;}
+
+.bd-title{font-weight:800; font-size:12.5px; color:var(--text); margin:14px 4px 9px;}
+.bd-title .bd-total{font-weight:600; font-size:11px; color:var(--muted); margin-left:6px;}
+.bd-row{display:flex; align-items:center; gap:10px; margin:0 4px 7px; font-size:11.5px;}
 .bd-label{width:34%; color:var(--text2); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.bd-bar-track{flex:1; height:9px; border-radius:6px; background:var(--surface-alt); overflow:hidden;}
-.bd-bar-fill{height:100%; border-radius:6px; background:var(--primary);}
-.bd-count{width:90px; text-align:right; color:var(--text); font-weight:700; white-space:nowrap;}
+.bd-bar-track{flex:1; height:8px; border-radius:4px; background:var(--surface-alt); overflow:hidden; border:1px solid var(--border);}
+.bd-bar-fill{height:100%; border-radius:4px; background:var(--accent);}
+.bd-count{width:90px; text-align:right; color:var(--text); font-weight:700; white-space:nowrap; font-variant-numeric:tabular-nums;}
 .bd-count .bd-pct{color:var(--muted); font-weight:500;}
-.stacked-bar{display:flex; height:14px; border-radius:7px; overflow:hidden; background:var(--surface-alt); margin:0 4px 10px;}
-.stacked-bar .seg.normal{background:var(--mint);}
-.stacked-bar .seg.warning{background:var(--peach);}
-.stacked-bar .seg.critical{background:var(--coral);}
-.status-legend-row{display:flex; gap:16px; font-size:12px; color:var(--text2); flex-wrap:wrap; margin:0 4px 4px;}
-.status-legend-row .dot{width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:6px;}
-.status-legend-row .dot.normal{background:var(--mint-dark);}
-.status-legend-row .dot.warning{background:var(--peach-dark);}
-.status-legend-row .dot.critical{background:var(--coral-dark);}
-.foot{text-align:center; color:var(--muted); font-size:12px; margin-top:50px;}
+
+.stacked-bar{display:flex; height:12px; border-radius:6px; overflow:hidden; background:var(--surface-alt); margin:0 4px 9px; border:1px solid var(--border);}
+.stacked-bar .seg.normal{background:var(--good);}
+.stacked-bar .seg.warning{background:var(--warn);}
+.stacked-bar .seg.critical{background:var(--crit);}
+.status-legend-row{display:flex; gap:16px; font-size:11.5px; color:var(--text2); flex-wrap:wrap; margin:0 4px 4px;}
+.status-legend-row .dot{width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px;}
+.status-legend-row .dot.normal{background:var(--good);}
+.status-legend-row .dot.warning{background:var(--warn);}
+.status-legend-row .dot.critical{background:var(--crit);}
+
+.foot{text-align:center; color:var(--muted); font-size:11.5px; margin-top:46px;}
 </style>
 </head>
 <body>
 
-<div class="hero"><div class="hero-inner">
-  <div>
-    <div class="hero-eyebrow">VCENTER REPORT</div>
-    <h1>vCenter Comprehensive Report</h1>
-    <div class="sub">$($VCenterServer -join ', ')</div>
-  </div>
-  <div class="meta-box">Generated <b>$dateStr</b><br>Window <b>last $DaysBack day(s)</b></div>
-</div></div>
-
-<div class="nav">
-  <a href="#inventory">Inventory</a><a href="#perf">Performance</a><a href="#storage">Storage</a>
-  <a href="#vmperf">VM Perf</a><a href="#snapshot">Snapshots</a><a href="#device">Devices</a>
-  <a href="#vminv">VM Inventory</a><a href="#dist">Distribution</a><a href="#shared">Shared Disks</a>
-  <a href="#rdm">RDM</a><a href="#summary">Perf Summary</a>
+<div class="topnav">
+  <span class="brand">vCenter Ops</span>
+  <a href="#inventory"><span class="dot" style="background:#4f46e5"></span>Inventory</a>
+  <a href="#perf"><span class="dot" style="background:#7c3aed"></span>Performance</a>
+  <a href="#storage"><span class="dot" style="background:#0d9488"></span>Storage</a>
+  <a href="#vmperf"><span class="dot" style="background:#2563eb"></span>VM Perf</a>
+  <a href="#snapshot"><span class="dot" style="background:#d97706"></span>Snapshots</a>
+  <a href="#device"><span class="dot" style="background:#0891b2"></span>Devices</a>
+  <a href="#vminv"><span class="dot" style="background:#475569"></span>VM Inventory</a>
+  <a href="#dist"><span class="dot" style="background:#db2777"></span>Distribution</a>
+  <a href="#shared"><span class="dot" style="background:#059669"></span>Shared Disks</a>
+  <a href="#rdm"><span class="dot" style="background:#ea580c"></span>RDM</a>
+  <a href="#summary"><span class="dot" style="background:#e11d48"></span>Perf Summary</a>
 </div>
 
-<div class="wrap">
+<div class="hero"><div class="hero-inner">
+  <div>
+    <h1>vCenter Comprehensive Report</h1>
+    <div class="sub">$($maskedVCenterServer -join ', ')</div>
+  </div>
+  <div class="chips">
+    <span class="chip">Generated<b>$dateStr</b></span>
+    <span class="chip">Window<b>last $DaysBack day(s)</b></span>
+  </div>
+</div></div>
 
-<section>
+<div class="main">
+
+<section style="--accent:#4f46e5">
 $(ConvertTo-SectionHead -Id "inventory" -Title "1. Inventory Summary" -Desc "Datacenter / Cluster / Host / VM counts, Total Core &amp; Memory")
 <div class="grid4">
 $(ConvertTo-KpiCard -Label "Datacenters" -Value $inventory.Overall.DatacenterCount)
@@ -874,7 +1278,7 @@ $(ConvertTo-KpiCard -Label "Total Memory" -Value $inventory.Overall.TotalMemoryG
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $inventory.PerCluster) -Note "Per-cluster host count and total core/memory")
 </section>
 
-<section>
+<section style="--accent:#7c3aed">
 $(ConvertTo-SectionHead -Id "perf" -Title "2. Performance Summary" -Desc "Overall + per-cluster CPU/Memory, Top 3 hosts")
 <p><span class="badge">Overall Avg CPU: $($perf.OverallAvgCpuPct)%</span><span class="badge">Overall Avg Mem: $($perf.OverallAvgMemPct)%</span></p>
 <div class="grid3">
@@ -884,16 +1288,19 @@ $clusterCardsHtml
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $perf.Top3CpuHosts -Columns @('HostName','ClusterName','CpuUsagePct')))
 <div class="subhead">Top 3 Hosts by Memory</div>
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $perf.Top3MemHosts -Columns @('HostName','ClusterName','MemUsagePct')))
-<div class="subhead">Top 3 Hosts by CPU Contention</div>
+<div class="subhead">Top 3 Hosts by CPU Ready %</div>
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $perf.Top3ReadyHosts -Columns @('HostName','ClusterName','CpuContentionPct')))
 </section>
 
-<section>
-$(ConvertTo-SectionHead -Id "storage" -Title "3. Storage Summary" -Desc "Shared datastores only - capacity, latency, IOPS")
+<section style="--accent:#0d9488">
+$(ConvertTo-SectionHead -Id "storage" -Title "3. Storage Summary" -Desc "Shared datastores only - capacity, plus per-host latency/throughput/IOPS")
+<div class="subhead">Capacity</div>
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $storage))
+<div class="subhead">Per-Host Datastore Latency / Throughput / IOPS</div>
+$(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $hostDsPerf) -Note "Latency in ms, Throughput in KBps, IOPS as operations/sec. Total = Read+Write (latency is IOPS-weighted).")
 </section>
 
-<section>
+<section style="--accent:#2563eb">
 $(ConvertTo-SectionHead -Id "vmperf" -Title "4. VM Performance Top 5 Lists" -Desc "vCPU usage/ready, vMEM usage, virtual disk latency")
 <div class="subhead">Top 5 by vCPU Usage %</div>
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $vmPerf.Top5CpuUsage))
@@ -907,22 +1314,22 @@ $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $vmPerf.Top5WriteLat
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $vmPerf.Top5ReadLatency))
 </section>
 
-<section>
+<section style="--accent:#d97706">
 $(ConvertTo-SectionHead -Id "snapshot" -Title "5. Snapshots Older Than $SnapshotAgeDays Days" -Desc "Count, oldest age, total size per VM")
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $oldSnapshots))
 </section>
 
-<section>
+<section style="--accent:#0891b2">
 $(ConvertTo-SectionHead -Id "device" -Title "6. VMs With a Connected Virtual Device" -Desc "Mounted ISO / CD-DVD, etc.")
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $connectedDevices))
 </section>
 
-<section>
+<section style="--accent:#475569">
 $(ConvertTo-SectionHead -Id "vminv" -Title "7. Full VM Inventory" -Desc "Compute, memory, virtual disk and datastore detail")
 <p class="note">See 07_VmInventory_$dateStr.csv for the complete list (one row per virtual disk).</p>
 </section>
 
-<section>
+<section style="--accent:#db2777">
 $(ConvertTo-SectionHead -Id "dist" -Title "8. VM Distribution" -Desc "Guest OS, VMware Tools, HW version, vCPU/vMEM buckets, thin/thick")
 <div class="card">
 <div class="bd-title">Guest OS</div>
@@ -940,17 +1347,17 @@ $(ConvertTo-BreakdownBars -Rows $distribution.ByVMemBucket -LabelProp "VMemRange
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $distribution.ByDiskFormat))
 </section>
 
-<section>
+<section style="--accent:#059669">
 $(ConvertTo-SectionHead -Id "shared" -Title "9. Shared (Multi-Writer) Virtual Disks" -Desc "VMDKs configured with multi-writer sharing")
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $sharedDisks))
 </section>
 
-<section>
+<section style="--accent:#ea580c">
 $(ConvertTo-SectionHead -Id "rdm" -Title "10. RDM (Raw Device Mapping) Disks" -Desc "Physical and virtual RDM-mapped disks")
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $rdmDisks))
 </section>
 
-<section>
+<section style="--accent:#e11d48">
 $(ConvertTo-SectionHead -Id "summary" -Title "11. VM Performance Distribution Summary" -Desc "Normal / Warning / Critical share by category")
 <div class="card">
 $(ConvertTo-StackedBarSummary -PerfDistributionRows $perfDistribution)
@@ -965,26 +1372,64 @@ $(ConvertTo-StackedBarSummary -PerfDistributionRows $perfDistribution)
 
     $html | Out-File -FilePath $htmlPath -Encoding UTF8
     Write-Host "Report generated: $htmlPath"
+
+    Write-Host "`n[Export] Generating email-safe HTML (table-based, inline styles)..."
+    $emailHtmlPath = "$OutputFolder\EmailReport_$dateStr.html"
+    $emailHtml = Get-EmailHtmlReport -VCenterServer $maskedVCenterServer -DaysBack $DaysBack -DateStr $dateStr `
+        -Inventory $inventory -Perf $perf -Storage $storage -HostDsPerf $hostDsPerf -VmPerf $vmPerf `
+        -OldSnapshots $oldSnapshots -ConnectedDevices $connectedDevices -Distribution $distribution `
+        -SharedDisks $sharedDisks -RdmDisks $rdmDisks -PerfDistribution $perfDistribution
+    $emailHtml | Out-File -FilePath $emailHtmlPath -Encoding UTF8
+    Write-Host "Email-safe report generated: $emailHtmlPath"
 }
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
-Write-Host "`n=== Starting vCenter Comprehensive Report collection ===" -ForegroundColor Cyan
+try {
 
-Write-Host "`n--- Login: vCenter ---"
-if (-not $VCenterServer) {
-    $VCenterServer = (Read-Host "vCenter server address(es) - comma-separated for multiple") -split "," | ForEach-Object { $_.Trim() }
+    Write-Host "`n=== Starting vCenter Comprehensive Report collection ===" -ForegroundColor Cyan
+
+    Write-Host "`n--- Login: vCenter ---"
+    if (-not $VCenterServer) {
+        $VCenterServer = (Read-Host "vCenter server address(es) - comma-separated for multiple") -split "," | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+    }
+    if (-not $VCenterServer -or $VCenterServer.Count -eq 0) {
+        Write-Error "No vCenter server address was entered. Re-run the script and provide at least one address (or pass -VCenterServer)."
+        exit 1
+    }
+    if (-not $VCenterCredential) { $VCenterCredential = Get-Credential -Message "vCenter credentials" }
+    if (-not $VCenterCredential) {
+        # Get-Credential returns $null if the prompt is cancelled (Esc/Cancel) - passing that
+        # straight into Connect-VIServer's -Credential (typed as PSCredential) produces a
+        # generic, unhelpful .NET ArgumentException instead of a clear message.
+        Write-Error "No credentials were provided (the credential prompt may have been cancelled). Re-run the script and complete the credential prompt, or pass -VCenterCredential."
+        exit 1
+    }
+
+    Write-Host "`n[Connect] Connecting to vCenter: $($VCenterServer -join ', ')..."
+    Connect-VIServer -Server $VCenterServer -Credential $VCenterCredential -Force | Out-Null
+
+    Invoke-ComprehensiveVCenterReport -VCenterServer $VCenterServer -DaysBack $DaysBack `
+        -SnapshotAgeDays $SnapshotAgeDays -OutputFolder $OutputFolder
+
+    Write-Host "`n=== Done ===" -ForegroundColor Green
 }
-if (-not $VCenterCredential) { $VCenterCredential = Get-Credential -Message "vCenter credentials" }
-
-Write-Host "`n[Connect] Connecting to vCenter: $($VCenterServer -join ', ')..."
-Connect-VIServer -Server $VCenterServer -Credential $VCenterCredential -Force | Out-Null
-
-Invoke-ComprehensiveVCenterReport -VCenterServer $VCenterServer -DaysBack $DaysBack `
-    -SnapshotAgeDays $SnapshotAgeDays -OutputFolder $OutputFolder
-
-Disconnect-VIServer -Server $VCenterServer -Confirm:$false -ErrorAction SilentlyContinue
-
-Write-Host "`n=== Done ===" -ForegroundColor Green
+catch {
+    Write-Host ""
+    Write-Host "=== FAILED ===" -ForegroundColor Red
+    Write-Host "Exception type : $($_.Exception.GetType().FullName)" -ForegroundColor Red
+    Write-Host "Message        : $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Position       : $($_.InvocationInfo.PositionMessage)" -ForegroundColor Red
+    if ($_.ScriptStackTrace) {
+        Write-Host "Script stack trace:" -ForegroundColor Red
+        Write-Host $_.ScriptStackTrace -ForegroundColor Red
+    }
+    exit 1
+}
+finally {
+    if ($VCenterServer) {
+        Disconnect-VIServer -Server $VCenterServer -Confirm:$false -ErrorAction SilentlyContinue
+    }
+}
