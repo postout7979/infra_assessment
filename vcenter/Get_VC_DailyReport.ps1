@@ -234,87 +234,6 @@ function Get-StorageSummaryReport {
     return @($rows)
 }
 
-function Get-InstanceStat {
-    param($GroupItems, [string]$MetricId)
-    $vals = $GroupItems | Where-Object { $_.MetricId -eq $MetricId } | Select-Object -ExpandProperty Value
-    if (-not $vals) { return $null }
-    return [math]::Round((($vals | Measure-Object -Average).Average), 2)
-}
-
-# Per-host, per-datastore Latency/Throughput/IOPS (Total/Read/Write each) - shows which
-# host is driving load on a shared datastore, not just the datastore-wide aggregate.
-function Get-HostDatastorePerfReport {
-    param($VMHosts, $Datastores, $StartTime, $FinishTime)
-
-    $sharedDs = @($Datastores | Where-Object { $_.ExtensionData.Host.Count -gt 1 })
-
-    # vCenter reports these per-host datastore counters keyed by an "Instance" identifier
-    # that is usually the datastore name but can be a UUID/URL depending on version - map
-    # every identifier we can derive from each datastore object so a lookup miss is rare.
-    # If DatastoreName below ever shows a raw GUID-looking string instead of a friendly
-    # name, that means this environment uses an identifier not covered here - add it.
-    $dsNameByKey = @{}
-    foreach ($ds in $sharedDs) {
-        $dsNameByKey[$ds.Name] = $ds.Name
-        if ($ds.ExtensionData.Info.Url) { $dsNameByKey[$ds.ExtensionData.Info.Url] = $ds.Name }
-        if ($ds.Id) { $dsNameByKey[$ds.Id] = $ds.Name }
-    }
-
-    $statKeys = @(
-        "datastore.totalReadLatency.average",
-        "datastore.totalWriteLatency.average",
-        "datastore.read.average",
-        "datastore.write.average",
-        "datastore.numberReadAveraged.average",
-        "datastore.numberWriteAveraged.average"
-    )
-
-    Write-Host "[Storage] Querying per-host datastore latency/throughput/IOPS stats ($($VMHosts.Count) hosts, 1 batch call)..."
-    $stats = Get-Stat -Entity $VMHosts -Stat $statKeys -Instance "*" -Start $StartTime -Finish $FinishTime -ErrorAction SilentlyContinue
-
-    # One row per (host, datastore instance) pair
-    $groups = @($stats | Where-Object { $_.Instance } | Group-Object { "$($_.Entity.Id)|$($_.Instance)" })
-
-    $rows = foreach ($g in $groups) {
-        $sample = $g.Group[0]
-        $dsName = if ($dsNameByKey.ContainsKey($sample.Instance)) { $dsNameByKey[$sample.Instance] } else { $sample.Instance }
-
-        $readLatMs     = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.totalReadLatency.average"
-        $writeLatMs    = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.totalWriteLatency.average"
-        $readTputKBps  = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.read.average"
-        $writeTputKBps = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.write.average"
-        $readIops      = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.numberReadAveraged.average"
-        $writeIops     = Get-InstanceStat -GroupItems $g.Group -MetricId "datastore.numberWriteAveraged.average"
-
-        $totalIops = [math]::Round((($readIops + $writeIops)), 2)
-        # "Total" latency is IOPS-weighted between read and write (falls back to a simple
-        # average if IOPS data is unavailable) - there is no single vSphere counter for it.
-        $totalLatMs = if (($readIops + $writeIops) -gt 0) {
-            [math]::Round(((($readLatMs * $readIops) + ($writeLatMs * $writeIops)) / ($readIops + $writeIops)), 2)
-        } elseif ($readLatMs -or $writeLatMs) {
-            [math]::Round(((@($readLatMs, $writeLatMs) | Where-Object { $_ } | Measure-Object -Average).Average), 2)
-        } else { $null }
-        $totalTputKBps = [math]::Round((($readTputKBps + $writeTputKBps)), 2)
-
-        [PSCustomObject]@{
-            HostName            = (ConvertTo-MaskedHostName -HostName $sample.Entity.Name)
-            ClusterName         = $sample.Entity.Parent.Name
-            DatastoreName       = $dsName
-            LatencyTotalMs      = $totalLatMs
-            LatencyReadMs       = $readLatMs
-            LatencyWriteMs      = $writeLatMs
-            ThroughputTotalKBps = $totalTputKBps
-            ThroughputReadKBps  = $readTputKBps
-            ThroughputWriteKBps = $writeTputKBps
-            IopsTotal           = $totalIops
-            IopsRead            = $readIops
-            IopsWrite           = $writeIops
-        }
-    }
-
-    return @($rows)
-}
-
 # ---------------------------------------------------------------------------
 # [Mode 2] 4. VM performance Top5 lists
 # ---------------------------------------------------------------------------
@@ -877,7 +796,7 @@ function ConvertTo-EmailSectionHead {
 }
 
 function Get-EmailHtmlReport {
-    param($VCenterServer, $DaysBack, $DateStr, $Inventory, $Perf, $Storage, $HostDsPerf, $VmPerf, $OldSnapshots, $ConnectedDevices, $Distribution, $SharedDisks, $RdmDisks, $PerfDistribution)
+    param($VCenterServer, $DaysBack, $DateStr, $Inventory, $Perf, $Storage, $VmPerf, $OldSnapshots, $ConnectedDevices, $Distribution, $SharedDisks, $RdmDisks, $PerfDistribution)
 
     $vcenterLabel = $VCenterServer -join ', '
 
@@ -928,7 +847,6 @@ $(ConvertTo-EmailTable -Data $Perf.Top3ReadyHosts -Columns @('HostName','Cluster
 <tr><td style="padding:14px 22px 6px;">
 $(ConvertTo-EmailSectionHead -Title "3. Storage Summary")
 $(ConvertTo-EmailTable -Data $Storage -Title "Shared Datastore Capacity")
-$(ConvertTo-EmailTable -Data $HostDsPerf -Title "Per-Host Datastore Latency / Throughput / IOPS")
 </td></tr>
 
 <tr><td style="padding:14px 22px 6px;">
@@ -1033,9 +951,6 @@ function Invoke-ComprehensiveVCenterReport {
     Write-Host "[3/11] Storage summary..."
     $storage = Get-StorageSummaryReport -Datastores $datastores
     Export-CsvSafe -Data $storage -Path "$OutputFolder\03_SharedDatastores_$dateStr.csv"
-
-    $hostDsPerf = Get-HostDatastorePerfReport -VMHosts $vmhosts -Datastores $datastores -StartTime $start -FinishTime $finish
-    Export-CsvSafe -Data $hostDsPerf -Path "$OutputFolder\03_HostDatastorePerf_$dateStr.csv"
 
     Write-Host "[4/11] VM performance Top5 lists..."
     $vmPerf = Get-VmPerformanceTopLists -VMs $vms -StartTime $start -FinishTime $finish
@@ -1293,11 +1208,8 @@ $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $perf.Top3ReadyHosts
 </section>
 
 <section style="--accent:#0d9488">
-$(ConvertTo-SectionHead -Id "storage" -Title "3. Storage Summary" -Desc "Shared datastores only - capacity, plus per-host latency/throughput/IOPS")
-<div class="subhead">Capacity</div>
+$(ConvertTo-SectionHead -Id "storage" -Title "3. Storage Summary" -Desc "Shared datastores only - capacity")
 $(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $storage))
-<div class="subhead">Per-Host Datastore Latency / Throughput / IOPS</div>
-$(ConvertTo-TableCard -InnerHtml (ConvertTo-HtmlTable -Data $hostDsPerf) -Note "Latency in ms, Throughput in KBps, IOPS as operations/sec. Total = Read+Write (latency is IOPS-weighted).")
 </section>
 
 <section style="--accent:#2563eb">
@@ -1376,7 +1288,7 @@ $(ConvertTo-StackedBarSummary -PerfDistributionRows $perfDistribution)
     Write-Host "`n[Export] Generating email-safe HTML (table-based, inline styles)..."
     $emailHtmlPath = "$OutputFolder\EmailReport_$dateStr.html"
     $emailHtml = Get-EmailHtmlReport -VCenterServer $maskedVCenterServer -DaysBack $DaysBack -DateStr $dateStr `
-        -Inventory $inventory -Perf $perf -Storage $storage -HostDsPerf $hostDsPerf -VmPerf $vmPerf `
+        -Inventory $inventory -Perf $perf -Storage $storage -VmPerf $vmPerf `
         -OldSnapshots $oldSnapshots -ConnectedDevices $connectedDevices -Distribution $distribution `
         -SharedDisks $sharedDisks -RdmDisks $rdmDisks -PerfDistribution $perfDistribution
     $emailHtml | Out-File -FilePath $emailHtmlPath -Encoding UTF8
