@@ -1,0 +1,378 @@
+﻿<html>
+<head><meta charset="utf-8"><title>vCenter Comprehensive Report 20260831</title>
+<style>
+:root{
+  --bg:#f3f4f7; --surface:#ffffff; --surface-alt:#fafafc; --border:#dde1e8; --border-strong:#c7cdda;
+  --text:#171923; --text2:#4a5062; --muted:#8b93a7;
+  --accent:#4f46e5; --accent-tint:#eef0fe;
+  --head-bg:#1c2130; --head-text:#e7e9f1;
+  --good:#0e9f6e; --good-tint:#e7f9f1; --good-text:#04693f;
+  --warn:#e08e0b; --warn-tint:#fef3e0; --warn-text:#8a5406;
+  --crit:#e0393e; --crit-tint:#fdeaea; --crit-text:#a11c20;
+  --info:#0e8fd8; --info-tint:#e6f4fc; --info-text:#0a5c8a;
+  --neutral-tint:#eef0f3; --neutral-text:#4d5361;
+}
+*{box-sizing:border-box;}
+html,body{margin:0; padding:0; background:var(--bg); color:var(--text);
+  font-family:"Segoe UI",Arial,sans-serif; font-size:14px; line-height:1.55;}
+
+/* --- Top navbar --- */
+.topnav{position:sticky; top:0; z-index:100; background:rgba(255,255,255,.92); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border); padding:0 26px; display:flex; align-items:center; height:52px; gap:6px;
+  overflow-x:auto; white-space:nowrap;}
+.topnav .brand{font-weight:800; font-size:14px; margin-right:18px; flex:0 0 auto; color:var(--text);}
+.topnav a{display:inline-flex; align-items:center; gap:7px; padding:0 11px; height:52px; color:var(--text2);
+  text-decoration:none; font-size:12px; font-weight:700; border-bottom:2px solid transparent; flex:0 0 auto;}
+.topnav a:hover{color:var(--text); border-bottom-color:var(--border-strong);}
+.topnav a .dot{width:7px; height:7px; border-radius:50%; flex:0 0 auto;}
+
+/* --- Hero --- */
+.hero{background:linear-gradient(115deg,#3730a3 0%,#5b21b6 42%,#1d4ed8 100%); color:#fff; padding:30px 30px 26px;}
+.hero-inner{max-width:1400px; margin:0 auto; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;}
+.hero h1{font-size:23px; font-weight:800; margin:0 0 5px;}
+.hero .sub{opacity:.82; font-size:12.5px;}
+.hero .chips{display:flex; gap:8px; flex-wrap:wrap;}
+.hero .chip{background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.28); border-radius:7px;
+  padding:6px 13px; font-size:11.5px; font-weight:600;}
+.hero .chip b{font-weight:800; margin-left:5px;}
+
+/* --- Main --- */
+.main{max-width:1400px; margin:0 auto; padding:26px 30px 90px;}
+
+section{margin:34px 0; padding-left:14px; border-left:3px solid var(--accent);}
+.section-head{margin-bottom:14px; display:flex; align-items:flex-start; gap:12px;}
+.section-head .sh-num{
+  flex:0 0 auto; width:26px; height:26px; border-radius:7px; background:var(--accent); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800;
+}
+.section-head h2{font-size:15.5px; font-weight:800; margin:2px 0 0; color:var(--text);}
+.section-head .desc{color:var(--muted); font-size:11.5px; margin-top:3px;}
+
+.grid2,.grid3,.grid4{display:flex; flex-wrap:wrap; gap:14px;}
+.grid2>*{flex:1 1 calc(50% - 14px); min-width:260px;}
+.grid3>*{flex:1 1 calc(33.333% - 14px); min-width:250px;}
+.grid4>*{flex:1 1 calc(25% - 11px); min-width:180px;}
+
+.card{background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent);
+  border-radius:8px; padding:16px 18px; box-shadow:0 1px 3px rgba(20,20,40,.06);}
+
+.kpi-card .label{font-size:11px; color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:.04em;}
+.kpi-card .value{font-size:25px; font-weight:800; margin:7px 0 2px; color:var(--text); font-variant-numeric:tabular-nums;}
+.kpi-card .value .unit{font-size:12px; font-weight:600; color:var(--muted); margin-left:4px;}
+.kpi-card .kpi-sub{font-size:11px; color:var(--text2); margin-top:4px;}
+
+.cluster-card .ch{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+.cluster-card .ch .name{font-weight:800; font-size:13.5px;}
+.cluster-card .ch .dc{font-size:11px; color:var(--muted);}
+.metric-row{margin-bottom:9px;}
+.metric-row .mrow-top{display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:4px;}
+.metric-row .mrow-top .mlabel{color:var(--text2); font-weight:700; text-transform:uppercase; letter-spacing:.03em; font-size:10.5px;}
+.metric-row .mrow-top .mval{font-weight:700; color:var(--text); font-variant-numeric:tabular-nums;}
+.bar-track{height:6px; border-radius:4px; background:var(--surface-alt); overflow:hidden; border:1px solid var(--border);}
+.bar-fill{height:100%; border-radius:4px;}
+.sub-stats{display:flex; gap:14px; margin-top:10px; padding-top:9px; border-top:1px solid var(--border);}
+.sub-stat{font-size:11px; color:var(--text2);}
+.sub-stat b{color:var(--text); font-weight:800; margin-left:4px;}
+
+.table-card{background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent);
+  border-radius:8px; padding:0; box-shadow:0 1px 3px rgba(20,20,40,.06); overflow:hidden; margin-bottom:6px;}
+table{width:100%; border-collapse:collapse; font-size:12.5px;}
+thead th{background:var(--head-bg); color:var(--head-text); font-weight:700; text-align:left; padding:9px 12px;
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; border-right:1px solid rgba(255,255,255,.10);}
+thead th:last-child{border-right:none;}
+tbody td{padding:8px 12px; border-bottom:1px solid var(--border); border-right:1px solid var(--border);
+  color:var(--text); font-variant-numeric:tabular-nums;}
+tbody td:last-child{border-right:none;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:nth-child(even) td{background:var(--surface-alt);}
+tbody tr:hover td{background:var(--accent-tint);}
+
+.badge{display:inline-block; padding:3px 11px; border-radius:6px; background:var(--info-tint); color:var(--info-text); font-weight:700; font-size:11px; margin-right:6px;}
+.badge-good{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--good-tint); color:var(--good-text); font-weight:700; font-size:11px;}
+.badge-warn{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--warn-tint); color:var(--warn-text); font-weight:700; font-size:11px;}
+.badge-crit{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--crit-tint); color:var(--crit-text); font-weight:700; font-size:11px;}
+.badge-info{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--info-tint); color:var(--info-text); font-weight:700; font-size:11px;}
+.badge-neutral{display:inline-block; padding:2px 9px; border-radius:6px; background:var(--neutral-tint); color:var(--neutral-text); font-weight:700; font-size:11px;}
+
+.subhead{font-size:11px; color:var(--muted); margin:14px 4px 6px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;}
+.note{color:var(--muted); font-size:11.5px;}
+
+.bd-title{font-weight:800; font-size:12.5px; color:var(--text); margin:14px 4px 9px;}
+.bd-title .bd-total{font-weight:600; font-size:11px; color:var(--muted); margin-left:6px;}
+.bd-row{display:flex; align-items:center; gap:10px; margin:0 4px 7px; font-size:11.5px;}
+.bd-label{width:34%; color:var(--text2); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.bd-bar-track{flex:1; height:8px; border-radius:4px; background:var(--surface-alt); overflow:hidden; border:1px solid var(--border);}
+.bd-bar-fill{height:100%; border-radius:4px; background:var(--accent);}
+.bd-count{width:90px; text-align:right; color:var(--text); font-weight:700; white-space:nowrap; font-variant-numeric:tabular-nums;}
+.bd-count .bd-pct{color:var(--muted); font-weight:500;}
+
+.stacked-bar{display:flex; height:12px; border-radius:6px; overflow:hidden; background:var(--surface-alt); margin:0 4px 9px; border:1px solid var(--border);}
+.stacked-bar .seg.normal{background:var(--good);}
+.stacked-bar .seg.warning{background:var(--warn);}
+.stacked-bar .seg.critical{background:var(--crit);}
+.status-legend-row{display:flex; gap:16px; font-size:11.5px; color:var(--text2); flex-wrap:wrap; margin:0 4px 4px;}
+.status-legend-row .dot{width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px;}
+.status-legend-row .dot.normal{background:var(--good);}
+.status-legend-row .dot.warning{background:var(--warn);}
+.status-legend-row .dot.critical{background:var(--crit);}
+
+.foot{text-align:center; color:var(--muted); font-size:11.5px; margin-top:46px;}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <span class="brand">vCenter Ops</span>
+  <a href="#inventory"><span class="dot" style="background:#4f46e5"></span>Inventory</a>
+  <a href="#perf"><span class="dot" style="background:#7c3aed"></span>Performance</a>
+  <a href="#storage"><span class="dot" style="background:#0d9488"></span>Storage</a>
+  <a href="#vmperf"><span class="dot" style="background:#2563eb"></span>VM Perf</a>
+  <a href="#snapshot"><span class="dot" style="background:#d97706"></span>Snapshots</a>
+  <a href="#device"><span class="dot" style="background:#0891b2"></span>Devices</a>
+  <a href="#vminv"><span class="dot" style="background:#475569"></span>VM Inventory</a>
+  <a href="#dist"><span class="dot" style="background:#db2777"></span>Distribution</a>
+  <a href="#shared"><span class="dot" style="background:#059669"></span>Shared Disks</a>
+  <a href="#rdm"><span class="dot" style="background:#ea580c"></span>RDM</a>
+  <a href="#summary"><span class="dot" style="background:#e11d48"></span>Perf Summary</a>
+</div>
+
+<div class="hero"><div class="hero-inner">
+  <div>
+    <h1>vCenter Comprehensive Report</h1>
+    <div class="sub">epavcsa.epa.com</div>
+  </div>
+  <div class="chips">
+    <span class="chip">Generated<b>20260831</b></span>
+    <span class="chip">Window<b>last 1 day(s)</b></span>
+  </div>
+</div></div>
+
+<div class="main">
+
+<section style="--accent:#4f46e5">
+<div class="section-head" id="inventory"><span class="sh-num">1</span><div><h2>Inventory Summary</h2><div class="desc">Datacenter / Cluster / Host / VM counts, Total Core &amp; Memory</div></div></div>
+<div class="grid4">
+<div class="card kpi-card"><div class="label">Datacenters</div><div class="value">1<span class="unit"></span></div></div>
+<div class="card kpi-card"><div class="label">Clusters</div><div class="value">1<span class="unit"></span></div></div>
+<div class="card kpi-card"><div class="label">ESXi Hosts</div><div class="value">6<span class="unit"></span></div></div>
+<div class="card kpi-card"><div class="label">Virtual Machines</div><div class="value">46<span class="unit"></span></div><div class="kpi-sub">On 38 &middot; Off 8</div></div>
+<div class="card kpi-card"><div class="label">Total Cores</div><div class="value">144<span class="unit"></span></div></div>
+<div class="card kpi-card"><div class="label">Total Memory</div><div class="value">2300.3<span class="unit">GB</span></div></div>
+</div>
+<div class="table-card"><div class="note" style="padding:0 4px 8px;">Per-cluster host count and total core/memory</div><table><tr><th>ClusterName</th><th>HostCount</th><th>TotalCores</th><th>TotalMemGB</th></tr><tr><td>epa-cl01</td><td>6</td><td>144</td><td>2300.3</td></tr></table></div>
+</section>
+
+<section style="--accent:#7c3aed">
+<div class="section-head" id="perf"><span class="sh-num">2</span><div><h2>Performance Summary</h2><div class="desc">Overall + per-cluster CPU/Memory, Top 3 hosts</div></div></div>
+<p><span class="badge">Overall Avg CPU: 38.28%</span><span class="badge">Overall Avg Mem: 65.78%</span></p>
+<div class="grid3">
+<div class="card cluster-card">
+  <div class="ch">
+    <div><div class="name">epa-cl01</div><div class="dc">Host 6 &middot; VM 46</div></div>
+    <span class="badge-good">Normal</span>
+  </div>
+  <div class="metric-row">
+    <div class="mrow-top"><span class="mlabel">CPU</span><span class="mval">132 / 344.76 GHz &nbsp;(38.3%)</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--mint-dark);"></div></div>
+  </div>
+  <div class="metric-row">
+    <div class="mrow-top"><span class="mlabel">Memory</span><span class="mval">1513.3 / 2300.29 GB &nbsp;(65.8%)</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:66%;background:var(--mint-dark);"></div></div>
+  </div>
+  <div class="sub-stats"><div class="sub-stat">CPU Contention <b>0%</b></div></div>
+</div>
+</div>
+<div class="subhead">Top 3 Hosts by CPU</div>
+<div class="table-card"><table><tr><th>HostName</th><th>ClusterName</th><th>CpuUsagePct</th></tr><tr><td>fu-02.vcf.local</td><td>epa-cl01</td><td>56</td></tr>
+<tr><td>fu-04.vcf.local</td><td>epa-cl01</td><td>41.66</td></tr>
+<tr><td>fu-01.vcf.local</td><td>epa-cl01</td><td>39.53</td></tr></table></div>
+<div class="subhead">Top 3 Hosts by Memory</div>
+<div class="table-card"><table><tr><th>HostName</th><th>ClusterName</th><th>MemUsagePct</th></tr><tr><td>fu-04.vcf.local</td><td>epa-cl01</td><td>69.82</td></tr>
+<tr><td>fu-06.vcf.local</td><td>epa-cl01</td><td>67.2</td></tr>
+<tr><td>fu-05.vcf.local</td><td>epa-cl01</td><td>66.15</td></tr></table></div>
+<div class="subhead">Top 3 Hosts by CPU Contention</div>
+<div class="table-card"><table><tr><th>HostName</th><th>ClusterName</th><th>CpuContentionPct</th></tr><tr><td>fu-01.vcf.local</td><td>epa-cl01</td><td></td></tr>
+<tr><td>fu-02.vcf.local</td><td>epa-cl01</td><td></td></tr>
+<tr><td>fu-06.vcf.local</td><td>epa-cl01</td><td></td></tr></table></div>
+</section>
+
+<section style="--accent:#0d9488">
+<div class="section-head" id="storage"><span class="sh-num">3</span><div><h2>Storage Summary</h2><div class="desc">Shared datastores only - capacity, plus per-host latency/throughput/IOPS</div></div></div>
+<div class="subhead">Capacity</div>
+<div class="table-card"><table><tr><th>DatastoreName</th><th>CapacityGB</th><th>UsedGB</th><th>FreeGB</th></tr><tr><td>HCS-TrueNAS-iSCSI</td><td>8806.2</td><td>3773.0</td><td>5033.2</td></tr>
+<tr><td>vsanDatastore</td><td>32192.9</td><td>15423.7</td><td>16769.1</td></tr></table></div>
+<div class="subhead">Per-Host Datastore Latency / Throughput / IOPS</div>
+<div class="table-card"><div class="note" style="padding:0 4px 8px;">Latency in ms, Throughput in KBps, IOPS as operations/sec. Total = Read+Write (latency is IOPS-weighted).</div><p><em>No data.</em></p></div>
+</section>
+
+<section style="--accent:#2563eb">
+<div class="section-head" id="vmperf"><span class="sh-num">4</span><div><h2>VM Performance Top 5 Lists</h2><div class="desc">vCPU usage/ready, vMEM usage, virtual disk latency</div></div></div>
+<div class="subhead">Top 5 by vCPU Usage %</div>
+<div class="table-card"><table><tr><th>ClusterName</th><th>HostName</th><th>VmName</th><th>NumCpu</th><th>CpuUsagePct</th></tr><tr><td>epa-cl01</td><td>fu-01.vcf.local</td><td>Avi-se-jeaxv</td><td>1</td><td>29.49</td></tr>
+<tr><td>epa-cl01</td><td>fu-06.vcf.local</td><td>epa-nsx-01</td><td>6</td><td>27.28</td></tr>
+<tr><td>epa-cl01</td><td>fu-02.vcf.local</td><td>md-esxi03</td><td>48</td><td>25.56</td></tr>
+<tr><td>epa-cl01</td><td>fu-06.vcf.local</td><td>epa-nsx-03</td><td>6</td><td>22.05</td></tr>
+<tr><td>epa-cl01</td><td>fu-05.vcf.local</td><td>epa-nsx-02</td><td>6</td><td>20.86</td></tr></table></div>
+<div class="subhead">Top 5 by vCPU Ready %</div>
+<div class="table-card"><table><tr><th>ClusterName</th><th>HostName</th><th>VmName</th><th>NumCpu</th><th>CpuReadyPct</th></tr><tr><td>epa-cl01</td><td>fu-03.vcf.local</td><td>md-esxi04</td><td>48</td><td>415.96</td></tr>
+<tr><td>epa-cl01</td><td>fu-02.vcf.local</td><td>md-esxi03</td><td>48</td><td>372.76</td></tr>
+<tr><td>epa-cl01</td><td>fu-01.vcf.local</td><td>md-esxi02</td><td>48</td><td>321.8</td></tr>
+<tr><td>epa-cl01</td><td>fu-04.vcf.local</td><td>md-esxi01</td><td>48</td><td>315.07</td></tr>
+<tr><td>epa-cl01</td><td>fu-05.vcf.local</td><td>kyk-pve01</td><td>32</td><td>39.65</td></tr></table></div>
+<div class="subhead">Top 5 by vMEM Usage %</div>
+<div class="table-card"><table><tr><th>ClusterName</th><th>HostName</th><th>VmName</th><th>MemoryGB</th><th>MemUsagePct</th></tr><tr><td>epa-cl01</td><td>fu-06.vcf.local</td><td>epa-nsx-01</td><td>24</td><td>41.04</td></tr>
+<tr><td>epa-cl01</td><td>fu-06.vcf.local</td><td>epa-nsx-03</td><td>24</td><td>38.67</td></tr>
+<tr><td>epa-cl01</td><td>fu-05.vcf.local</td><td>epa-nsx-02</td><td>24</td><td>38.39</td></tr>
+<tr><td>epa-cl01</td><td>fu-02.vcf.local</td><td>md-esxi03</td><td>192</td><td>18.18</td></tr>
+<tr><td>epa-cl01</td><td>fu-04.vcf.local</td><td>md-esxi01</td><td>192</td><td>14.94</td></tr></table></div>
+<div class="subhead">Top 5 by Virtual Disk Write Latency</div>
+<div class="table-card"><table><tr><th>ClusterName</th><th>HostName</th><th>VmName</th><th>Datastore</th><th>WriteLatencyMs</th></tr><tr><td>epa-cl01</td><td>fu-01.vcf.local</td><td>Avi-se-jeaxv</td><td>HCS-TrueNAS-iSCSI</td><td>4</td></tr>
+<tr><td>epa-cl01</td><td>fu-04.vcf.local</td><td>epa-harbor</td><td>vsanDatastore</td><td>1</td></tr>
+<tr><td>epa-cl01</td><td>fu-05.vcf.local</td><td>k2mes-vc01</td><td>vsanDatastore</td><td>1</td></tr>
+<tr><td>epa-cl01</td><td>fu-06.vcf.local</td><td>k3mes-vc01</td><td>vsanDatastore</td><td>1</td></tr>
+<tr><td>epa-cl01</td><td>fu-01.vcf.local</td><td>md-esxi02</td><td>HCS-TrueNAS-iSCSI</td><td>1</td></tr></table></div>
+<div class="subhead">Top 5 by Virtual Disk Read Latency</div>
+<div class="table-card"><table><tr><th>ClusterName</th><th>HostName</th><th>VmName</th><th>Datastore</th><th>ReadLatencyMs</th></tr><tr><td>epa-cl01</td><td>fu-06.vcf.local</td><td>kyk-pve02</td><td>HCS-TrueNAS-iSCSI</td><td>2</td></tr>
+<tr><td>epa-cl01</td><td>fu-04.vcf.local</td><td>md-esxi01</td><td>HCS-TrueNAS-iSCSI</td><td>1</td></tr>
+<tr><td>epa-cl01</td><td>fu-03.vcf.local</td><td>md-esxi04</td><td>HCS-TrueNAS-iSCSI</td><td>1</td></tr>
+<tr><td>epa-cl01</td><td>fu-05.vcf.local</td><td>kyk-pve01</td><td>HCS-TrueNAS-iSCSI</td><td>1</td></tr>
+<tr><td>epa-cl01</td><td>fu-05.vcf.local</td><td>kyk-pve03</td><td>HCS-TrueNAS-iSCSI</td><td>1</td></tr></table></div>
+</section>
+
+<section style="--accent:#d97706">
+<div class="section-head" id="snapshot"><span class="sh-num">5</span><div><h2>Snapshots Older Than 7 Days</h2><div class="desc">Count, oldest age, total size per VM</div></div></div>
+<div class="table-card"><p><em>No data.</em></p></div>
+</section>
+
+<section style="--accent:#0891b2">
+<div class="section-head" id="device"><span class="sh-num">6</span><div><h2>VMs With a Connected Virtual Device</h2><div class="desc">Mounted ISO / CD-DVD, etc.</div></div></div>
+<div class="table-card"><table><tr><th>ClusterName</th><th>HostName</th><th>VmName</th><th>DeviceType</th><th>MediaPath</th></tr><tr><td>epa-cl01</td><td>fu-01.vcf.local</td><td>ssk-ako-test</td><td>CD/DVD</td><td>[HCS-TrueNAS-iSCSI] ISO-Archive/Linux/Ubuntu/26.04/ubuntu-26.04-live-server-amd64.iso</td></tr>
+<tr><td>epa-cl01</td><td>fu-06.vcf.local</td><td>kyk-pve02</td><td>CD/DVD</td><td>[HCS-TrueNAS-iSCSI] ISO-Archive/Proxmox/proxmox-ve_9.2-1.iso</td></tr>
+<tr><td>epa-cl01</td><td>fu-05.vcf.local</td><td>kyk-pve03</td><td>CD/DVD</td><td>[HCS-TrueNAS-iSCSI] ISO-Archive/Proxmox/proxmox-ve_9.2-1.iso</td></tr>
+<tr><td>epa-cl01</td><td>fu-05.vcf.local</td><td>kyk-pve01</td><td>CD/DVD</td><td>[HCS-TrueNAS-iSCSI] ISO-Archive/Proxmox/proxmox-ve_9.2-1.iso</td></tr>
+<tr><td>epa-cl01</td><td>fu-03.vcf.local</td><td>md-esxi04</td><td>CD/DVD</td><td>[HCS-TrueNAS-iSCSI] ISO-Archive/8.0.2-23305546-synergy-custom.iso</td></tr>
+<tr><td>epa-cl01</td><td>fu-02.vcf.local</td><td>md-esxi03</td><td>CD/DVD</td><td>[HCS-TrueNAS-iSCSI] ISO-Archive/8.0.2-23305546-synergy-custom.iso</td></tr>
+<tr><td>epa-cl01</td><td>fu-01.vcf.local</td><td>md-esxi02</td><td>CD/DVD</td><td>[HCS-TrueNAS-iSCSI] ISO-Archive/8.0.2-23305546-synergy-custom.iso</td></tr>
+<tr><td>epa-cl01</td><td>fu-04.vcf.local</td><td>md-esxi01</td><td>CD/DVD</td><td>[HCS-TrueNAS-iSCSI] ISO-Archive/8.0.2-23305546-synergy-custom.iso</td></tr></table></div>
+</section>
+
+<section style="--accent:#475569">
+<div class="section-head" id="vminv"><span class="sh-num">7</span><div><h2>Full VM Inventory</h2><div class="desc">Compute, memory, virtual disk and datastore detail</div></div></div>
+<p class="note">See 07_VmInventory_20260831.csv for the complete list (one row per virtual disk).</p>
+</section>
+
+<section style="--accent:#db2777">
+<div class="section-head" id="dist"><span class="sh-num">8</span><div><h2>VM Distribution</h2><div class="desc">Guest OS, VMware Tools, HW version, vCPU/vMEM buckets, thin/thick</div></div></div>
+<div class="card">
+<div class="bd-title">Guest OS</div>
+<div class="bd-row"><div class="bd-label" title="VMware ESXi 8.0 or later">VMware ESXi 8.0 or later</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:90.8%;"></div></div><div class="bd-count">10 <span class="bd-pct">(21.7%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="Ubuntu Linux (64-bit)">Ubuntu Linux (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:100%;"></div></div><div class="bd-count">11 <span class="bd-pct">(23.9%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="VMware Photon OS (64-bit)">VMware Photon OS (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:63.6%;"></div></div><div class="bd-count">7 <span class="bd-pct">(15.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="Microsoft Windows Server 2022 (64-bit)">Microsoft Windows Server 2022 (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:9.2%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="Rocky Linux (64-bit)">Rocky Linux (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:27.2%;"></div></div><div class="bd-count">3 <span class="bd-pct">(6.5%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="Debian GNU/Linux 13 (64-bit)">Debian GNU/Linux 13 (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:27.2%;"></div></div><div class="bd-count">3 <span class="bd-pct">(6.5%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="CentOS 7 (64-bit)">CentOS 7 (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:9.2%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="Other 6.x or later Linux (64-bit)">Other 6.x or later Linux (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:9.2%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="Microsoft Windows 11 (64-bit)">Microsoft Windows 11 (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:9.2%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="Unknown">Unknown</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:54.4%;"></div></div><div class="bd-count">6 <span class="bd-pct">(13%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="Microsoft Windows Server 2019 (64-bit)">Microsoft Windows Server 2019 (64-bit)</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:18%;"></div></div><div class="bd-count">2 <span class="bd-pct">(4.3%)</span></div></div>
+<div class="bd-title">VMware Tools Status / Version</div>
+<div class="bd-row"><div class="bd-label" title=" / 12.5.3"> / 12.5.3</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:27.2%;"></div></div><div class="bd-count">3 <span class="bd-pct">(6.5%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / 12.5.0"> / 12.5.0</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:63.6%;"></div></div><div class="bd-count">7 <span class="bd-pct">(15.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / 13.0.10"> / 13.0.10</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:36.4%;"></div></div><div class="bd-count">4 <span class="bd-pct">(8.7%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / 13.0.0"> / 13.0.0</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:54.4%;"></div></div><div class="bd-count">6 <span class="bd-pct">(13%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / 12.5.4"> / 12.5.4</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:63.6%;"></div></div><div class="bd-count">7 <span class="bd-pct">(15.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / 12.5.2"> / 12.5.2</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:9.2%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / 12.3.5"> / 12.3.5</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:100%;"></div></div><div class="bd-count">11 <span class="bd-pct">(23.9%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / 11.0.5"> / 11.0.5</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:9.2%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / "> / </div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:45.6%;"></div></div><div class="bd-count">5 <span class="bd-pct">(10.9%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title=" / 12.3.0"> / 12.3.0</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:9.2%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-title">Virtual Hardware Version</div>
+<div class="bd-row"><div class="bd-label" title="Unknown">Unknown</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:100%;"></div></div><div class="bd-count">37 <span class="bd-pct">(80.4%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="v10">v10</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:13.6%;"></div></div><div class="bd-count">5 <span class="bd-pct">(10.9%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="v13">v13</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:10.8%;"></div></div><div class="bd-count">4 <span class="bd-pct">(8.7%)</span></div></div>
+<div class="bd-title">vCPU Buckets (4-wide)</div>
+<div class="bd-row"><div class="bd-label" title="1-4 vCPU">1-4 vCPU</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:100%;"></div></div><div class="bd-count">23 <span class="bd-pct">(50%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="5-8 vCPU">5-8 vCPU</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:65.2%;"></div></div><div class="bd-count">15 <span class="bd-pct">(32.6%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="13-16 vCPU">13-16 vCPU</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:4.4%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="29-32 vCPU">29-32 vCPU</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:13%;"></div></div><div class="bd-count">3 <span class="bd-pct">(6.5%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="45-48 vCPU">45-48 vCPU</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:17.4%;"></div></div><div class="bd-count">4 <span class="bd-pct">(8.7%)</span></div></div>
+<div class="bd-title">vMEM Buckets (8GB-wide)</div>
+<div class="bd-row"><div class="bd-label" title="1-8 GB">1-8 GB</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:100%;"></div></div><div class="bd-count">23 <span class="bd-pct">(50%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="17-24 GB">17-24 GB</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:30.4%;"></div></div><div class="bd-count">7 <span class="bd-pct">(15.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="25-32 GB">25-32 GB</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:34.8%;"></div></div><div class="bd-count">8 <span class="bd-pct">(17.4%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="33-40 GB">33-40 GB</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:4.4%;"></div></div><div class="bd-count">1 <span class="bd-pct">(2.2%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="57-64 GB">57-64 GB</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:13%;"></div></div><div class="bd-count">3 <span class="bd-pct">(6.5%)</span></div></div>
+<div class="bd-row"><div class="bd-label" title="185-192 GB">185-192 GB</div><div class="bd-bar-track"><div class="bd-bar-fill" style="width:17.4%;"></div></div><div class="bd-count">4 <span class="bd-pct">(8.7%)</span></div></div>
+</div>
+<div class="subhead">Thin / Thick Disk Count</div>
+<div class="table-card"><table><tr><th>DiskFormat</th><th>Count</th></tr><tr><td><span class="badge-info">Thin</span></td><td>174</td></tr></table></div>
+</section>
+
+<section style="--accent:#059669">
+<div class="section-head" id="shared"><span class="sh-num">9</span><div><h2>Shared (Multi-Writer) Virtual Disks</h2><div class="desc">VMDKs configured with multi-writer sharing</div></div></div>
+<div class="table-card"><p><em>No data.</em></p></div>
+</section>
+
+<section style="--accent:#ea580c">
+<div class="section-head" id="rdm"><span class="sh-num">10</span><div><h2>RDM (Raw Device Mapping) Disks</h2><div class="desc">Physical and virtual RDM-mapped disks</div></div></div>
+<div class="table-card"><p><em>No data.</em></p></div>
+</section>
+
+<section style="--accent:#e11d48">
+<div class="section-head" id="summary"><span class="sh-num">11</span><div><h2>VM Performance Distribution Summary</h2><div class="desc">Normal / Warning / Critical share by category</div></div></div>
+<div class="card">
+<div class="bd-title">CPU Usage <span class="bd-total">(46 VMs)</span></div>
+<div class="stacked-bar">
+  <div class="seg normal" style="width:82.6%;" title="Normal: 38"></div>
+  <div class="seg warning" style="width:0%;" title="Warning: 0"></div>
+  <div class="seg critical" style="width:0%;" title="Critical: 0"></div>
+</div>
+<div class="status-legend-row">
+  <span><i class="dot normal"></i>Normal 38</span>
+  <span><i class="dot warning"></i>Warning 0</span>
+  <span><i class="dot critical"></i>Critical 0</span>
+</div>
+<br>
+<div class="bd-title">CPU Ready <span class="bd-total">(46 VMs)</span></div>
+<div class="stacked-bar">
+  <div class="seg normal" style="width:41.3%;" title="Normal: 19"></div>
+  <div class="seg warning" style="width:2.2%;" title="Warning: 1"></div>
+  <div class="seg critical" style="width:56.5%;" title="Critical: 26"></div>
+</div>
+<div class="status-legend-row">
+  <span><i class="dot normal"></i>Normal 19</span>
+  <span><i class="dot warning"></i>Warning 1</span>
+  <span><i class="dot critical"></i>Critical 26</span>
+</div>
+<br>
+<div class="bd-title">Memory Usage <span class="bd-total">(46 VMs)</span></div>
+<div class="stacked-bar">
+  <div class="seg normal" style="width:82.6%;" title="Normal: 38"></div>
+  <div class="seg warning" style="width:0%;" title="Warning: 0"></div>
+  <div class="seg critical" style="width:0%;" title="Critical: 0"></div>
+</div>
+<div class="status-legend-row">
+  <span><i class="dot normal"></i>Normal 38</span>
+  <span><i class="dot warning"></i>Warning 0</span>
+  <span><i class="dot critical"></i>Critical 0</span>
+</div>
+<br>
+<div class="bd-title">Disk Latency <span class="bd-total">(46 VMs)</span></div>
+<div class="stacked-bar">
+  <div class="seg normal" style="width:100%;" title="Normal: 46"></div>
+  <div class="seg warning" style="width:0%;" title="Warning: 0"></div>
+  <div class="seg critical" style="width:0%;" title="Critical: 0"></div>
+</div>
+<div class="status-legend-row">
+  <span><i class="dot normal"></i>Normal 46</span>
+  <span><i class="dot warning"></i>Warning 0</span>
+  <span><i class="dot critical"></i>Critical 0</span>
+</div>
+</div>
+</section>
+
+<div class="foot">Full detail for every section is available in the CSV files in this folder.</div>
+</div>
+</body>
+</html>
