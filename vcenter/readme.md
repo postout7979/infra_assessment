@@ -1,4 +1,4 @@
-# Get-VcfOpsDailyReport.ps1
+# Get_VC_DailyReport.ps1
 
 vCenter 종합 인벤토리/성능/스토리지/VM 상세 리포트 생성 스크립트입니다.
 VCF Operations 없이 **PowerCLI만으로** 동작하며, 실행하면 vCenter 로그인 정보를 받아
@@ -15,7 +15,7 @@ VCF Operations 없이 **PowerCLI만으로** 동작하며, 실행하면 vCenter �
 ### 대화형 실행 (파라미터 없이)
 
 ```powershell
-.\Get-VcfOpsDailyReport.ps1
+.\Get_VC_DailyReport.ps1
 ```
 
 실행하면 vCenter 서버 주소와 계정을 순서대로 물어봅니다.
@@ -23,7 +23,7 @@ VCF Operations 없이 **PowerCLI만으로** 동작하며, 실행하면 vCenter �
 ### 파라미터를 지정해서 실행
 
 ```powershell
-.\Get-VcfOpsDailyReport.ps1 `
+.\Get_VC_DailyReport.ps1 `
     -VCenterServer "vc-seoul01.corp.local" `
     -VCenterCredential (Get-Credential) `
     -DaysBack 1 `
@@ -34,7 +34,7 @@ VCF Operations 없이 **PowerCLI만으로** 동작하며, 실행하면 vCenter �
 여러 vCenter를 한 번에 조회하려면 쉼표로 구분한 배열을 넘기면 됩니다.
 
 ```powershell
-.\Get-VcfOpsDailyReport.ps1 -VCenterServer "vc01.corp.local","vc02.corp.local"
+.\Get_VC_DailyReport.ps1 -VCenterServer "vc01.corp.local","vc02.corp.local"
 ```
 
 ### 파라미터 설명
