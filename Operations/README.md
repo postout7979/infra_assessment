@@ -1,9 +1,5 @@
 # VCF Operations 가상화 인프라 운영 현황 리포트 생성기 (PowerShell / HTML 전용)
 
-Python 버전(`vcf_ops_report/`)을 PowerShell로 변환한 버전입니다. **PPTX는 이 버전에서
-다루지 않으며, HTML 리포트만 생성**합니다. REST API(`Invoke-RestMethod`) 방식을 그대로
-유지했습니다.
-
 ## ⚠️ 실행 환경에 대한 중요 안내
 
 이 코드는 **이 환경에 PowerShell 실행기가 없어 직접 실행 테스트를 하지 못했습니다**
@@ -289,15 +285,6 @@ Python 버전의 `config.py`에 대응하는 별도 설정 파일은 두지 않�
 `param()` 기본값 + 환경변수로 충분히 대응되고, 디자인/임계치/통계키 조정은
 `VCFOpsTheme.psm1`/`VCFOpsStatKeys.psm1` 두 곳에서 하시면 됩니다.
 
-## Python 버전과의 차이점
-
-| 항목 | Python 버전 | PowerShell 버전 |
-|---|---|---|
-| 출력 형식 | HTML + PPTX | **HTML만** |
-| HTTP 클라이언트 | `requests` | `Invoke-RestMethod` |
-| 동시성 | `ThreadPoolExecutor` | 순차 처리 (대규모 환경은 아래 참고) |
-| 데이터 모델 | `dataclass` | `[PSCustomObject]` |
-
 ### 대규모 환경 성능 가속 (선택)
 
 VM properties 조회처럼 리소스 1건당 API 1회 호출이 필요한 구간은 PowerShell 7+의
@@ -315,30 +302,7 @@ $propsMap = $VmList | ForEach-Object -Parallel {
 
 기본 제공 코드는 안정성을 위해 순차 처리로 두었습니다.
 
-## 실행 테스트 이력 (이메일용 HTML 추가 시 함께 발견/수정한 기존 버그)
-
-이메일용 HTML(`VCFOpsEmailHtmlReport.psm1`)을 추가하면서 실제 PowerShell 7 환경에서
-`-Mock` 실행 + 목(mock) API 서버를 띄운 `Invoke-VCFOpsCollection` 실행 + 헤드리스
-브라우저 스크린샷까지 검증했고, 그 과정에서 기존 코드에 있던 버그 2가지를 함께 고쳤습니다.
-
-- **"비교 기준일 (N일 전)" 표시 오류**: `Modules/VCFOpsHtmlReport.psm1`의
-  `Get-CompareDaysLabel`에서 `"$days일 전"`처럼 변수 뒤에 한글을 바로 붙여 쓰면
-  PowerShell이 `한글도 포함해 "$days일" 전체를 하나의 변수명으로 해석`해버려
-  (해당 변수가 없으므로 빈 값) 웹 리포트의 비교 기준일이 항상 "( 전)"으로만
-  표시되던 문제가 있었습니다. `${days}일 전`처럼 중괄호로 변수명을 명시해 수정했고,
-  이메일용 렌더러에도 동일한 패턴이 있어 같이 고쳤습니다.
-- **Mock 데이터의 Thick 디스크 목록이 항상 비어 있던 문제**: 웹/이메일 리포트 모두
-  디스크를 "Thin/Thick"으로 나눌 때 `ProvisioningKind` 필드를 보는데,
-  `VCFOpsMockData.psm1`은 `Provisioning`(예: "Thick Eager Zeroed")만 채우고
-  `ProvisioningKind`는 채우지 않아 `-Mock`으로 실행하면 "Thick 프로비저닝 디스크
-  목록" 섹션이 항상 "없습니다"로만 나왔습니다. 실제 API 연동 시에는 영향 없는
-  Mock 전용 버그였지만, 데모/테스트 시 혼동을 줄 수 있어 함께 수정했습니다.
-
 ## 알려진 제약 사항
-
-- PPTX 생성은 포함되어 있지 않습니다. 필요하시면 Python 버전의 `--format pptx`를
-  계속 사용하시거나, 하이브리드(수집/HTML은 PowerShell, PPTX 생성만 Python 호출)로
-  연결하는 방법을 도와드릴 수 있습니다.
 - Windows PowerShell 5.1에서는 `Invoke-RestMethod -SkipCertificateCheck` 가 없어
   자체서명 인증서 환경에서 별도 인증서 콜백 설정이 필요합니다. **PowerShell 7+(pwsh)
   사용을 권장**합니다.
