@@ -1,7 +1,6 @@
-
-<img width="590" height="518" alt="image" src="https://github.com/user-attachments/assets/11b07919-9a06-4441-9a82-6ce56a9b7955" />
-
-
+## 출력 결과 파일 리스트
+- CSV 파일 11종 및 HTML 파일 1종
+- 라이센스키는 CSV 파일로만 생성
 <img width="540" height="519" alt="image" src="https://github.com/user-attachments/assets/90f920f4-8ea3-4ef0-88f1-e060f1ac5fdb" />
 
 <img width="1675" height="1082" alt="image" src="https://github.com/user-attachments/assets/4c942169-8350-4c9a-90a0-87bfcea10360" />
