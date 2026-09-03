@@ -6,6 +6,13 @@
                  Excel export requires the ImportExcel PowerShell module; if it isn't
                  installed, Excel export is skipped automatically and HTML/CSV are still
                  produced.
+                 If a VMware vSphere Security Configuration Guide "controls" CSV (the
+                 official SCG spreadsheet, identified by its "SCG ID" / "Configuration
+                 Parameter" columns) is placed next to this script, each PASS/FAIL/INFO
+                 line is matched against it and enriched with SCG ID, priority, baseline
+                 value, DISA STIG / PCI DSS 4.0 mapping and a remediation command - in the
+                 CSV, Excel and HTML outputs. This is optional; if no such CSV is found,
+                 everything else still runs exactly as before.
     Author: Gemini
 #>
 
@@ -94,16 +101,254 @@ function Discover-LogFiles {
 }
 
 # ---------------------------------------------------------------------------
+# 2.5 Load VMware Security Configuration Guide (SCG) controls (optional)
+# ---------------------------------------------------------------------------
+# If a copy of the official "vSphere Security Configuration Guide - controls" CSV is
+# placed next to this script, we use it to enrich every PASS/FAIL/INFO line with the
+# matching official control: SCG ID, implementation priority, baseline value, DISA STIG
+# and PCI DSS 4.0 mapping, and a PowerCLI remediation command. Detected purely by content
+# (the header row must contain both "SCG ID" and "Configuration Parameter") so the file
+# can keep whatever name it was downloaded with. Entirely optional - if it's missing, the
+# rest of the report still generates exactly as before.
+function Import-ScgControls {
+    Write-Host "`nLooking for a VMware Security Configuration Guide (SCG) controls CSV next to the script..." -ForegroundColor Cyan
+
+    $candidates = Get-ChildItem -Path $PSScriptRoot -Filter "*.csv" -File -ErrorAction SilentlyContinue
+    $scgFile = $candidates | Where-Object {
+        try {
+            $firstLine = Get-Content -Path $_.FullName -TotalCount 1 -ErrorAction Stop
+            $firstLine -match "SCG ID" -and $firstLine -match "Configuration Parameter"
+        } catch { $false }
+    } | Select-Object -First 1
+
+    if (-not $scgFile) {
+        Write-Host "  - No SCG controls CSV found next to the script. Skipping SCG enrichment." -ForegroundColor Gray
+        return $null
+    }
+
+    try {
+        $rows = Import-Csv -Path $scgFile.FullName -Encoding UTF8
+
+        $byParam = @{}
+        $byId = @{}
+        foreach ($row in $rows) {
+            $id = $row.'SCG ID'
+            if ($id) { $byId[$id] = $row }
+
+            $param = $row.'Configuration Parameter'
+            if ($param -and $param.Trim() -and $param.Trim() -ne 'N/A') {
+                $key = $param.Trim().ToLower()
+                if (-not $byParam.ContainsKey($key)) { $byParam[$key] = $row }
+            }
+        }
+
+        Write-Host "  - Loaded SCG controls: $($scgFile.Name) ($($rows.Count) rows, $($byParam.Count) config-parameter keys)" -ForegroundColor Green
+        return [PSCustomObject]@{ ByParam = $byParam; ById = $byId; FileName = $scgFile.Name; Count = $rows.Count }
+    } catch {
+        Write-Host "  ! Failed to read SCG controls CSV ($($scgFile.Name)): $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "    Skipping SCG enrichment." -ForegroundColor Yellow
+        return $null
+    }
+}
+
+# Supplemental hand-built crosswalk: the audit tool's advanced-setting/config keys as they
+# literally appear in the logs, mapped to the SCG ID of the control that covers them, for
+# cases where the SCG's own "Configuration Parameter" column is "N/A" (sshd_config options,
+# vSwitch/portgroup security policies, service enable/disable checks) or describes several
+# settings in one combined prose field (vCenter SSO password/lockout policy). Verified by
+# hand against the official controls CSV - see the review notes for how each was chosen.
+$script:ScgCrosswalk = @{
+    # SSO password / lockout policy (vCenter) - SCG describes these as combined prose
+    # fields, not per-setting keys.
+    'sso failedattemptintervalsec'         = 'vcenter-8.administration-sso-lockout-policy-max-attempts'
+    'sso autounlockintervalsec'            = 'vcenter-8.administration-sso-lockout-policy-unlock-time'
+    'sso maxfailedattempts'                = 'vcenter-8.administration-sso-lockout-policy-max-attempts'
+    'sso maxidenticaladjacentcharacters'   = 'vcenter-8.administration-sso-password-policy'
+    'sso minalphabeticcount'               = 'vcenter-8.administration-sso-password-policy'
+    'sso minnumericcount'                  = 'vcenter-8.administration-sso-password-policy'
+    'sso minuppercasecount'                = 'vcenter-8.administration-sso-password-policy'
+    'sso minlowercasecount'                = 'vcenter-8.administration-sso-password-policy'
+    'sso minspecialcharcount'              = 'vcenter-8.administration-sso-password-policy'
+    'sso minlength'                        = 'vcenter-8.administration-sso-password-policy'
+    'sso maxlength'                        = 'vcenter-8.administration-sso-password-policy'
+    'sso passwordlifetimedays'             = 'vcenter-8.administration-sso-password-lifetime'
+    'sso prohibitedpreviouspasswordscount' = 'vcenter-8.administration-sso-password-reuse'
+
+    # SSH daemon settings (ESXi) - SCG lists these as "N/A" because they are sshd_config
+    # options, not vSphere advanced settings.
+    'ssh allowstreamlocalforwarding' = 'esxi-8.ssh-stream-local-forwarding'
+    'ssh allowtcpforwarding'         = 'esxi-8.ssh-tcp-forwarding'
+    'ssh hostbasedauthentication'    = 'esxi-8.ssh-host-based-auth'
+    'ssh clientalivecountmax'        = 'esxi-8.ssh-idle-timeout-count'
+    'ssh clientaliveinterval'        = 'esxi-8.ssh-idle-timeout-interval'
+    'ssh banner'                     = 'esxi-8.ssh-login-banner'
+    'ssh ignorerhosts'               = 'esxi-8.ssh-rhosts'
+    'ssh gatewayports'               = 'esxi-8.ssh-gateway-ports'
+    'ssh permittunnel'               = 'esxi-8.ssh-tunnels'
+    'ssh permituserenvironment'      = 'esxi-8.ssh-user-environment'
+    'ssh ciphers'                    = 'esxi-8.ssh-fips-ciphers'
+
+    # Misc single-setting concepts, also "N/A" or differently-named in Configuration Parameter.
+    'dvfilters'                           = 'vm-8.dvfilter'
+    'diagnostic logging'                  = 'vm-8.log-enable'
+    'passthrough hardware devices'        = 'vm-8.pci-passthrough'
+    'active directory integration'        = 'esxi-8.ad-auth-proxy'
+    'entropy sources'                     = 'esxi-8.entropy'
+    'lockdown mode'                       = 'esxi-8.lockdown-mode'
+    'lockdown mode exception users'       = 'esxi-8.lockdown-mode'
+    'host image profile acceptance level' = 'esxi-8.vib-acceptance-level-supported'
+}
+
+# "TLS profile" is a distinct control for both ESXi and vCenter with identical wording, so
+# it needs the object Type to disambiguate.
+$script:ScgCrosswalkByType = @{
+    'ESXi|tls profile'    = 'esxi-8.tls-profile'
+    'vCenter|tls profile' = 'vcenter-8.tls-profile'
+}
+
+# ESXi service enable/disable checks ("<svc> is running (...)" / "is configured to start (...)").
+$script:ScgServiceCrosswalk = @{
+    'tsm'            = 'esxi-8.deactivate-shell'
+    'tsm-ssh'        = 'esxi-8.deactivate-ssh'
+    'sfcbd-watchdog' = 'esxi-8.deactivate-cim'
+    'slpd'           = 'esxi-8.deactivate-slp'
+    'snmpd'          = 'esxi-8.deactivate-snmp'
+}
+
+# Whole-message fixed phrases that don't follow the "<key> configured..." shape.
+$script:ScgFixedPhraseCrosswalk = [ordered]@{
+    'Local audit log location is persistent'           = 'esxi-8.logs-audit-persistent'
+    'Local log location is persistent'                 = 'esxi-8.logs-persistent'
+    'Log filtering is deactivated'                      = 'esxi-8.logs-filter'
+    'DCUI user has shell access enabled'                = 'esxi-8.account-dcui'
+    'Secure Boot TPM-based enforcement is not enabled'  = 'esxi-8.secureboot-enforcement'
+    'Secure Boot is not enabled on the host'            = 'esxi-8.secureboot'
+    'TPM configuration encryption is not enabled'       = 'esxi-8.tpm-configuration'
+    'Key persistence is not enabled'                    = 'esxi-8.key-persistence'
+    'SSH has FIPS mode enabled'                         = 'esxi-8.ssh-fips'
+    'VM does not have Secure Boot configured'           = 'guest-8.secure-boot'
+    'Encrypted vMotion defaults configured'             = 'vm-8.vmotion-encrypted'
+    'Encrypted Fault Tolerance defaults configured'     = 'vm-8.ft-encrypted'
+}
+
+# Distributed vs. Standard portgroup/switch network-policy checks. SCG splits these into a
+# separate ESXi (standard switch) control and a separate vCenter (distributed switch)
+# control for the same policy, both listed as "N/A" in Configuration Parameter.
+$script:ScgNetworkCrosswalk = @{
+    'promiscuous|Standard'        = 'esxi-8.network-reject-promiscuous-mode-standardswitch'
+    'promiscuous|Distributed'     = 'vcenter-8.network-reject-promiscuous-mode-dvportgroup'
+    'forgedtransmits|Standard'    = 'esxi-8.network-reject-forged-transmit-standardswitch'
+    'forgedtransmits|Distributed' = 'vcenter-8.network-reject-forged-transmit-dvportgroup'
+    'macchanges|Standard'         = 'esxi-8.network-reject-mac-changes-standardswitch'
+    'macchanges|Distributed'      = 'vcenter-8.network-reject-mac-changes-dvportgroup'
+    'netflow|Distributed'         = 'vcenter-8.network-restrict-netflow-usage'
+    'portmirroring|Distributed'   = 'vcenter-8.network-restrict-port-mirroring'
+    'maclearning|Distributed'     = 'vcenter-8.network-mac-learning'
+    'resetport|Distributed'       = 'vcenter-8.network-reset-port'
+    'linkdiscovery|Distributed'   = 'vcenter-8.network-restrict-discovery-protocol'
+}
+
+# Matches one audit-log message against the loaded SCG data (direct Configuration Parameter
+# lookup first, then the supplemental crosswalks above). Returns $null when nothing matches -
+# most INFO/banner lines and a handful of check types with no SCG equivalent (VLAN defaults,
+# VM hardware version, NTP) are expected to come back empty.
+function Get-ScgMatch {
+    param ($ScgData, [string]$Type, [string]$Message)
+
+    if (-not $ScgData) { return $null }
+    $row = $null
+
+    # 1) Network policy concepts on Distributed/Standard portgroup or switch
+    $lblMatch = [regex]::Match($Message, "(?<label>Distributed portgroup|Standard portgroup|Distributed switch|Standard switch) '(?<name>[^']*)'\s+(?<tail>.+)$")
+    if ($lblMatch.Success) {
+        $labelType = if ($lblMatch.Groups['label'].Value -like 'Distributed*') { 'Distributed' } else { 'Standard' }
+        $tail = $lblMatch.Groups['tail'].Value
+
+        $concept = $null
+        if ($tail -match 'configured to allow promiscuous mode') { $concept = 'promiscuous' }
+        elseif ($tail -match 'allow MAC address changes') { $concept = 'macchanges' }
+        elseif ($tail -match 'allow forged transmits') { $concept = 'forgedtransmits' }
+        elseif ($tail -match 'NetFlow') { $concept = 'netflow' }
+        elseif ($tail -match 'port mirroring') { $concept = 'portmirroring' }
+        elseif ($tail -match 'MAC learning') { $concept = 'maclearning' }
+        elseif ($tail -match 'reset port configuration on disconnect') { $concept = 'resetport' }
+        elseif ($tail -match 'link discovery') { $concept = 'linkdiscovery' }
+
+        if ($concept) {
+            $ck = "$concept|$labelType"
+            if ($script:ScgNetworkCrosswalk.ContainsKey($ck)) {
+                $scgId = $script:ScgNetworkCrosswalk[$ck]
+                if ($ScgData.ById.ContainsKey($scgId)) { $row = $ScgData.ById[$scgId] }
+            }
+        }
+    }
+
+    # 2) Generic "<key> configured / not configured ..." pattern
+    if (-not $row) {
+        $m = [regex]::Match($Message, '([\w][\w.\- ]*?)\s+(?:is\s+)?(?:not configured correctly|configured incorrectly|configured correctly|not configured and is using secure defaults|not configured)\b')
+        if ($m.Success) {
+            $key = $m.Groups[1].Value.Trim().ToLower()
+            $typeKey = "$Type|$key"
+            if ($script:ScgCrosswalkByType.ContainsKey($typeKey)) {
+                $scgId = $script:ScgCrosswalkByType[$typeKey]
+                if ($ScgData.ById.ContainsKey($scgId)) { $row = $ScgData.ById[$scgId] }
+            } elseif ($ScgData.ByParam.ContainsKey($key)) {
+                $row = $ScgData.ByParam[$key]
+            } elseif ($script:ScgCrosswalk.ContainsKey($key)) {
+                $scgId = $script:ScgCrosswalk[$key]
+                if ($ScgData.ById.ContainsKey($scgId)) { $row = $ScgData.ById[$scgId] }
+            }
+        }
+    }
+
+    # 3) ESXi service-state messages
+    if (-not $row) {
+        $m = [regex]::Match($Message, '([A-Za-z][\w-]*) is (?:not )?(?:running|configured to start)\s*\(')
+        if ($m.Success) {
+            $svc = $m.Groups[1].Value.Trim().ToLower()
+            if ($script:ScgServiceCrosswalk.ContainsKey($svc)) {
+                $scgId = $script:ScgServiceCrosswalk[$svc]
+                if ($ScgData.ById.ContainsKey($scgId)) { $row = $ScgData.ById[$scgId] }
+            }
+        }
+    }
+
+    # 4) Fixed whole-message phrases
+    if (-not $row) {
+        foreach ($fk in $script:ScgFixedPhraseCrosswalk.Keys) {
+            if ($Message.Contains($fk)) {
+                $scgId = $script:ScgFixedPhraseCrosswalk[$fk]
+                if ($ScgData.ById.ContainsKey($scgId)) { $row = $ScgData.ById[$scgId] }
+                break
+            }
+        }
+    }
+
+    if (-not $row) { return $null }
+
+    return [PSCustomObject]@{
+        ScgId       = $row.'SCG ID'
+        Priority    = ($row.'Implementation Priority' -replace "`r?`n", ' ')
+        Title       = $row.'Description/Title'
+        Baseline    = $row.'Baseline Suggested Value'
+        Stig        = $row.'DISA STIG Mapping'
+        Pci         = $row.'PCI DSS 4.0 Mapping'
+        Remediation = ($row.'PowerCLI Command Remediation Example' -replace "`r?`n", ' ')
+    }
+}
+
+# ---------------------------------------------------------------------------
 # 3. Parse Logs
 # ---------------------------------------------------------------------------
 function Parse-Logs {
-    param ($LogFiles)
+    param ($LogFiles, $ScgData)
     Write-Host "`n[3/3] Analyzing logs and creating report..." -ForegroundColor Cyan
 
     $results = @{
         Summary = @{ TotalPass = 0; TotalFail = 0; TotalInfo = 0 }
         Data = @{ vCenter = @(); ESXi = @(); VM = @() }
     }
+    $scgMatchedCount = 0
 
     foreach ($type in $LogFiles.Keys) {
         foreach ($fileEntry in $LogFiles[$type]) {
@@ -122,12 +367,38 @@ function Parse-Logs {
                     }
 
                     $cssClass = switch ($match) { "PASS"{"status-pass"} "FAIL"{"status-fail"} default{"status-info"} }
-                    $objData.Details += @{ Status = $match; Message = ($line -replace "\[.*?\]\s*", ""); CssClass = $cssClass }
+                    $message = ($line -replace "\[.*?\]\s*", "")
+                    $detailEntry = @{ Status = $match; Message = $message; CssClass = $cssClass }
+
+                    $scgMatch = Get-ScgMatch -ScgData $ScgData -Type $type -Message $message
+                    if ($scgMatch) {
+                        $scgMatchedCount++
+                        $detailEntry.ScgId = $scgMatch.ScgId
+                        $detailEntry.ScgPriority = $scgMatch.Priority
+                        $detailEntry.ScgTitle = $scgMatch.Title
+                        $detailEntry.ScgBaseline = $scgMatch.Baseline
+                        $detailEntry.ScgStig = $scgMatch.Stig
+                        $detailEntry.ScgPci = $scgMatch.Pci
+                        $detailEntry.ScgRemediation = $scgMatch.Remediation
+                    }
+
+                    $objData.Details += $detailEntry
                 }
             }
             $results.Data[$type] += $objData
         }
     }
+
+    $results.ScgInfo = @{
+        Loaded  = [bool]$ScgData
+        FileName = if ($ScgData) { $ScgData.FileName } else { $null }
+        ControlCount = if ($ScgData) { $ScgData.Count } else { 0 }
+        MatchedCount = $scgMatchedCount
+    }
+    if ($ScgData) {
+        Write-Host "  - SCG enrichment: matched $scgMatchedCount check(s) to an official control." -ForegroundColor Gray
+    }
+
     return $results
 }
 
@@ -219,6 +490,8 @@ tr.obj-row:hover{ background:#f8fafc; }
 .badge.status-pass{ background:var(--pass); }
 .badge.status-fail{ background:var(--fail); }
 .badge.status-info{ background:var(--info); }
+.log-msg{ flex:1; }
+.scg-pill{ flex-shrink:0; margin-left:auto; background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; padding:2px 8px; border-radius:6px; font-size:0.72em; font-weight:700; font-family:'Segoe UI',Roboto,-apple-system,sans-serif; white-space:nowrap; cursor:help; }
 .empty-panel{ color:var(--text-muted); font-size:0.85em; padding:12px 4px; }
 .no-results{ text-align:center; color:var(--text-muted); padding:40px; }
 @media (max-width:900px){ .dashboard{ grid-template-columns:repeat(2,1fr); } }
@@ -230,6 +503,7 @@ tr.obj-row:hover{ background:#f8fafc; }
     <h1>vSphere Security Hardening Audit Report</h1>
     <div class="header-meta">Generated: $date</div>
     <div class="header-meta" id="objCountMeta"></div>
+    <div class="header-meta" id="scgMeta"></div>
   </header>
 
   <section class="dashboard">
@@ -272,6 +546,15 @@ var countsText = availableTypes.map(function (t) {
     return t + ': ' + data.Data[t].length;
 }).join('   |   ');
 document.getElementById('objCountMeta').textContent = 'Objects Audited: ' + countsText;
+
+var scgInfo = data.ScgInfo || { Loaded: false };
+var scgMetaEl = document.getElementById('scgMeta');
+if (scgInfo.Loaded) {
+    scgMetaEl.textContent = 'SCG Controls: ' + scgInfo.FileName + ' (' + scgInfo.ControlCount + ' controls) — ' +
+        scgInfo.MatchedCount + ' check(s) matched to an official control';
+} else {
+    scgMetaEl.textContent = 'SCG Controls: not found next to the script (enrichment skipped)';
+}
 
 var currentFilter = 'All';
 var currentSearch = '';
@@ -369,9 +652,23 @@ function buildDetailBlock(obj, uid) {
                 badge.className = 'badge ' + d.CssClass;
                 badge.textContent = d.Status;
                 var msg = document.createElement('span');
+                msg.className = 'log-msg';
                 msg.textContent = d.Message;
                 line.appendChild(badge);
                 line.appendChild(msg);
+                if (d.ScgId) {
+                    var pill = document.createElement('span');
+                    pill.className = 'scg-pill';
+                    pill.textContent = d.ScgId + (d.ScgPriority ? ' · ' + d.ScgPriority : '');
+                    var tipParts = [];
+                    if (d.ScgTitle) tipParts.push(d.ScgTitle);
+                    if (d.ScgBaseline) tipParts.push('Baseline: ' + d.ScgBaseline);
+                    if (d.ScgStig) tipParts.push('DISA STIG: ' + d.ScgStig);
+                    if (d.ScgPci) tipParts.push('PCI DSS 4.0: ' + d.ScgPci);
+                    if (d.ScgRemediation) tipParts.push('Remediation: ' + d.ScgRemediation);
+                    pill.title = tipParts.join('\n');
+                    line.appendChild(pill);
+                }
                 panel.appendChild(line);
             });
         }
@@ -548,6 +845,7 @@ function Generate-Csv {
     param ($Results, $OutputDir)
     Write-Host "`nGenerating CSV report..." -ForegroundColor Cyan
 
+    $scgLoaded = [bool]($Results.ScgInfo -and $Results.ScgInfo.Loaded)
     $typeOrder = @('vCenter', 'ESXi', 'VM')
     $summaryRows = @()
     $detailRows = @()
@@ -572,12 +870,22 @@ function Generate-Csv {
             }
 
             foreach ($d in $obj.Details) {
-                $detailRows += [PSCustomObject]@{
+                $row = [ordered]@{
                     Type    = $type
                     Object  = $obj.Name
                     Status  = $d.Status
                     Message = $d.Message
                 }
+                if ($scgLoaded) {
+                    $row['SCG ID']      = $d.ScgId
+                    $row['Priority']    = $d.ScgPriority
+                    $row['SCG Title']   = $d.ScgTitle
+                    $row['Baseline']    = $d.ScgBaseline
+                    $row['DISA STIG']   = $d.ScgStig
+                    $row['PCI DSS 4.0'] = $d.ScgPci
+                    $row['Remediation'] = $d.ScgRemediation
+                }
+                $detailRows += [PSCustomObject]$row
             }
         }
     }
@@ -634,8 +942,11 @@ $targetDir = Select-Audit-Folder
 # Discover and classify the log files directly from their content
 $logFiles = Discover-LogFiles -TargetDir $targetDir
 
+# Load the SCG controls CSV if one is sitting next to the script (optional)
+$scgData = Import-ScgControls
+
 # Process
-$data = Parse-Logs -LogFiles $logFiles
+$data = Parse-Logs -LogFiles $logFiles -ScgData $scgData
 
 # Create an output folder next to this script (not inside the log folder)
 $reportFolderName = "Output_" + (Get-Date -Format "yyyyMMdd_HHmmss")
