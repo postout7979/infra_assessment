@@ -1,8 +1,11 @@
 <#
     Script Name: vSphere Audit Reporter (Standalone)
-    Description: Generates an HTML report from existing audit logs without running new audits
-                 or connecting to vCenter. Log type (vCenter/ESXi/VM) is auto-detected from
-                 each log file's own banner text.
+    Description: Generates an HTML report (plus CSV, and Excel when possible) from existing
+                 audit logs without running new audits or connecting to vCenter. Log type
+                 (vCenter/ESXi/VM) is auto-detected from each log file's own banner text.
+                 Excel export requires the ImportExcel PowerShell module; if it isn't
+                 installed, Excel export is skipped automatically and HTML/CSV are still
+                 produced.
     Author: Gemini
 #>
 
@@ -539,6 +542,88 @@ render();
 }
 
 # ---------------------------------------------------------------------------
+# 5. Generate CSV (Summary + Details)
+# ---------------------------------------------------------------------------
+function Generate-Csv {
+    param ($Results, $OutputDir)
+    Write-Host "`nGenerating CSV report..." -ForegroundColor Cyan
+
+    $typeOrder = @('vCenter', 'ESXi', 'VM')
+    $summaryRows = @()
+    $detailRows = @()
+
+    foreach ($type in $typeOrder) {
+        if (-not $Results.Data.ContainsKey($type)) { continue }
+
+        foreach ($obj in $Results.Data[$type]) {
+            $total = $obj.Pass + $obj.Fail + $obj.Info
+            $passRate = if (($obj.Pass + $obj.Fail) -gt 0) {
+                [math]::Round(($obj.Pass / ($obj.Pass + $obj.Fail)) * 100, 1)
+            } else { 0 }
+
+            $summaryRows += [PSCustomObject]@{
+                Type     = $type
+                Object   = $obj.Name
+                Pass     = $obj.Pass
+                Fail     = $obj.Fail
+                Info     = $obj.Info
+                Total    = $total
+                PassRate = "$passRate%"
+            }
+
+            foreach ($d in $obj.Details) {
+                $detailRows += [PSCustomObject]@{
+                    Type    = $type
+                    Object  = $obj.Name
+                    Status  = $d.Status
+                    Message = $d.Message
+                }
+            }
+        }
+    }
+
+    $summaryPath = Join-Path $OutputDir "audit_report_summary.csv"
+    $detailPath  = Join-Path $OutputDir "audit_report_details.csv"
+
+    $summaryRows | Export-Csv -Path $summaryPath -NoTypeInformation -Encoding UTF8
+    $detailRows  | Export-Csv -Path $detailPath -NoTypeInformation -Encoding UTF8
+
+    Write-Host "  - CSV summary generated: $summaryPath" -ForegroundColor Green
+    Write-Host "  - CSV details generated: $detailPath" -ForegroundColor Green
+
+    return [PSCustomObject]@{ Summary = $summaryRows; Details = $detailRows }
+}
+
+# ---------------------------------------------------------------------------
+# 6. Generate Excel (optional - requires the ImportExcel module)
+# ---------------------------------------------------------------------------
+function Generate-Excel {
+    param ($SummaryRows, $DetailRows, $OutputDir)
+    Write-Host "`nGenerating Excel report..." -ForegroundColor Cyan
+
+    if (-not (Get-Module -ListAvailable -Name ImportExcel)) {
+        Write-Host "  ! ImportExcel module not found. Skipping Excel export." -ForegroundColor Yellow
+        Write-Host "    (Install it with: Install-Module ImportExcel -Scope CurrentUser)" -ForegroundColor Yellow
+        return
+    }
+
+    try {
+        Import-Module ImportExcel -ErrorAction Stop
+
+        $excelPath = Join-Path $OutputDir "audit_report.xlsx"
+        if (Test-Path $excelPath) { Remove-Item $excelPath -Force }
+
+        $SummaryRows | Export-Excel -Path $excelPath -WorksheetName "Summary" -TableName "Summary" -AutoSize -FreezeTopRow -BoldTopRow
+        $DetailRows  | Export-Excel -Path $excelPath -WorksheetName "Details" -TableName "Details" -AutoSize -FreezeTopRow -BoldTopRow -AutoFilter
+
+        Write-Host "  - Excel report generated: $excelPath" -ForegroundColor Green
+    } catch {
+        Write-Host "  ! Failed to generate Excel report: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "    Skipping Excel export." -ForegroundColor Yellow
+    }
+}
+
+# ---------------------------------------------------------------------------
 # MAIN EXECUTION
 # ---------------------------------------------------------------------------
 Write-Host "vSphere Audit Reporter (Standalone - no vCenter connection required)" -ForegroundColor Cyan
@@ -561,6 +646,12 @@ Write-Host "  - Output folder created: $outputDir" -ForegroundColor Gray
 # Save HTML
 $htmlPath = Join-Path $outputDir "audit_report.html"
 Generate-Html -Results $data -FilePath $htmlPath
+
+# Save CSV (summary + details)
+$csvExport = Generate-Csv -Results $data -OutputDir $outputDir
+
+# Save Excel (skipped automatically if the ImportExcel module isn't installed)
+Generate-Excel -SummaryRows $csvExport.Summary -DetailRows $csvExport.Details -OutputDir $outputDir
 
 Write-Host "`n★ Reporting Completed!" -ForegroundColor Green
 Invoke-Item $outputDir

@@ -1,8 +1,6 @@
 # vSphere Audit Reporter
 
-https://github.com/vmware/vcf-security-and-compliance-guidelines/tree/main/security-configuration-hardening-guide/vsphere
-
-VMware github의 security-configuration-hardening-guide/vsphere의 스크립트 수행 결과 폴더의 로그(txt)를 읽어서, 보기 좋은 HTML 리포트 한 장으로 정리해 주는 PowerShell 스크립트입니다. `auditreporter.ps1` 스크립트 하나로 동작합니다.
+기존에 수집된 vSphere 보안 감사(security hardening audit) 로그(txt)를 읽어서, 보기 좋은 HTML 리포트와 CSV, (가능한 경우) Excel 파일로 정리해 주는 PowerShell 스크립트입니다. `auditreporter.ps1` 스크립트 하나로 동작하며, vCenter 접속이나 Office(Excel/PowerPoint) 설치 없이도 실행됩니다.
 
 ## 주요 특징
 
@@ -15,14 +13,19 @@ VMware github의 security-configuration-hardening-guide/vsphere의 스크립트 
 - **오브젝트별 PASS / FAIL / INFO 집계**: 리포트 목록과 상세 화면 모두에서 상태별 개수를 바로 확인할 수 있습니다.
 - **상태별로 구분된 상세 보기**: 오브젝트를 클릭하면 FAIL / PASS / INFO 탭으로 나뉘어 표시되며(FAIL이 있으면 기본으로 FAIL 탭이 열림), 각 탭 옆에 개수가 함께 표시됩니다.
 - **검색 및 타입 필터**: 상단 검색창으로 오브젝트 이름을 검색하고, vCenter / ESXi / VM 버튼으로 타입별로 필터링할 수 있습니다.
-- **결과는 HTML 리포트 하나**: 별도 JSON, Excel, PowerPoint 파일은 생성하지 않습니다.
+- **HTML + CSV + Excel(선택) 동시 생성**: 브라우저용 HTML 리포트 외에 요약/상세 CSV 파일이 항상 함께 생성됩니다. `ImportExcel` PowerShell 모듈이 설치되어 있으면 Excel(xlsx) 파일도 자동으로 생성되고, 모듈이 없으면 Excel 생성 단계만 건너뛰고 HTML/CSV는 정상적으로 생성됩니다(스크립트 실행이 중단되지 않습니다).
 
 ## 사전 준비물
 
 - Windows PowerShell (5.1 이상) 또는 PowerShell 7 이상
 - 감사 로그 txt 파일이 모여 있는 폴더 (아래 "로그 폴더 준비" 참고)
+- (선택) Excel 파일까지 생성하려면 `ImportExcel` 모듈이 필요합니다. 설치되어 있지 않아도 HTML/CSV 생성에는 영향이 없습니다.
 
-별도의 PowerShell 모듈(VCF.PowerCLI 등)이나 vCenter 로그인 정보는 필요하지 않습니다.
+  ```powershell
+  Install-Module ImportExcel -Scope CurrentUser
+  ```
+
+vCenter 접속 정보나 VCF.PowerCLI 같은 모듈은 필요하지 않습니다.
 
 ## 로그 폴더 준비
 
@@ -63,11 +66,17 @@ audit\
 ```
 audit\
 └── Output_20260228_143000\
-    └── audit_report.html
+    ├── audit_report.html
+    ├── audit_report_summary.csv
+    ├── audit_report_details.csv
+    └── audit_report.xlsx        (ImportExcel 모듈이 설치된 경우에만 생성)
 ```
 
 - 폴더명은 `Output_yyyyMMdd_HHmmss` 형식으로, 실행할 때마다 새로 생성되어 이전 결과를 덮어쓰지 않습니다.
 - `audit_report.html`은 브라우저로 열어서 바로 확인할 수 있으며, 인터넷 연결 없이도 동작하는 단일 HTML 파일입니다(첨부된 `audit_report.html`이 실제 실행 결과 예시입니다).
+- `audit_report_summary.csv`: 오브젝트별 Type / Pass / Fail / Info / Total / PassRate 요약.
+- `audit_report_details.csv`: 모든 개별 점검 항목(Type / Object / Status / Message)을 한 줄씩 기록한 상세 목록.
+- `audit_report.xlsx`: `ImportExcel` 모듈이 설치되어 있을 때만 생성되며, `Summary` / `Details` 두 개의 시트로 위 CSV 내용과 동일한 데이터를 담습니다. 모듈이 없으면 이 파일은 생성되지 않고, 콘솔에 건너뛰었다는 안내만 출력됩니다.
 - 스크립트 실행이 끝나면 결과 폴더가 자동으로 열립니다.
 
 ## HTML 리포트 사용법
@@ -84,11 +93,12 @@ audit\
 | `No .txt log files found in the selected folder.` | 선택한 폴더에 `.txt` 로그 파일이 없습니다. 폴더 경로를 확인하세요. |
 | `Skipped (unrecognized audit type): <파일명>` | 해당 txt 파일 첫 5줄에서 `VMware vCenter` / `ESX Host` / `Virtual Machine` 문구를 찾지 못했습니다. 원본 감사 유틸리티가 생성한 로그 형식인지 확인하세요. |
 | 오브젝트 이름이 예상과 다르게 나옴 | 로그 내부에 `Audit of <이름> started` 줄이 없으면 파일명(확장자 제외)을 이름으로 사용합니다. |
+| `! ImportExcel module not found. Skipping Excel export.` | `ImportExcel` 모듈이 설치되어 있지 않습니다. HTML/CSV는 정상적으로 생성됩니다. Excel까지 필요하면 `Install-Module ImportExcel -Scope CurrentUser`로 설치 후 다시 실행하세요. |
 
 ## 변경 이력 (요약)
 
+- 결과물에 CSV(요약/상세) 및 Excel(xlsx, `ImportExcel` 모듈 설치 시) 출력 추가 — Excel 모듈이 없으면 자동으로 건너뛰고 HTML/CSV만 생성
 - HTML 리포트 UI를 대시보드 형태로 개편, 오브젝트별 PASS/FAIL/INFO 수치 표시 및 상태별 탭 상세 보기 추가
 - vCenter 접속 로직 제거 → 로그 파일 배너 문구로 자동 판별하는 방식으로 전환
 - 결과 저장 위치를 로그 폴더가 아닌 스크립트 실행 위치의 신규 폴더로 변경
 - JSON 결과 파일 생성 제거
-- (검토 후 제거됨) Excel / PowerPoint 결과물 생성 기능
