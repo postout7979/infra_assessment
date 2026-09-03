@@ -1,0 +1,548 @@
+Brand Name,Model,Type,Feature,Supported Releases
+"Adaptec","Adaptec SmartRAID 3101-4i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2100-8i8e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3254-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3284-16io /e/uC","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3154-8i8e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3252-8i /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1200-16e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3254-8i /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1100-24i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3154-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3254-16i /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2100-4i4e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3101E-4i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1100-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3154-8e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID Ultra 3258p-32i /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3204-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2100-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2100-24i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3252-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3254-16e /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID Ultra 3258P-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3204-8i /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3154-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID Ultra 3258p-16i /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3162-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3258-16i /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1100-16e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1200-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID Ultra 3254-16e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2100C8iOXS","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3254-16io /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1100-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1200-8e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3151-4i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1100-4i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2200-16io /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2200-8io /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2200-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID Ultra 3254-16e /e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1200-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartHBA 2100-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3154-24i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3152-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3102-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1100-8i8e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3102E-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA Ultra 1200P-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA 1100-8e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec SmartRAID 3154-8i16e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA Ultra 1200-16e","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Adaptec","Adaptec HBA Ultra 1200p-32i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ASUSTek Computer Inc.","ASUS PIKE II 3008-8i","All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","MegaRaid 9560-8i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","SAS 9500-16i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","MegaRAID SAS 9460-8i /w JBOD Mode","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","Megaraid SAS 9460-16i /w JBOD Mode","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","SAS 9500-8i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","Megaraid SAS 9440-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","Megaraid 9540-16i","Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","Megaraid 9540-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","MegaRaid 9560-16i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","9540-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Broadcom","Megaraid SAS 9460-16i","All Flash
+Hybrid","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSX-X10C-RAIDF","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Cisco","Cisco 12G SAS Modular Raid Controller with 1GB FBWC Cache module","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSC-RAID-M5HD","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Cisco","Cisco 12G SAS Modular Raid Controller for C460","Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSC-SAS-M5","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Cisco","Cisco FlexStorage 12G SAS RAID Controller w/2GB FBWC","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSC-RAID-M6SD","All Flash","RAID 0
+Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Cisco","Cisco 12G Modular SAS Pass through Controller","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSC-RAID-M5","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSC-RAID-M6T","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSC-SAS-M6T Cisco 12G SAS HBA (16 Drives)","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSC-SAS-T-D Cisco 12G SAS HBA (16 Drives)","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Cisco","UCSC-SAS-M5HD","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","Dell HBA350i MM LP","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","HBA355i Front","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","HBA345 Front","All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","Dell HBA350i MM","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","HBA345 Adapter","All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","DELL HBA330 MX","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","HBA330 Mini","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","HBA350i MX","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","DELL HBA330 MMZ","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","HBA355i Adapter","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","Dell HBA350i Adapter","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Dell","HBA330/HBA330+","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Fujitsu","PRAID EP400i","Hybrid","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Fujitsu","PSAS CP2100-8i","All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Fujitsu","PSAS CP403i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Fujitsu","PSAS CP503i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE MR408i-o Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array E208i-c SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE MR416i-p Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array P408i-p SR Gen10","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Tri-Mode MR216i-p Gen10 Plus Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array P816i-a SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE SR416i-a Gen10 Plus Tri-mode Modular Controller","All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE SR416ie-m Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array P408i-c SR Gen10","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array P416ie-m SR G10","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array P204i-c SR Gen10","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Tri-Mode MR416i-p Gen10 Plus Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array E208i-a SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array E208i-p SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE MR216i-p Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Smart Array P408i-a SR Gen10","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Tri-Mode MR416i-a Gen10 Plus Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE SR932i-p Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE Tri-Mode MR216i-a Gen10 Plus Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE MR216i-o Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE MR416i-o Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hewlett Packard Enterprise","HPE SR932i-p Gen10 Plus Tri-mode PCIe Plug-in Controller","All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","MR408i-o Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Tri-Mode MR216i-a Gen10 Plus Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","MR216i-o Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Smart Array P408i-p SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","MR416i-o Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","SR416i-a Gen10 Plus Tri-mode Modular Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Smart Array P816i-a SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","SR932i-p Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Smart Array E208i-p SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Smart Array P408i-a SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","SR932i-p Gen10 Plus Tri-mode PCIe Plug-in Controller","All Flash
+Hybrid","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Tri-Mode MR416i-a Gen10 Plus Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Tri-Mode MR216i-p Gen10 Plus Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","MR216i-p Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","MR416i-p Gen11","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Tri-Mode MR416i-p Gen10 Plus Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Hitachi","Smart Array E208i-a SR Gen10 Controller","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","3008IT","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","RT0800M7H","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","RT0808M7R","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","PM8222-HBA","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","PM8204-4G","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","PM8204-2GB","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","RT0804M7R","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","RT0800M7E","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"IEIT SYSTEMS Co.
+Ltd.","PM8222-SmartHBA","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Intel Corporation","Intel Volume Management Device","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Intel Corporation","AHWBPBGB24","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Intel Corporation","Intel Volume Management Device","Hybrid
+All Flash","-","ESXi 9.0 (vSAN  9.0)"
+"Intel Corporation","RS3UC080J","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","ThinkSystem 430-8i SAS/SATA 12Gb Dense HBA","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A72485 - ThinkSystem RAID 9350-16i 4GB Flash PCIe 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A72486 - ThinkSystem RAID 9350-16i 4GB Flash PCIe 12Gb Internal Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A09721 - ThinkSystem RAID 930-16i 8 GB Flash PCIe 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","7Y37A01088 - ThinkSystem 430-8i SAS/SATA 12Gb HBA","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A09733 - ThinkSystem RAID 940-32i 8GB Flash PCIe Gen4 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","ThinkSystem 440-16i SAS/SATA PCIe Gen4 12Gb HBA
+ 4Y37A78602","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A72481 - ThinkSystem 4350-16i SAS/SATA 12Gb HBA","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","7Y37A01086 - ThinkSystem RAID 930-24i 4GB Flash PCIe 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A09729 - ThinkSystem RAID 940-8i 8GB Flash PCIe Gen4 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A72483 - ThinkSystem RAID 9350-8i 2GB Flash PCIe 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","7Y37A01084 - ThinkSystem RAID 930-8i 2GB Flash PCIe 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A72480 - ThinkSystem 4350-8i SAS/SATA 12Gb HBA","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","7Y37A01085 - ThinkSystem RAID 930-16i 4GB Flash PCIe 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A78600 - ThinkSystem RAID 940-16i 4GB Flash PCIe Gen4 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","ThinkSystem 440-8i SAS/SATA PCIe Gen4 12Gb HBA
+ 4Y37A78601","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A09730 - ThinkSystem RAID 940-16i 8GB Flash PCIe Gen4 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A09725 - ThinkSystem 440-16i SAS/SATA PCIe Gen4 12Gb Internal HBA","All Flash
+Hybrid","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A09735 - ThinkSystem RAID 940-16i 8GB Flash PCIe Gen4 12Gb Internal Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","7Y37A01089 - ThinkSystem 430-16i SAS/SATA 12Gb HBA","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A72484 - ThinkSystem RAID 9350-8i 2GB Flash PCIe 12Gb Internal Adapter","All Flash
+Hybrid","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"Lenovo","4Y37A09728 - ThinkSystem RAID 940-8i 4GB Flash PCIe Gen4 12Gb Adapter","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"LSI","SAS 9300-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"LSI","MegaRAID SAS 9460-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"LSI","SAS 9400-16i","Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"LSI","MegaRAID SAS 9461-16i","All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"LSI","MegaRAID SAS 9362-8i","Hybrid
+All Flash","RAID 0","ESXi 9.0 (vSAN  9.0)"
+"LSI","9305-16i","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"LSI","MegaRAID SAS 9361-8i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"Quanta Computer Inc.","Quanta 3816B","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Quanta Computer Inc.","QS-3516B-R6-PD32 /w JBOD Mode","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Quanta Computer Inc.","Quanta 3008A","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Quanta Computer Inc.","QS-3216","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3816 Tri-mode","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3908","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3808","All Flash
+Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3816","All Flash
+Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3808","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3808","All Flash
+Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3008","All Flash
+Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3108","All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3808","All Flash
+Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC3108 w/ JBOD","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"Supermicro Computer
+Inc","SMC 3808","All Flash
+Hybrid","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR150-M / XP150-M","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR470C-M-16i / XC470C-M-16i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR370-M-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR760IT-M","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR170-M-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR370-M-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR760-M","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XC170-M-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XP150IT-M","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XP460C-M JBOD Mode","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XC170-M-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR170-M-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR470C-M-8i / XC470C-M-8i / XU470C-M-8i","Hybrid
+All Flash","Pass-Through
+vSAN Secure-wipe capable","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XR450C-M/XP450C-M/XR450C-MX","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XC370-M-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"xFusion Digital Technologies Co.
+Ltd","XC370-M-8i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartIOC2200 RS346-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3100 RS242-18i 4G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartIOC2100 RS243-18i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3200 RS344-16i 4G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3100 RM241B-18i 2G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3100 RM242-18i 4G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3200 RM344-16i 4G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3100 SDPSA/B-18i 4G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartIOC2100 RM243-18i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartIOC2100 RM243B-18i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartIOC2100 SDPSA/B_I-18i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3100 RS241-18i 2G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3200 RS345-16i 8G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartIOC2200 RM346-16i","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3200 RM345-16i 8G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3100 RM242B-18i 4G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3100 RM241-18i 2G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
+"ZTE Corporation","ZTE SmartROC3100 SDPSA/B_L-18i 2G","Hybrid
+All Flash","Pass-Through","ESXi 9.0 (vSAN  9.0)"
