@@ -532,7 +532,7 @@ function ConvertTo-MaskedHostName {
     if ($HostName -match '\.') {
         if ($HostName -notmatch '\.vcf\.local$') {
             $shortName = $HostName.Split('.')[0]
-            return "$shortName.vcf.local"
+            return "$shortName.***.***"
         }
     }
 
