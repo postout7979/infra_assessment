@@ -1465,8 +1465,6 @@ $Idx_Net90     = Build-HCLIndex -Table @($IOHCL90 | Where-Object { $_.'Device Ty
 $Idx_Net91     = Build-HCLIndex -Table @($IOHCL91 | Where-Object { $_.'Device Type' -match 'Network' })    -Fields $IOFields -NoiseWords $Script:IONoise
 $Idx_Storage90 = Build-HCLIndex -Table @($IOHCL90 | Where-Object { $_.'Device Type' -notmatch 'Network' }) -Fields $IOFields -NoiseWords $Script:IONoise
 $Idx_Storage91 = Build-HCLIndex -Table @($IOHCL91 | Where-Object { $_.'Device Type' -notmatch 'Network' }) -Fields $IOFields -NoiseWords $Script:IONoise
-$Idx_Vsan90    = Build-HCLIndex -Table $VsanHCL90  -Fields $IOFields -NoiseWords $Script:IONoise
-$Idx_Vsan91    = Build-HCLIndex -Table $VsanHCL91  -Fields $IOFields -NoiseWords $Script:IONoise
 # CPU All Models index: build a reverse index based on tokens in the Model column (including numeric model codes)
 $CpuIndex      = Build-HCLIndex -Table $CpuAllModels -Fields @('Model')
 Write-Host "       Index build complete. (CPU models: $(@($CpuAllModels).Count), index keys: $($CpuIndex.Count))" -ForegroundColor DarkGray
@@ -1524,7 +1522,7 @@ foreach ($NicModel in $UniqueNicModels) {
         -Threshold $MatchThreshold -NoiseWords $Script:IONoise
 }
 
-# Storage Controller: unique key based on Model (excluding USB); vSAN is cached together
+# Storage Controller: unique key based on Model (excluding USB)
 $StorageMatchCache = @{}
 $AllStorageRows    = @($HbaReport) + @($RaidReport)
 $UniqueStorageModels = $AllStorageRows | Where-Object { $_.Model -notmatch '(?i)\bUSB\b' } `
@@ -1535,11 +1533,6 @@ foreach ($StModel in $UniqueStorageModels) {
         Ctrl = Get-VersionedMatch `
             -Table90 $IOHCL_Storage_90 -Table91 $IOHCL_Storage_91 `
             -Index90 $Idx_Storage90 -Index91 $Idx_Storage91 `
-            -Detected $StModel -Fields $IOFields `
-            -Threshold $MatchThreshold -NoiseWords $Script:IONoise
-        Vsan = Get-VersionedMatch `
-            -Table90 $VsanHCL90 -Table91 $VsanHCL91 `
-            -Index90 $Idx_Vsan90 -Index91 $Idx_Vsan91 `
             -Detected $StModel -Fields $IOFields `
             -Threshold $MatchThreshold -NoiseWords $Script:IONoise
     }
@@ -1667,14 +1660,11 @@ foreach ($Ctrl in (@($HbaReport) + @($RaidReport))) {
 
     $Cached    = $StorageMatchCache[$Ctrl.Model]
     $CtrlMatch = $Cached.Ctrl
-    $VsanMatch = $Cached.Vsan
 
     $CtrlScore   = if ($CtrlMatch.Best) { $CtrlMatch.Best.Score } else { 0 }
     $CtrlHCLText = if ($CtrlMatch.Best) { "$($CtrlMatch.Best.Row.'Brand Name') $($CtrlMatch.Best.Row.Model)" } else { "N/A" }
     $CtrlNote    = if ($CtrlMatch.Best) { "ESXi Releases: $(Format-ReleaseText $CtrlMatch.Best.Row.'Supported Releases')" } else { "No matching entry in IO Devices" }
     if ($CtrlMatch.Status90 -eq "MISMATCH" -or $CtrlMatch.Status91 -eq "MISMATCH") { $CtrlNote = "[Best candidate, manual verification required] " + $CtrlNote }
-    if ($VsanMatch.Best) { $CtrlNote += "  |  vSAN candidate: $($VsanMatch.Best.Row.'Brand Name') $($VsanMatch.Best.Row.Model) (score $($VsanMatch.Best.Score)%, 9.0:$($VsanMatch.Status90)/9.1:$($VsanMatch.Status91))" }
-    else { $CtrlNote += "  |  No vSAN I/O Controller match (not relevant if vSAN is not in use)" }
 
     $ComplianceReport += [PSCustomObject]@{
         "Cluster"        = if ($Ctrl.Cluster) { $Ctrl.Cluster } else { "N/A" }
