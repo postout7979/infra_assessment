@@ -23,7 +23,7 @@ function Select-Audit-Folder {
     Write-Host "`n[1/3] Select Audit Log Folder..." -ForegroundColor Cyan
 
     # Get subdirectories
-    $subFolders = Get-ChildItem -Path $PSScriptRoot -Directory | Sort-Object LastWriteTime -Descending
+    $subFolders = Get-ChildItem -Path $PSScriptRoot\vmware-tools -Directory | Sort-Object LastWriteTime -Descending
 
     if ($subFolders.Count -eq 0) {
         Write-Host "  ! No subfolders found in current directory." -ForegroundColor Red
