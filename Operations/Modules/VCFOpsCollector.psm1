@@ -43,7 +43,7 @@ function Protect-VCFOpsHostIdentifier {
 
     # FQDN 형태 - 첫 번째 라벨(호스트명)만 유지하고 나머지 도메인 부분을 vcf.local로 치환
     if ($Value -match '^([^.]+)\.(.+)$') {
-        return "$($Matches[1]).vcf.local"
+        return "$($Matches[1]).***.***"
     }
 
     return $Value
