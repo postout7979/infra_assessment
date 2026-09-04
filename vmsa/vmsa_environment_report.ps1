@@ -194,7 +194,7 @@ function Get-MaskedHostIdentity {
     $dotIdx = $trimmed.IndexOf(".")
     if ($dotIdx -ge 0) {
         $shortName = $trimmed.Substring(0, $dotIdx)
-        return "$shortName.vcf.local"
+        return "$shortName.***.***"
     }
     return $trimmed
 }
