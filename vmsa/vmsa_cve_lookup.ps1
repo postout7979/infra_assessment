@@ -332,7 +332,7 @@ $HtmlTemplate = @"
 <div class="wrap">
 
   <div class="card">
-    <input type="text" id="searchBox" class="search-box" placeholder="Type a CVE ID (full or partial), e.g. CVE-2026-0001 or 2026-0001" autofocus>
+    <input type="text" id="searchBox" class="search-box" placeholder="Type a CVE ID (full or partial), e.g. CVE-2026-0001 or 2026-0001 - separate multiple with commas, e.g. CVE-2026-0001,CVE-2026-0002" autofocus>
     <div id="searchSummary"></div>
   </div>
 
@@ -384,15 +384,26 @@ function renderList(items) {
 }
 
 function runSearch() {
-  const q = document.getElementById("searchBox").value.trim().toLowerCase();
+  const raw = document.getElementById("searchBox").value.trim();
   const summary = document.getElementById("searchSummary");
+  // Comma-separated input, e.g. "CVE-2026-0001, CVE-2026-0002", looks up
+  // every listed CVE ID (full or partial) at once - a record matches if it
+  // matches ANY of the comma-separated terms.
+  const terms = raw.split(",").map(function (t) { return t.trim().toLowerCase(); }).filter(Boolean);
   let matched;
-  if (!q) {
+  if (terms.length === 0) {
     matched = RECORDS;
     summary.textContent = "Showing all " + matched.length + " CVE(s). Type above to search.";
   } else {
-    matched = RECORDS.filter(function (r) { return r.CVE.toLowerCase().indexOf(q) !== -1; });
-    summary.textContent = matched.length + " CVE(s) match \"" + q + "\".";
+    matched = RECORDS.filter(function (r) {
+      const cveLower = r.CVE.toLowerCase();
+      return terms.some(function (t) { return cveLower.indexOf(t) !== -1; });
+    });
+    if (terms.length === 1) {
+      summary.textContent = matched.length + " CVE(s) match \"" + terms[0] + "\".";
+    } else {
+      summary.textContent = matched.length + " CVE(s) match " + terms.length + " search term(s): " + terms.join(", ") + ".";
+    }
   }
   renderList(matched);
 }

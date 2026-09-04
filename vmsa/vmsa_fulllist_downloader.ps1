@@ -61,7 +61,20 @@
 #       "Product | Component | Version | ..." row (e.g. a VMware Cloud
 #       Foundation bundle listing "vCenter Server" as the affected
 #       component) is matched against BOTH the Product and Component text,
-#       using the Version from the correct column either way.
+#       using the Version from the correct column either way. Component can
+#       itself legitimately be the literal text "N/A" for a standalone
+#       (non-bundled) product row - that still counts as "Component
+#       present", so the real Version is still read from the column after
+#       it rather than "N/A" itself landing in the version slot (this
+#       applies to the category CSV split here, the HTML report's
+#       client-side mapRow()/extractProductVersion() in step 5, and the
+#       per-category Excel workbooks in step 8 - all three parse Response
+#       Matrix columns the same way). A handful of older advisories also
+#       carry stray non-matrix fragments in their FixedInfo text (a
+#       leftover metadata label, the column header echoed back as data, a
+#       broken HTML/CSS remnant) - these are recognized and skipped rather
+#       than parsed as a bogus row (see Test-IsJunkMatrixRow / the
+#       JavaScript isJunkMatrixRow()).
 # 7. Response Matrix extraction has a text-mining last resort: if an
 #    advisory's page has no real table, no <pre> ASCII table, and no
 #    data-label div table either, the page's plain visible text is scanned
@@ -798,13 +811,33 @@ function esc(s) {
   });
 }
 
-function splitMatrixRows(fixedInfo) {
-  if (!fixedInfo || fixedInfo === "Check Link for details") return [];
-  return fixedInfo.split(/<br\s*\/?>/i).map(function (r) { return r.trim(); }).filter(Boolean);
-}
-
 function splitCols(row) {
   return row.split("|").map(function (c) { return c.trim(); });
+}
+
+// A handful of older advisories carry stray non-matrix fragments in their
+// FixedInfo text alongside the real rows - a leftover metadata label
+// ("Advisory ID: | VMSA-2025-0012.1"), the column header itself echoed back
+// as if it were a data row ("VMware Product | Version | Running On | ..."),
+// or a broken HTML/CSS remnant ("#000000;">Workarounds:None."). None of
+// these are an actual Response Matrix row, so splitMatrixRows filters them
+// out below rather than letting a bogus "product" reach mapRow().
+function isJunkMatrixRow(cols) {
+  if (cols.length < 2) return true;
+  const first = (cols[0] || "").trim();
+  if (!first) return true;
+  if (/:\s*$/.test(first)) return true;
+  if (/^(VMware\s*Product|Product|Version|CVE\(s\))$/i.test(first)) return true;
+  if (/^#[0-9A-Fa-f]/.test(first)) return true;
+  return false;
+}
+
+function splitMatrixRows(fixedInfo) {
+  if (!fixedInfo || fixedInfo === "Check Link for details") return [];
+  return fixedInfo.split(/<br\s*\/?>/i)
+    .map(function (r) { return r.trim(); })
+    .filter(Boolean)
+    .filter(function (r) { return !isJunkMatrixRow(splitCols(r)); });
 }
 
 function mapRow(cols) {
@@ -905,6 +938,12 @@ function getCategoryByName(name) {
 // same way as the PowerShell-side Get-ProductVersionPairsFromFixedInfo: if
 // there are >= 3 columns, column 2 does NOT look like a version and column 3
 // DOES, treat column 2 as Component and column 3 as the real Version.
+// Column 2 can itself legitimately be the literal text "N/A" for a
+// standalone (non-bundled) product row - that still counts as "Component
+// present" here (it is NOT itself version-like), so the real Version is
+// still correctly read from column 3 rather than column 2's "N/A" landing
+// in the version slot and shifting every later column (Running On, CVE,
+// ...) by one.
 function extractProductVersion(cols) {
   const product = cols[0] || "";
   const col1 = cols.length > 1 ? cols[1] : "";
@@ -913,7 +952,7 @@ function extractProductVersion(cols) {
   const isEmptyish = function (v) { return !v || /^(n\/a|-)$/i.test(v); };
 
   let component = null, version = "", dataStartIdx = 2;
-  if (cols.length >= 3 && !isEmptyish(col1) && !looksLikeVersion(col1) && looksLikeVersion(col2)) {
+  if (cols.length >= 3 && !looksLikeVersion(col1) && looksLikeVersion(col2)) {
     component = col1;
     version = col2;
     dataStartIdx = 3;
@@ -928,6 +967,14 @@ function extractProductVersion(cols) {
   // normalize it to "N/A" instead so it doesn't pollute the version list.
   if (!isEmptyish(version) && !looksLikeVersion(version)) {
     version = "N/A";
+  }
+
+  // Only treat Component as real when it actually carries a value - an
+  // explicit "N/A"/blank Component is just "no component", same as a row
+  // that never had the column at all, so mapRow()'s "Product (Component)"
+  // suffix stays off ("VMware ESX", not "VMware ESX (N/A)").
+  if (component !== null && isEmptyish(component)) {
+    component = null;
   }
 
   return { product: product, component: component, version: version, dataStartIdx: dataStartIdx };
@@ -1163,6 +1210,25 @@ Write-Host "    -> HTML: $HtmlPath ($($HtmlRecords.Count) advisories embedded)" 
 # =============================================================================
 Write-Host "[7] Splitting CSVs by category (ESX / vCenter / Cloud Foundation / vSphere Foundation / Operations / Automation / NSX / Tools)..." -ForegroundColor Cyan
 
+# A handful of older advisories carry stray non-matrix fragments in their
+# FixedInfo text alongside the real rows - a leftover metadata label
+# ("Advisory ID: | VMSA-2025-0012.1"), the column header itself echoed back
+# as if it were a data row ("VMware Product | Version | Running On | ..."),
+# or a broken HTML/CSS remnant ("#000000;">Workarounds:None."). None of
+# these are an actual Response Matrix row, so both row-splitting functions
+# below (Get-ProductVersionPairsFromFixedInfo and Get-MatrixTableRows) skip
+# them via this check rather than risking a bogus "product" leaking through.
+function Test-IsJunkMatrixRow {
+    param([string[]]$Cols)
+    if ($Cols.Count -lt 2) { return $true }
+    $first = $Cols[0].Trim()
+    if ([string]::IsNullOrWhiteSpace($first)) { return $true }
+    if ($first -match ":\s*$") { return $true }
+    if ($first -match "(?i)^(VMware\s*Product|Product|Version|CVE\(s\))$") { return $true }
+    if ($first -match "^#[0-9A-Fa-f]") { return $true }
+    return $false
+}
+
 # Pulls every (Product, Version) pair out of a Response Matrix - one pair per
 # row, straight from columns 1 and 2.
 function Get-ProductVersionPairsFromFixedInfo {
@@ -1173,7 +1239,7 @@ function Get-ProductVersionPairsFromFixedInfo {
 
     foreach ($row in ($FixedInfo -split "<br>")) {
         $Cols = @($row -split "\s*\|\s*" | ForEach-Object { $_.Trim() })
-        if ($Cols.Count -lt 2) { continue }
+        if (Test-IsJunkMatrixRow -Cols $Cols) { continue }
         $product = $Cols[0]
         if ([string]::IsNullOrWhiteSpace($product) -or $product -match "^(N/A|-)$") { continue }
 
@@ -1184,9 +1250,15 @@ function Get-ProductVersionPairsFromFixedInfo {
         # than a version. Detect that shape by checking whether column 2
         # itself looks like a version (starts with a digit); if it doesn't,
         # treat it as a Component and read the Version from column 3 instead.
+        # Column 2 can itself legitimately be the literal text "N/A" for a
+        # standalone (non-bundled) product row - that still counts as
+        # "Component present" here (it is NOT itself version-like), so the
+        # real Version is still correctly read from column 3 rather than
+        # column 2's "N/A" landing in the version slot and getting the whole
+        # row dropped below.
         $component = $null
         $version   = $null
-        if ($Cols.Count -ge 3 -and $Cols[1] -notmatch "^\d" -and $Cols[1] -notmatch "^(N/A|-)$" -and $Cols[2] -match "^\d") {
+        if ($Cols.Count -ge 3 -and $Cols[1] -notmatch "^\d" -and $Cols[2] -match "^\d") {
             $component = $Cols[1]
             $version   = $Cols[2]
         } else {
@@ -1204,9 +1276,11 @@ function Get-ProductVersionPairsFromFixedInfo {
         if ([string]::IsNullOrWhiteSpace($version) -or $version -match "^(N/A|-)$") { continue }
 
         # What a category is matched against: Product plus Component (if
-        # any), so e.g. a VCF row whose Component is "vCenter Server" still
-        # lands in the vCenter category/CSV, using ITS OWN version.
-        $matchText = if ($component) { "$product $component" } else { $product }
+        # any, and only when it carries a real value - a literal "N/A"
+        # Component contributes nothing to the match text), so e.g. a VCF
+        # row whose Component is "vCenter Server" still lands in the vCenter
+        # category/CSV, using ITS OWN version.
+        $matchText = if ($component -and $component -notmatch "^(?i)(N/A|-)$") { "$product $component" } else { $product }
 
         $Pairs.Add([PSCustomObject]@{ Product = $product; Component = $component; Version = $version; MatchText = $matchText })
     }
@@ -1355,10 +1429,24 @@ function ConvertTo-MatrixColumns {
     $col1 = if ($Cols.Count -gt 1) { $Cols[1] } else { "" }
     $col2 = if ($Cols.Count -gt 2) { $Cols[2] } else { "" }
 
+    # Whether a Component column is present at all depends on which era this
+    # advisory's Response Matrix came from - older rows are just
+    # "Product | Version | Running On | ..." (no Component), newer ones are
+    # "Product | Component | Version | Running On | ..." where Component can
+    # itself literally be the text "N/A" for a standalone (non-bundled)
+    # product row. The deciding signal is therefore NOT whether col1 is
+    # "empty-ish" (an explicit "N/A" Component is exactly that, and wrongly
+    # excluding it here used to shift every column after it by one - Version
+    # would read "N/A" and Running On would read "<real version> / <real
+    # running on>") - it is simply: does col1 fail to look like a version AND
+    # does col2 look like one. That correctly recognizes a real component
+    # name ("vCenter", "ESX") AND a literal "N/A"/blank component the same
+    # way, while a genuine Component-less row (col1 IS the version) still
+    # falls through to the no-component branch below.
     $component = $null
     $version   = ""
     $dataStart = 2
-    if ($Cols.Count -ge 3 -and -not (Test-Emptyish $col1) -and -not (Test-LooksLikeVersion $col1) -and (Test-LooksLikeVersion $col2)) {
+    if ($Cols.Count -ge 3 -and -not (Test-LooksLikeVersion $col1) -and (Test-LooksLikeVersion $col2)) {
         $component = $col1
         $version   = $col2
         $dataStart = 3
@@ -1368,7 +1456,11 @@ function ConvertTo-MatrixColumns {
     }
     if (-not (Test-Emptyish $version) -and -not (Test-LooksLikeVersion $version)) { $version = "N/A" }
 
-    $out[0] = if ($component) { "$col0 ($component)" } else { $col0 }
+    # Only append the "(Component)" suffix when Component actually carries a
+    # real value - an explicit "N/A"/blank Component is just "no component",
+    # same as a row that never had the column at all, so it stays unsuffixed
+    # ("VMware ESX", not "VMware ESX (N/A)").
+    $out[0] = if ($component -and -not (Test-Emptyish $component)) { "$col0 ($component)" } else { $col0 }
     $out[1] = $version
 
     $cveIdx = -1
@@ -1416,6 +1508,7 @@ function Get-MatrixTableRows {
         $rowTrim = $row.Trim()
         if ([string]::IsNullOrWhiteSpace($rowTrim)) { continue }
         $cols = @($rowTrim -split "\|" | ForEach-Object { $_.Trim() })
+        if (Test-IsJunkMatrixRow -Cols $cols) { continue }
         $mapped = ConvertTo-MatrixColumns -Cols $cols
         if ([string]::IsNullOrWhiteSpace($mapped[0])) { continue }
         $result.Add([PSCustomObject][ordered]@{
