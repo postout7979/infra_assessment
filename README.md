@@ -1,14 +1,19 @@
 # all-in-one-vmw.ps1
 
-이 저장소(`infra_assessment`) 안의 5개 폴더에 흩어져 있는 PowerShell 스크립트들을 하나의 메뉴에서 골라 실행하는 통합 런처입니다. 런처 자체는 수집/분석 로직을 갖지 않고 각 폴더의 원본 `.ps1`을 그대로 호출만 하므로, 원본 스크립트가 나중에 업데이트돼도 이 파일을 따로 고칠 필요가 없습니다.
-
-> `powercli` 저장소는 더 이상 사용하지 않습니다. 이 저장소(`infra_assessment`) 하나만으로 동작합니다.
+이 저장소(`infra_assessment`) 안의 5개 폴더에 흩어져 있는 PowerShell 스크립트들을 하나의 메뉴에서 골라 실행하는 통합 런처입니다. 런처 자체는 수집/분석 로직을 갖지 않고 각 폴더의 원본 `.ps1`을 그대로 호출합니다.
 
 ## 설치 / 배치
 
 `all-in-one-vmw.ps1`을 이 저장소의 **루트**(5개 폴더와 같은 위치)에 두세요.
 
 ```
+1) Windows에서 실행 시, git 명령어 도구를 다운로드한 다음 git bash로 먼저 git clone으로 복제 후, Powershell windows로 실행해야 디지털 서명 문제가 발생하지 않습니다.
+- git git clone https://github.com/postout7979/infra_assessment
+
+2) ZIP 압축파일을 다운로드 후, 해제한 경우에는 다음 커맨드를 해당 경로에서 실행합니다.
+Get-ChildItem -Path . -Recurse | Unblock-File
+
+
 infra_assessment\                      <- git clone https://github.com/postout7979/infra_assessment
  ├─ all-in-one-vmw.ps1                 <- 이 파일
  ├─ vcf_9_upgrade\
@@ -19,6 +24,7 @@ infra_assessment\                      <- git clone https://github.com/postout79
 ```
 
 저장소 루트가 아닌 다른 위치에서 실행하고 싶다면, 실행 전에 환경변수 `VMWTOOLS_INFRA_PATH`에 저장소 루트 경로를 지정하세요.
+- 저장소 경로를 아래와 같이 해당하는 경로를 환경 변수로 추가
 
 ```powershell
 $env:VMWTOOLS_INFRA_PATH = "C:\repos\infra_assessment"
