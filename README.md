@@ -4,14 +4,14 @@
 
 ## 설치 / 배치
 
-`all-in-one-vmw.ps1`을 이 저장소의 **루트**(5개 폴더와 같은 위치)에 두세요.
-
+`allinonevmw.ps1`을 이 저장소의 **루트**(5개 폴더와 같은 위치)에 위치합니다.
+`VMware PowerCLI module을 사전에 다운로드 하시기 바랍니다.
 ```
-git clone 혹은 ZIP 다운로드 후 스크립트 실행
-1) Windows에서 실행 시, git 명령어 도구를 다운로드한 다음 git bash로 먼저 git clone으로 복제 후, Powershell windows로 실행해야 디지털 서명 문제가 발생하지 않습니다.
+실행을 위한 두 가지 방법: git clone 혹은 ZIP 다운로드 후 스크립트 실행
+1) Windows에서 실행 시, git 명령어 도구를 다운로드한 다음 git bash로 먼저 git clone으로 복제 다운로드해서, 파일 반입 후 powershell로 실행
 - git git clone https://github.com/postout7979/infra_assessment
 
-2) ZIP 압축파일을 다운로드 후, 해제한 경우에는 다음 커맨드를 해당 경로에서 실행합니다.
+2) ZIP 압축파일을 다운로드 후, 해제한 경우에는 다음 커맨드를 해당 경로에서 실행합니다.(중요)
 Get-ChildItem -Path . -Recurse | Unblock-File
 
 
@@ -28,14 +28,14 @@ infra_assessment\                      <- git clone https://github.com/postout79
 - 저장소 경로를 아래와 같이 해당하는 경로를 환경 변수로 추가
 
 ```powershell
-$env:VMWTOOLS_INFRA_PATH = "C:\repos\infra_assessment"
+$env:VMWTOOLS_INFRA_PATH = "C:\repos\infra_assessment" (예제)
 ```
 
 ## 실행
 
 ```powershell
-cd C:\repos\infra_assessment
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned   # 최초 1회, 필요한 경우만
+cd C:\repos\infra_assessment(예제)
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned   # 최초 1회
 .\all-in-one-vmw.ps1
 ```
 
@@ -57,3 +57,4 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned   # 최초 1회, 필요한 �
 - Windows PowerShell 5.1 이상 (PowerShell 7 `pwsh`도 가능) 환경 기준으로 원본 스크립트들이 작성되어 있습니다.
 - 자식 스크립트 실행 중 오류가 나도 런처(메뉴)는 죽지 않고 메뉴로 돌아옵니다.
 - 실행 위치는 각 스크립트가 있는 폴더로 자동 이동(Push-Location) 후 실행하므로, 상대 경로로 파일을 찾는 원본 스크립트(예: `hcl\` 폴더, SCG CSV 등)도 문제없이 동작합니다.
+- 별도로 해당 메뉴의 폴더에서 스크립트 개별 실행이 가능합니다.
