@@ -1,4 +1,4 @@
-# all-in-one-vmw.ps1
+# allinonevmw.ps1
 
 이 저장소(`infra_assessment`) 안의 5개 폴더에 흩어져 있는 PowerShell 스크립트들을 하나의 메뉴에서 골라 실행하는 통합 런처입니다. 런처 자체는 수집/분석 로직을 갖지 않고 각 폴더의 원본 `.ps1`을 그대로 호출합니다.
 
