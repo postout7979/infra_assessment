@@ -7,6 +7,7 @@
 `all-in-one-vmw.ps1`을 이 저장소의 **루트**(5개 폴더와 같은 위치)에 두세요.
 
 ```
+git clone 혹은 ZIP 다운로드 후 스크립트 실행
 1) Windows에서 실행 시, git 명령어 도구를 다운로드한 다음 git bash로 먼저 git clone으로 복제 후, Powershell windows로 실행해야 디지털 서명 문제가 발생하지 않습니다.
 - git git clone https://github.com/postout7979/infra_assessment
 
