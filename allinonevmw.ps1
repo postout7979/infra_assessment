@@ -291,8 +291,8 @@ function ConvertTo-HttpsHostUrl {
 # ============================================================
 function Invoke-OperationsConnect {
     Write-Title "VCF Operations 운영현황 리포트 (Operations)"
-
-    $hostInput = Read-Host "VCF Operations 호스트 주소 (예: vcfops.corp.local - https:// 는 붙이지 마세요. 비워두면 환경변수 VCFOPS_HOST 사용)"
+    
+    $hostInput = Read-Host "VCF Operations 호스트 주소(https:// 제외):"
     $username  = Read-Host "Username (비워두면 환경변수 VCFOPS_USERNAME 사용)"
     $customer  = Read-Host "고객사명 (Enter=Customer)"
 
