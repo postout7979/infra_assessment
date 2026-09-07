@@ -1,0 +1,6 @@
+"ClusterName","HostName","VmName","MemoryGB","MemUsagePct"
+"epa-cl01","fu-06.***.***","epa-nsx-01","24","41"
+"epa-cl01","fu-06.***.***","epa-nsx-03","24","38.99"
+"epa-cl01","fu-05.***.***","epa-nsx-02","24","38.45"
+"epa-cl01","fu-02.***.***","md-esxi03","192","16.48"
+"epa-cl01","fu-06.***.***","ssk-avi-controller","32","14.51"
