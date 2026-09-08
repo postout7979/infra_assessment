@@ -1,0 +1,6 @@
+"ClusterName","HostName","VmName","NumCpu","CpuReadyPct"
+"epa-cl01","fu-03.***.***","md-esxi04","48","373.19"
+"epa-cl01","fu-01.***.***","md-esxi02","48","337.41"
+"epa-cl01","fu-02.***.***","md-esxi03","48","313.27"
+"epa-cl01","fu-04.***.***","md-esxi01","48","299.55"
+"epa-cl01","fu-06.***.***","VCSA","16","36.11"

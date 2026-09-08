@@ -1,0 +1,608 @@
+﻿AMD,AMD EPYC 7001 Series,7251,8C/16T,2.1 GHz,120 W,Naples
+AMD,AMD EPYC 7001 Series,7261,8C/16T,2.5 GHz,155 W,Naples
+AMD,AMD EPYC 7001 Series,7281,16C/32T,2.1 GHz,170 W,Naples
+AMD,AMD EPYC 7001 Series,7301,16C/32T,2.2 GHz,170 W,Naples
+AMD,AMD EPYC 7001 Series,7351,16C/32T,2.4 GHz,170 W,Naples
+AMD,AMD EPYC 7001 Series,7351P,16C/32T,2.4 GHz,170 W,Naples
+AMD,AMD EPYC 7001 Series,7371,16C/32T,3.1 GHz,200 W,Naples
+AMD,AMD EPYC 7001 Series,7401,24C/48T,2.0 GHz,170 W,Naples
+AMD,AMD EPYC 7001 Series,7401P,24C/48T,2.0 GHz,170 W,Naples
+AMD,AMD EPYC 7001 Series,7451,24C/48T,2.3 GHz,180 W,Naples
+AMD,AMD EPYC 7001 Series,7501,32C/64T,2.0 GHz,155/170 W,Naples
+AMD,AMD EPYC 7001 Series,7551,32C/64T,2.0 GHz,180 W,Naples
+AMD,AMD EPYC 7001 Series,7551P,32C/64T,2.0 GHz,180 W,Naples
+AMD,AMD EPYC 7001 Series,7571,32C/64T,2.2 GHz,200 W,Naples
+AMD,AMD EPYC 7001 Series,7601,32C/64T,2.2 GHz,180 W,Naples
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7232P,8C/16T,3.1 GHz,120 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7252,8C/16T,3.1 GHz,120 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7262,8C/16T,3.2 GHz,155 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7272,12C/24T,2.9 GHz,120 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7282,16C/32T,2.8 GHz,120 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7302,16C/32T,3.0 GHz,155 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7302P,16C/32T,3.0 GHz,155 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7352,24C/48T,2.3 GHz,155 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7402,24C/48T,2.8 GHz,180 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7402P,24C/48T,2.8 GHz,180 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7452,32C/64T,2.35 GHz,155 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7502,32C/64T,2.5 GHz,180 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7502P,32C/64T,2.5 GHz,180 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7542,32C/64T,2.9 GHz,225 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7552,48C/96T,2.2 GHz,200 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7642,48C/96T,2.3 GHz,225 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7662,64C/128T,2.0 GHz,225 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7702,64C/128T,2.0 GHz,200 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7702P,64C/128T,2.0 GHz,200 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7742,64C/128T,2.25 GHz,225 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7F32,8C/16T,3.7 GHz,180 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7F52,16C/32T,3.5 GHz,240 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7F72,24C/48T,3.2 GHz,240 W,Rome
+AMD,AMD EPYC 7002/7Fx2/7Hx2 Series,7H12,64C/128T,2.6 GHz,280 W,Rome
+AMD,AMD EPYC 7003/7003X Series,7203,8C/16T,2.8 GHz,120 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7203P,8C/16T,2.8 GHz,120 W,Milan
+AMD,AMD EPYC 7003/7003X Series,72F3,8C/16T,3.7 GHz,180 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7243,16C/32T,2.2 GHz,120 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7263,16C/32T,2.4 GHz,155 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7273,16C/32T,2.65 GHz,225 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7283,16C/32T,2.7 GHz,155 W,Milan
+AMD,AMD EPYC 7003/7003X Series,73F3,16C/32T,3.5 GHz,240 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7303,16C/32T,2.4 GHz,155 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7303P,16C/32T,2.4 GHz,155 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7313,16C/32T,3.0 GHz,155 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7313P,16C/32T,3.0 GHz,155 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7343,16C/32T,3.2 GHz,190 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7343P,16C/32T,3.2 GHz,190 W,Milan
+AMD,AMD EPYC 7003/7003X Series,74F3,24C/48T,3.2 GHz,240 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7413,24C/48T,2.65 GHz,180 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7443,24C/48T,2.85 GHz,200 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7443P,24C/48T,2.85 GHz,200 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7453,28C/56T,2.75 GHz,225 W,Milan
+AMD,AMD EPYC 7003/7003X Series,75F3,32C/64T,2.95 GHz,280 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7513,32C/64T,2.6 GHz,200 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7543,32C/64T,2.8 GHz,225 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7543P,32C/64T,2.8 GHz,225 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7573X,32C/64T,2.8 GHz,280 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7643,48C/96T,2.3 GHz,225 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7643P,48C/96T,2.3 GHz,225 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7663,56C/112T,2.0 GHz,240 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7663P,56C/112T,2.0 GHz,240 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7713,64C/128T,2.0 GHz,225 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7713P,64C/128T,2.0 GHz,225 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7763,64C/128T,2.45 GHz,280 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7773X,64C/128T,2.2 GHz,280 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7473X,24C/48T,2.8 GHz,240 W,Milan
+AMD,AMD EPYC 7003/7003X Series,7373X,16C/32T,3.05 GHz,240 W,Milan
+AMD,AMD EPYC 8004 Series,8024P,8C/16T,2.4 GHz,70-125 W,Siena
+AMD,AMD EPYC 8004 Series,8024PN,8C/16T,2.4 GHz,70 W,Siena
+AMD,AMD EPYC 8004 Series,8124P,16C/32T,2.45 GHz,70-160 W,Siena
+AMD,AMD EPYC 8004 Series,8224P,24C/32T,2.55 GHz,70-160 W,Siena
+AMD,AMD EPYC 8004 Series,8224PN,24C/32T,2.55 GHz,100 W,Siena
+AMD,AMD EPYC 8004 Series,8324P,32C/64T,2.65 GHz,70-160 W,Siena
+AMD,AMD EPYC 8004 Series,8324PN,32C/64T,2.65 GHz,100 W,Siena
+AMD,AMD EPYC 8004 Series,8434P,48C/96T,2.5 GHz,70-160 W,Siena
+AMD,AMD EPYC 8004 Series,8434PN,48C/96T,2.5 GHz,100 W,Siena
+AMD,AMD EPYC 8004 Series,8534P,64C/128T,2.3 GHz,70-200 W,Siena
+AMD,AMD EPYC 8004 Series,8534PN,64C/128T,2.3 GHz,155 W,Siena
+AMD,AMD EPYC 9004 Series,9124,16C/32T,3.0 GHz,200 W,Genoa
+AMD,AMD EPYC 9004 Series,9174F,16C/32T,4.1 GHz,320 W,Genoa
+AMD,AMD EPYC 9004 Series,9184X,16C/32T,2.4 GHz,320 W,Genoa
+AMD,AMD EPYC 9004 Series,9224,24C/48T,2.5 GHz,200 W,Genoa
+AMD,AMD EPYC 9004 Series,9254,24C/48T,2.9 GHz,200 W,Genoa
+AMD,AMD EPYC 9004 Series,9274F,24C/48T,4.05 GHz,320 W,Genoa
+AMD,AMD EPYC 9004 Series,9284X,24C/48T,2.65 GHz,320 W,Genoa
+AMD,AMD EPYC 9004 Series,9334,32C/64T,2.7 GHz,210 W,Genoa
+AMD,AMD EPYC 9004 Series,9354,32C/64T,3.25 GHz,280 W,Genoa
+AMD,AMD EPYC 9004 Series,9354P,32C/64T,3.25 GHz,280 W,Genoa
+AMD,AMD EPYC 9004 Series,9374F,32C/64T,3.85 GHz,320 W,Genoa
+AMD,AMD EPYC 9004 Series,9384X,32C/64T,2.7 GHz,320 W,Genoa
+AMD,AMD EPYC 9004 Series,9454,48C/96T,2.75 GHz,290 W,Genoa
+AMD,AMD EPYC 9004 Series,9454P,48C/96T,2.75 GHz,290 W,Genoa
+AMD,AMD EPYC 9004 Series,9474F,48C/96T,3.6 GHz,360 W,Genoa
+AMD,AMD EPYC 9004 Series,9534,64C/128T,2.45 GHz,280 W,Genoa
+AMD,AMD EPYC 9004 Series,9554,64C/128T,3.1 GHz,360 W,Genoa
+AMD,AMD EPYC 9004 Series,9554P,64C/128T,3.1 GHz,360 W,Genoa
+AMD,AMD EPYC 9004 Series,9634,84C/168T,2.25 GHz,290 W,Genoa
+AMD,AMD EPYC 9004 Series,9654,96C/192T,2.4 GHz,360 W,Genoa
+AMD,AMD EPYC 9004 Series,9654P,96C/192T,2.4 GHz,360 W,Genoa
+AMD,AMD EPYC 9004 Series,9684X,96C/192T,2.55 GHz,400 W,Genoa
+AMD,AMD EPYC 9004 Series,9704,96C/192T,2.0 GHz,155-360 W,Genoa
+AMD,AMD EPYC 9004 Series,9734,112C/224T,2.2 GHz,340 W,Genoa
+AMD,AMD EPYC 9004 Series,9754,128C/256T,2.25 GHz,360 W,Genoa
+AMD,AMD EPYC 9004 Series,9754S,128C/128T,2.25 GHz,360 W,Genoa
+AMD,AMD EPYC 9005 Series,9015,8C/16T,3.4 GHz,125 W,Turin
+AMD,AMD EPYC 9005 Series,9015P,8C/16T,3.4 GHz,125 W,Turin
+AMD,AMD EPYC 9005 Series,9115,16C/32T,2.6 GHz,125 W,Turin
+AMD,AMD EPYC 9005 Series,9135,16C/32T,3.65 GHz,200 W,Turin
+AMD,AMD EPYC 9005 Series,9175F,16C/32T,4.2 GHz,320 W,Turin
+AMD,AMD EPYC 9005 Series,9224,24C/48T,2.5 GHz,200 W,Turin
+AMD,AMD EPYC 9005 Series,9254,24C/48T,2.9 GHz,200 W,Turin
+AMD,AMD EPYC 9005 Series,9255,24C/48T,3.25 GHz,250 W,Turin
+AMD,AMD EPYC 9005 Series,9275F,24C/48T,4.1 GHz,320 W,Turin
+AMD,AMD EPYC 9005 Series,9334,32C/64T,2.7 GHz,210 W,Turin
+AMD,AMD EPYC 9005 Series,9335,32C/64T,3.65 GHz,210 W,Turin
+AMD,AMD EPYC 9005 Series,9355,32C/64T,3.55 GHz,280 W,Turin
+AMD,AMD EPYC 9005 Series,9355P,32C/64T,3.55 GHz,280 W,Turin
+AMD,AMD EPYC 9005 Series,9375F,32C/64T,3.8 GHz,320 W,Turin
+AMD,AMD EPYC 9005 Series,9365,36C/72T,3.4 GHz,280 W,Turin
+AMD,AMD EPYC 9005 Series,9455,48C/96T,3.15 GHz,300 W,Turin
+AMD,AMD EPYC 9005 Series,9455P,48C/96T,3.15 GHz,300 W,Turin
+AMD,AMD EPYC 9005 Series,9475F,48C/96T,3.65 GHz,390 W,Turin
+AMD,AMD EPYC 9005 Series,9534,64C/128T,2.45 GHz,280 W,Turin
+AMD,AMD EPYC 9005 Series,9555,64C/128T,3.2 GHz,360 W,Turin
+AMD,AMD EPYC 9005 Series,9555P,64C/128T,3.2 GHz,360 W,Turin
+AMD,AMD EPYC 9005 Series,9565,64C/128T,3.75 GHz,400 W,Turin
+AMD,AMD EPYC 9005 Series,9575F,64C/128T,3.95 GHz,400 W,Turin
+AMD,AMD EPYC 9005 Series,9645,96C/192T,2.55 GHz,370 W,Turin
+AMD,AMD EPYC 9005 Series,9654,96C/192T,2.4 GHz,360 W,Turin
+AMD,AMD EPYC 9005 Series,9655,96C/192T,3.1 GHz,400 W,Turin
+AMD,AMD EPYC 9005 Series,9655P,96C/192T,3.1 GHz,400 W,Turin
+AMD,AMD EPYC 9005 Series,9745,128C/256T,2.4 GHz,400 W,Turin
+AMD,AMD EPYC 9005 Series,9755,128C/256T,2.7 GHz,500 W,Turin
+AMD,AMD EPYC 9005 Series,9825,128C/256T,2.4 GHz,400 W,Turin
+AMD,AMD EPYC 9005 Series,9845,160C/320T,2.4 GHz,500 W,Turin
+AMD,AMD EPYC 9005 Series,9965,192C/384T,2.25 GHz,500 W,Turin
+AMD,AMD Ryzen Embedded V1000 Series,V1807B,4C/8T,3.35 GHz,45 W,Raven Ridge
+AMD,AMD Ryzen Embedded V1000 Series,V1756B,4C/8T,3.25 GHz,45 W,Raven Ridge
+AMD,AMD Ryzen Embedded V1000 Series,V1605B,4C/8T,2.0 GHz,12-25 W,Raven Ridge
+AMD,AMD Ryzen Embedded V1000 Series,V1756M,4C/8T,3.25 GHz,45 W,Raven Ridge
+AMD,AMD Ryzen Embedded V1000 Series,V1202B,2C/4T,2.3 GHz,6-12 W,Raven Ridge
+AMD,AMD Ryzen Embedded V1000 Series,V1404I,4C/8T,2.0 GHz,10-20 W,Raven Ridge
+AMD,AMD Ryzen Embedded V1000 Series,V1500B,4C/8T,2.2 GHz,16 W,Raven Ridge
+Intel,Intel Atom C3000 Series,C3308,4C/4T,1.6 GHz,9 W,Denverton
+Intel,Intel Atom C3000 Series,C3336,4C/4T,1.7 GHz,11 W,Denverton
+Intel,Intel Atom C3000 Series,C3436L,4C/4T,1.7 GHz,10.5 W,Denverton
+Intel,Intel Atom C3000 Series,C3508,4C/4T,1.6 GHz,14 W,Denverton
+Intel,Intel Atom C3000 Series,C3538,4C/4T,2.1 GHz,17 W,Denverton
+Intel,Intel Atom C3000 Series,C3558,4C/4T,2.2 GHz,17 W,Denverton
+Intel,Intel Atom C3000 Series,C3558R,4C/4T,2.2 GHz,17 W,Denverton
+Intel,Intel Atom C3000 Series,C3708,8C/8T,1.7 GHz,25 W,Denverton
+Intel,Intel Atom C3000 Series,C3750,8C/8T,2.1 GHz,25 W,Denverton
+Intel,Intel Atom C3000 Series,C3758,8C/8T,2.2 GHz,25 W,Denverton
+Intel,Intel Atom C3000 Series,C3758R,8C/8T,2.2 GHz,25 W,Denverton
+Intel,Intel Atom C3000 Series,C3808,12C/12T,2.0 GHz,25 W,Denverton
+Intel,Intel Atom C3000 Series,C3830,12C/12T,1.8 GHz,20 W,Denverton
+Intel,Intel Atom C3000 Series,C3850,12C/12T,2.2 GHz,25 W,Denverton
+Intel,Intel Atom C3000 Series,C3858,12C/12T,2.0 GHz,25 W,Denverton
+Intel,Intel Atom C3000 Series,C3950,16C/16T,2.0 GHz,31 W,Denverton
+Intel,Intel Atom C3000 Series,C3955,16C/16T,2.1 GHz,31 W,Denverton
+Intel,Intel Atom C3000 Series,C3958,16C/16T,2.0 GHz,31 W,Denverton
+Intel,Intel Core i3/i5/i7-1100GRE Processor Series,Core i3-1115GRE,2C/4T,1.7 GHz,15 W,Tiger Lake
+Intel,Intel Core i3/i5/i7-1100GRE Processor Series,Core i5-1145GRE,4C/8T,1.5 GHz,15 W,Tiger Lake
+Intel,Intel Core i3/i5/i7-1100GRE Processor Series,Core i7-1185GRE,4C/8T,1.8 GHz,15 W,Tiger Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1712TR,2C/4T,1.9 GHz,24 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1713NT,2C/4T,1.7 GHz,24 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1715TER,4C/8T,1.5 GHz,33 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1718T,4C/8T,2.4 GHz,41 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1722NE,4C/8T,1.7 GHz,41 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1725TER,6C/12T,1.6 GHz,47 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1732TE,8C/16T,1.9 GHz,65 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1733NT,8C/16T,1.7 GHz,65 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1735TR,8C/16T,2.0 GHz,65 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1736,8C/16T,2.7 GHz,65 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1739,8C/16T,2.7 GHz,86 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1746TER,10C/20T,1.7 GHz,68 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1749NT,12C/24T,1.5 GHz,68 W,Ice Lake
+Intel,Intel Xeon D-1700 (Ice-Lake-D) Series,D-1753NE,12C/24T,1.4 GHz,65 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2712T,4C/8T,1.5 GHz,67 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2733NT,8C/16T,1.6 GHz,67 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2738,8C/16T,2.2 GHz,80 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2741NX,8C/16T,1.7 GHz,67 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2745CR,8C/16T,1.8 GHz,65 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2753NX,12C/24T,1.7 GHz,65 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2752NX,12C/24T,1.9 GHz,85 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2775TE,16C/32T,1.9 GHz,96 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2766NT,16C/32T,1.7 GHz,96 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2787NX,20C/40T,1.9 GHz,117 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2795NT,20C/40T,1.7 GHz,110 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2796NT,20C/40T,1.7 GHz,110 W,Ice Lake
+Intel,Intel Xeon D-2700 (Ice-Lake-D) Series,D-2796TE,20C/40T,1.9 GHz,117 W,Ice Lake
+Intel,Intel Xeon E-2100 Series,E-2104G,4C/4T,3.2 GHz,65 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2124,4C/4T,3.3 GHz,71 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2124G,4C/4T,3.4 GHz,71 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2126G,6C/6T,3.3 GHz,80 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2134,4C/8T,3.5 GHz,71 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2136,6C/12T,3.3 GHz,80 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2144G,6C/6T,3.6 GHz,71 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2146G,6C/12T,3.5 GHz,80 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2174G,4C/8T,3.8 GHz,71 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2176G,6C/12T,3.7 GHz,80 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2186G,6C/12T,3.8 GHz,95 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2176M,6C/12T,2.7 GHz,45 W,Coffee Lake
+Intel,Intel Xeon E-2100 Series,E-2186M,6C/12T,2.9 GHz,45 W,Coffee Lake
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2224,4C/4T,3.4 GHz,71 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2224G,4C/4T,3.5 GHz,71 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2226G,6C/6T,3.4 GHz,80 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2226GE,6C/6T,2.9 GHz,45 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2234,4C/8T,3.6 GHz,71 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2236,6C/12T,3.4 GHz,80 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2244G,4C/8T,3.8 GHz,71 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2246G,6C/12T,3.6 GHz,80 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2276G,6C/12T,3.8 GHz,80 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (4 or 6-core) Series,E-2276M,6C/12T,2.8 GHz,45 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (8-core) Series,E-2278G,8C/16T,3.4 GHz,80 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (8-core) Series,E-2278GEL,8C/16T,2.0 GHz,35 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (8-core) Series,E-2286G,6C/12T,4.0 GHz,95 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (8-core) Series,E-2288G,8C/16T,3.7 GHz,95 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2200 (8-core) Series,E-2286M,8C/16T,2.4 GHz,45 W,Coffee Lake Refresh
+Intel,Intel Xeon E-2300 Series,E-2314,4C/4T,2.8 GHz,65 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2324G,4C/4T,3.1 GHz,65 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2334,4C/8T,3.4 GHz,65 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2336,6C/12T,2.9 GHz,65 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2356G,6C/12T,3.2 GHz,80 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2374G,4C/8T,3.7 GHz,80 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2378,8C/16T,2.6 GHz,65 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2378G,8C/16T,2.8 GHz,80 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2386G,6C/12T,3.5 GHz,95 W,Rocket Lake
+Intel,Intel Xeon E-2300 Series,E-2388G,8C/16T,3.2 GHz,95 W,Rocket Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2414,4C/4T,2.6 GHz,65 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2424,4C/4T,2.8 GHz,65 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2434,4C/8T,3.4 GHz,55 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2436,6C/12T,2.9 GHz,65 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2446G,6C/12T,3.6 GHz,65 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2454,6C/12T,3.2 GHz,65 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2456,6C/12T,3.6 GHz,65 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2468,8C/16T,2.8 GHz,65 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2478,8C/16T,2.8 GHz,80 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2486,6C/12T,4.0 GHz,95 W,Alder Lake
+Intel,Intel Xeon E-2400/Xeon 6300 Series,E-2488,8C/16T,3.2 GHz,95 W,Alder Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11155MLE,4C/8T,2.4 GHz,25-35 W,Tiger Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11155MRE,4C/8T,2.8 GHz,45 W,Tiger Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11555MLE,6C/12T,2.5 GHz,35-45 W,Tiger Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11555MRE,6C/12T,3.0 GHz,45 W,Tiger Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11865MLE,8C/16T,2.6 GHz,45-65 W,Tiger Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11865MRE,8C/16T,2.6 GHz,65 W,Tiger Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11750E,8C/16T,2.4 GHz,65 W,Tiger Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11855M,6C/12T,3.2 GHz,45 W,Tiger Lake
+Intel,Intel Xeon W-11000 Processor Series,W-11955M,8C/16T,2.6 GHz,45 W,Tiger Lake
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Sapphire-Rapids-EE LCC) Series,4509Y,8C/16T,2.6 GHz,125 W,Sapphire Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Sapphire-Rapids-EE LCC) Series,4510T,12C/24T,2.0 GHz,115 W,Sapphire Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Sapphire-Rapids-EE LCC) Series,4510,12C/24T,2.4 GHz,150 W,Sapphire Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Sapphire-Rapids-EE LCC) Series,3508U,8C/8T,2.1 GHz,125 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8153,16C/32T,2.0 GHz,125 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8156,4C/8T,3.6 GHz,105 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8158,12C/24T,3.0 GHz,150 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8160,24C/48T,2.1 GHz,150 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8160F,24C/48T,2.1 GHz,160 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8160M,24C/48T,2.1 GHz,150 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8160T,24C/48T,2.1 GHz,150 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8163,24C/48T,2.4 GHz,165 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8164,26C/52T,2.0 GHz,150 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8167M,26C/52T,2.0 GHz,165 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8168,24C/48T,2.7 GHz,205 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8170,26C/52T,2.1 GHz,165 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8170M,26C/52T,2.1 GHz,165 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8173M,28C/56T,2.0 GHz,165 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8174,24C/48T,3.1 GHz,240 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8176,28C/56T,2.1 GHz,165 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8176F,28C/56T,2.1 GHz,173 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8176M,28C/56T,2.1 GHz,165 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8180,28C/56T,2.5 GHz,205 W,Skylake
+Intel,Intel Xeon Platinum 8100 (Skylake-SP) Series,8180M,28C/56T,2.5 GHz,205 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,5115,10C/20T,2.4 GHz,85 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,5117,14C/28T,2.0 GHz,105 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,5117F,14C/28T,2.0 GHz,113 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,5118,12C/24T,2.3 GHz,105 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,5119T,14C/28T,1.9 GHz,85 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,5120,14C/28T,2.2 GHz,105 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,5120T,14C/28T,2.2 GHz,105 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,5122,4C/8T,3.6 GHz,105 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6122,20C/40T,1.8 GHz,120 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6126,12C/24T,2.6 GHz,125 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6126F,12C/24T,2.6 GHz,135 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6126T,12C/24T,2.6 GHz,125 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6128,6C/12T,3.4 GHz,115 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6130,16C/32T,2.1 GHz,125 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6130F,16C/32T,2.1 GHz,135 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6130T,16C/32T,2.1 GHz,125 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6132,14C/28T,2.6 GHz,140 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6134,8C/16T,3.2 GHz,130 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6134M,8C/16T,3.2 GHz,130 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6136,12C/24T,3.0 GHz,150 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6138,20C/40T,2.0 GHz,125 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6138F,20C/40T,2.0 GHz,135 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6138P,20C/40T,2.0 GHz,195 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6138T,20C/40T,2.0 GHz,125 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6139,18C/36T,2.3 GHz,135 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6139M,18C/36T,2.3 GHz,135 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6140,18C/36T,2.3 GHz,140 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6140M,18C/36T,2.3 GHz,140 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6142,16C/32T,2.6 GHz,150 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6142F,16C/32T,2.6 GHz,160 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6142M,16C/32T,2.6 GHz,150 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6144,8C/16T,3.5 GHz,150 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6145,20C/40T,2.0 GHz,145 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6146,12C/24T,3.2 GHz,165 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6148,20C/40T,2.4 GHz,150 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6148F,20C/40T,2.4 GHz,150 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6149,16C/32T,3.1 GHz,205 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6150,18C/36T,2.7 GHz,165 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6152,22C/44T,2.1 GHz,140 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6154,18C/36T,3.0 GHz,200 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6161,22C/44T,2.2 GHz,165 W,Skylake
+Intel,Intel Xeon Gold 6100 5100 (Skylake-SP) Series,6162,24C/48T,1.9 GHz,150 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,3104,6C/6T,1.7 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,3106,8C/8T,1.7 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4106H,8C/16T,1.8 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4108,8C/16T,1.8 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4109T,8C/16T,2.0 GHz,70 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4110,8C/16T,2.1 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4112,4C/8T,2.6 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4114,10C/20T,2.2 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4114T,10C/20T,2.2 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4116,12C/24T,2.1 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4116T,12C/24T,2.1 GHz,85 W,Skylake
+Intel,Intel Xeon Silver 4100 Bronze 3100 (Skylake-SP) Series,4123,8C/16T,3.0 GHz,105 W,Skylake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8253,16C/32T,2.2 GHz,125 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8256,4C/8T,3.8 GHz,105 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8260,24C/48T,2.4 GHz,165 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8260L,24C/48T,2.4 GHz,165 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8260M,24C/48T,2.4 GHz,165 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8260Y,24C/48T,2.4 GHz,165 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8268,24C/48T,2.9 GHz,205 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8270,26C/52T,2.7 GHz,205 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8276,28C/56T,2.2 GHz,165 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8276L,28C/56T,2.2 GHz,165 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8276M,28C/56T,2.2 GHz,165 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8280,28C/56T,2.7 GHz,205 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8280L,28C/56T,2.7 GHz,205 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8280M,28C/56T,2.7 GHz,205 W,Cascade Lake
+Intel,Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series,8284,28C/56T,3.0 GHz,240 W,Cascade Lake
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5215,10C/20T,2.5 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5215L,10C/20T,2.5 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5215M,10C/20T,2.5 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5217,8C/16T,3.0 GHz,115 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5218,16C/32T,2.3 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5218B,16C/32T,2.3 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5218N,16C/32T,2.3 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5218R,20C/40T,2.1 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5218T,16C/32T,2.1 GHz,105 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5220,18C/36T,2.2 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5220R,24C/48T,2.2 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5220S,18C/36T,2.7 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5220T,18C/36T,1.9 GHz,105 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,5222,4C/8T,3.8 GHz,105 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6208U,16C/32T,2.9 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6209U,20C/40T,2.1 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6210U,20C/40T,2.5 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6212U,24C/48T,2.4 GHz,165 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6222V,20C/40T,1.8 GHz,115 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6226,12C/24T,2.7 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6226R,16C/32T,2.9 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6230,20C/40T,2.1 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6230N,20C/40T,2.3 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6230R,26C/52T,2.1 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6230T,20C/40T,2.1 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6234,8C/16T,3.3 GHz,130 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6238,22C/44T,2.1 GHz,140 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6238L,22C/44T,2.1 GHz,140 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6238M,22C/44T,2.1 GHz,140 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6238R,28C/56T,2.2 GHz,165 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6238T,22C/44T,1.9 GHz,125 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6240,18C/36T,2.6 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6240L,18C/36T,2.6 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6240M,18C/36T,2.6 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6240R,24C/48T,2.4 GHz,165 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6240Y,18C/36T,2.6 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6242,16C/32T,2.8 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6242R,20C/40T,3.1 GHz,205 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6244,8C/16T,3.6 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6246,12C/24T,3.3 GHz,165 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6246R,16C/32T,3.4 GHz,205 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6248,20C/40T,2.5 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6248R,24C/48T,3.0 GHz,205 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6250,8C/16T,3.9 GHz,185 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6250L,8C/16T,3.9 GHz,185 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6252,24C/48T,2.1 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6252N,24C/48T,2.3 GHz,150 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6254,18C/36T,3.1 GHz,200 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6256,12C/24T,3.6 GHz,205 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6258R,28C/56T,2.7 GHz,205 W,Cascade Lake Refresh
+Intel,Intel Xeon Gold 6200 5200 (Cascade-Lake-SP Refresh) Series,6262V,24C/48T,1.9 GHz,135 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,3204,6C/6T,1.9 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,3206R,8C/8T,1.9 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4208,8C/16T,2.1 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4209T,8C/16T,2.2 GHz,70 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4210,10C/20T,2.2 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4210R,10C/20T,2.4 GHz,100 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4210T,10C/20T,2.3 GHz,95 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4214,12C/24T,2.2 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4214R,12C/24T,2.4 GHz,100 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4214Y,12C/24T,2.2 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4215,8C/16T,2.5 GHz,85 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4215R,8C/16T,3.2 GHz,130 W,Cascade Lake Refresh
+Intel,Intel Xeon Silver 4200 Bronze 3200 (Cascade-Lake-SP Refresh) Series,4216,16C/32T,2.1 GHz,100 W,Cascade Lake Refresh
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8351N,36C/72T,2.4 GHz,225 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8352M,32C/64T,2.3 GHz,185 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8352S,32C/64T,2.2 GHz,205 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8352V,36C/72T,2.1 GHz,195 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8352Y,32C/64T,2.2 GHz,205 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8358,32C/64T,2.6 GHz,250 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8358P,32C/64T,2.6 GHz,240 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8360Y,36C/72T,2.4 GHz,250 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8362,32C/64T,2.8 GHz,265 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8368,38C/76T,2.4 GHz,270 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8368Q,38C/76T,2.6 GHz,270 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Ice-Lake-SP) Series,8380,40C/80T,2.3 GHz,270 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,5315Y,8C/16T,3.2 GHz,140 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,5317,12C/24T,3.0 GHz,150 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,5318N,24C/48T,2.1 GHz,150 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,5318S,24C/48T,2.1 GHz,165 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,5318Y,24C/48T,2.1 GHz,165 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,5320,26C/52T,2.2 GHz,185 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,5320T,20C/40T,2.3 GHz,150 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6312U,24C/48T,2.4 GHz,185 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6314U,32C/64T,2.3 GHz,205 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6326,16C/32T,2.9 GHz,185 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6330,28C/56T,2.0 GHz,205 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6330N,28C/56T,2.2 GHz,165 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6334,8C/16T,3.6 GHz,165 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6336Y,24C/48T,2.4 GHz,185 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6338,32C/64T,2.0 GHz,205 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6338N,32C/64T,2.2 GHz,185 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6338T,24C/48T,2.1 GHz,165 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6342,24C/48T,2.8 GHz,230 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6346,16C/32T,3.1 GHz,205 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6348,28C/56T,2.6 GHz,235 W,Ice Lake
+Intel,Intel Xeon Gold 6300 5300 (Ice-Lake-SP) Series,6354,18C/36T,3.0 GHz,205 W,Ice Lake
+Intel,Intel Xeon Silver 4300 (Ice-Lake-SP) Series,4309Y,8C/16T,2.8 GHz,105 W,Ice Lake
+Intel,Intel Xeon Silver 4300 (Ice-Lake-SP) Series,4310,12C/24T,2.1 GHz,120 W,Ice Lake
+Intel,Intel Xeon Silver 4300 (Ice-Lake-SP) Series,4310T,10C/20T,2.3 GHz,105 W,Ice Lake
+Intel,Intel Xeon Silver 4300 (Ice-Lake-SP) Series,4314,16C/32T,2.4 GHz,135 W,Ice Lake
+Intel,Intel Xeon Silver 4300 (Ice-Lake-SP) Series,4316,20C/40T,2.3 GHz,150 W,Ice Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8353H,18C/36T,2.5 GHz,150 W,Cooper Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8354H,18C/36T,3.1 GHz,205 W,Cooper Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8356H,8C/16T,3.9 GHz,190 W,Cooper Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8360H,24C/48T,3.0 GHz,225 W,Cooper Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8360HL,24C/48T,3.0 GHz,225 W,Cooper Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8376H,28C/56T,2.6 GHz,205 W,Cooper Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8376HL,28C/56T,2.6 GHz,205 W,Cooper Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8380H,28C/56T,2.9 GHz,250 W,Cooper Lake
+Intel,Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series,8380HL,28C/56T,2.9 GHz,250 W,Cooper Lake
+Intel,Intel Xeon Gold 6300 5300 (Cooper-Lake-SP) Series,5318H,18C/36T,2.5 GHz,150 W,Cooper Lake
+Intel,Intel Xeon Gold 6300 5300 (Cooper-Lake-SP) Series,5320H,20C/40T,2.4 GHz,150 W,Cooper Lake
+Intel,Intel Xeon Gold 6300 5300 (Cooper-Lake-SP) Series,6328H,16C/32T,2.8 GHz,165 W,Cooper Lake
+Intel,Intel Xeon Gold 6300 5300 (Cooper-Lake-SP) Series,6328HL,16C/32T,2.8 GHz,165 W,Cooper Lake
+Intel,Intel Xeon Gold 6300 5300 (Cooper-Lake-SP) Series,6330H,24C/48T,2.0 GHz,150 W,Cooper Lake
+Intel,Intel Xeon Gold 6300 5300 (Cooper-Lake-SP) Series,6348H,24C/48T,2.3 GHz,165 W,Cooper Lake
+Intel,Intel Xeon CPU Max 9400 (Sapphire-Rapids-HBM) Series,Max 9480,56C/112T,1.9 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon CPU Max 9400 (Sapphire-Rapids-HBM) Series,Max 9470,52C/104T,2.0 GHz,-,Sapphire Rapids
+Intel,Intel Xeon CPU Max 9400 (Sapphire-Rapids-HBM) Series,Max 9468,48C/96T,2.1 GHz,-,Sapphire Rapids
+Intel,Intel Xeon CPU Max 9400 (Sapphire-Rapids-HBM) Series,Max 9460,40C/80T,2.2 GHz,-,Sapphire Rapids
+Intel,Intel Xeon CPU Max 9400 (Sapphire-Rapids-HBM) Series,Max 9462,32C/64T,2.7 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8490H,60C/120T,1.9 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8480+,56C/112T,2.0 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8480C,56C/112T,2.0 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8481C,-,2.0 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8487C,56C/112T,1.9 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8488C,48C/96T,2.4 GHz,385 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8470,52C/104T,2.0 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8470N,52C/104T,1.7 GHz,300 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8470Q,52C/104T,2.1 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8471N,52C/104T,1.8 GHz,300 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8473C,52C/104T,2.9 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8474C,-,2.1 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8475B,-,2.7 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8478C,48C/96T,2.2 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8460Y+,40C/80T,2.0 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8460H,40C/80T,2.2 GHz,330 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8461V,48C/96T,2.2 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8462Y+,32C/64T,2.8 GHz,300 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8465C,52C/104T,2.9 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8468,48C/96T,-,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8468H,48C/96T,2.1 GHz,330 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8468V,48C/96T,2.4 GHz,330 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8469C,48C/96T,2.6 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8452Y,36C/72T,2.0 GHz,300 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8454H,32C/64T,2.1 GHz,270 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8458P,44C/88T,2.7 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8450H,28C/56T,2.6 GHz,250 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8444H,16C/32T,2.9 GHz,270 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8432C,40C/80T,-,350 W,Sapphire Rapids
+Intel,Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series,8422C,36C/72T,-,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6454S,32C/64T,2.2 GHz,270 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6448Y,32C/64T,2.1 GHz,225 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6448H,32C/64T,2.4 GHz,250 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6444Y,16C/32T,3.6 GHz,270 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6442Y,24C/48T,2.6 GHz,225 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6438Y+,32C/64T,2.0 GHz,205 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6438N,32C/64T,2.0 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6438M,32C/64T,2.2 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6434H,8C/16T,3.7 GHz,195 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6434,8C/16T,-,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6430,32C/64T,2.1 GHz,270 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6428N,32C/64T,1.8 GHz,185 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6426Y,16C/32T,2.5 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6421N,32C/64T,1.8 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6418H,24C/48T,2.1 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6416H,18C/36T,2.2 GHz,165 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6414U,32C/64T,2.0 GHz,250 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6462C,32C/64T,3.3 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6458Q,-,3.1 GHz,350 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,6456C,-,2.9 GHz,280 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,5420+,28C/56T,2.7 GHz,205 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,5418Y,24C/48T,2.8 GHz,185 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,5418N,-,1.8 GHz,165 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,5416S,16C/32T,2.0 GHz,150 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,5415+,8C/16T,2.9 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,5412U,24C/48T,2.1 GHz,185 W,Sapphire Rapids
+Intel,Intel Xeon Gold 6400 5400 (Sapphire-Rapids-SP) Series,5411N,-,1.9 GHz,165 W,Sapphire Rapids
+Intel,Intel Xeon Silver 4400 Bronze 3400 (Sapphire-Rapids-SP) Series,4416+,20C/40T,2.0 GHz,165 W,Sapphire Rapids
+Intel,Intel Xeon Silver 4400 Bronze 3400 (Sapphire-Rapids-SP) Series,4410Y,12C/24T,2.0 GHz,150 W,Sapphire Rapids
+Intel,Intel Xeon Silver 4400 Bronze 3400 (Sapphire-Rapids-SP) Series,4410T,10C/20T,2.7 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Silver 4400 Bronze 3400 (Sapphire-Rapids-SP) Series,3508U,8C/8T,2.1 GHz,125 W,Sapphire Rapids
+Intel,Intel Xeon Silver 4400 Bronze 3400 (Sapphire-Rapids-SP) Series,3408U,-,1.8 GHz,-,Sapphire Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8593Q,64C/128T,2.2 GHz,385 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8592+,-,1.9 GHz,350 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8592V,-,2.0 GHz,330 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8581V,60C/120T,2.6 GHz,270 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8580,-,2.9 GHz,350 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8571N,52C/104T,2.4 GHz,350 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8570,56C/112T,2.1 GHz,-,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8568Y+,48C/96T,2.3 GHz,-,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8562Y+,32C/64T,2.8 GHz,300 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8558,48C/96T,2.1 GHz,330 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8558P,-,2.7 GHz,350 W,Emerald Rapids
+Intel,Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series,8558U,-,2.0 GHz,300 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6558Q,32C/64T,3.2 GHz,350 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6554S,36C/72T,2.2 GHz,270 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6548Y+,32C/64T,2.5 GHz,250 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6548N,-,2.8 GHz,-,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6544Y,16C/32T,3.6 GHz,270 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6542Y,24C/48T,2.9 GHz,250 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6538Y+,32C/64T,2.2 GHz,225 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6538N,-,2.1 GHz,205 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6534,8C/16T,3.9 GHz,195 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6530,32C/64T,2.1 GHz,270 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,6526Y,16C/32T,2.8 GHz,195 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,5520+,28C/56T,2.0 GHz,205 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,5515+,8C/16T,3.2 GHz,165 W,Emerald Rapids
+Intel,Intel Xeon Gold 6500 5500 (Emerald Rapids-SP) Series,5512U,28C/56T,2.1 GHz,185 W,Emerald Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Emerald Rapids-SP) Series,4516Y+,24C/48T,2.2 GHz,185 W,Emerald Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Emerald Rapids-SP) Series,4514Y,16C/32T,2.0 GHz,150 W,Emerald Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Emerald Rapids-SP) Series,4510T,12C/24T,2.8 GHz,115 W,Emerald Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Emerald Rapids-SP) Series,4510,-,2.4 GHz,150 W,Emerald Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Emerald Rapids-SP) Series,4509Y,8C/16T,2.6 GHz,125 W,Emerald Rapids
+Intel,Intel Xeon Silver 4500 Bronze 3500 (Emerald Rapids-SP) Series,3508U,8C/8T,2.1 GHz,125 W,Emerald Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6788P,86C/172T,2.0 GHz,350 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6787P,86C/172T,2.0 GHz,350 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6781P,80C/160T,2.0 GHz,350 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6776P,64C/128T,2.3 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6774P,64C/128T,2.5 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6768P,64C/128T,2.4 GHz,330 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6767P,64C/128T,2.4 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6762P,64C/128T,2.9 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6761P,64C/128T,2.5 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6760P,64C/128T,2.2 GHz,330 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6748P,48C/96T,2.5 GHz,300 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6747P,48C/96T,2.7 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6745P,32C/64T,3.1 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6741P,48C/96T,2.5 GHz,300 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6740P,48C/96T,2.1 GHz,270 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6738P,32C/64T,2.9 GHz,270 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6737P,32C/64T,2.9 GHz,270 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6736P,36C/72T,2.0 GHz,205 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6732P,32C/64T,3.8 GHz,350 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6731P,32C/64T,2.5 GHz,245 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6730P,32C/64T,2.5 GHz,250 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6728P,24C/48T,2.7 GHz,210 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6727P,24C/48T,3.0 GHz,250 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6724P,16C/32T,3.6 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6721P,24C/48T,2.6 GHz,225 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6717P,16C/32T,3.2 GHz,190 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6714P,8C/16T,4.0 GHz,165 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6711P,16C/32T,2.3 GHz,150 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6530P,32C/64T,2.3 GHz,225 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6527P,24C/48T,3.0 GHz,250 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6520P,24C/48T,2.4 GHz,210 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6517P,16C/32T,3.2 GHz,190 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6515P,16C/32T,2.3 GHz,150 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6511P,16C/32T,2.3 GHz,-,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6507P,8C/16T,3.5 GHz,150 W,Granite Rapids
+Intel,Intel Xeon 6500P 6700P (Granite Rapids-SP) Series,6505P,12C/24T,2.2 GHz,-,Granite Rapids
+Intel,Intel Xeon 6900P (Granite Rapids-AP) Series,6980P,128C/256T,2.0 GHz,500 W,Granite Rapids
+Intel,Intel Xeon 6900P (Granite Rapids-AP) Series,6979P,120C/240T,2.1 GHz,-,Granite Rapids
+Intel,Intel Xeon 6900P (Granite Rapids-AP) Series,6972P,96C/192T,2.4 GHz,-,Granite Rapids
+Intel,Intel Xeon 6900P (Granite Rapids-AP) Series,6966P-C,96C/192T,3.1 GHz,550 W,Granite Rapids
+Intel,Intel Xeon 6900P (Granite Rapids-AP) Series,6962P,72C/144T,2.7 GHz,500 W,Granite Rapids
+Intel,Intel Xeon 6900P (Granite Rapids-AP) Series,6960P,72C/144T,2.7 GHz,500 W,Granite Rapids
+Intel,Intel Xeon 6900P (Granite Rapids-AP) Series,6952P,96C/192T,2.1 GHz,400 W,Granite Rapids
+Intel,Intel Xeon 6900P (Granite Rapids-AP) Series,6944P,72C/144T,1.8 GHz,350 W,Granite Rapids
