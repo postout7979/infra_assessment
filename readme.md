@@ -47,8 +47,7 @@ infra_assessment\                      <- git clone https://github.com/postout79
 `hcl\` 폴더와 `vmware-vsphere-security-configuration-guide-8-controls.csv`는 이번 전달
 zip에 함께 포함되어 있으니, 위 위치에 그대로 복사해 넣으면 됩니다.
 
-기존 저장소 폴더(`vcf_9_upgrade`, `Operations`, `security-hardening`, `vcenter`, `vmsa`,
-`kisa_esx`)는 실행 시 더 이상 필요하지 않습니다. 다만 `security-hardening\vmware-tools\
+`security-hardening\vmware-tools\
 scg-common.psm1`은 이 병합 범위에서 제외된 `remediate-esxi-8.ps1` / `remediate-vcenter-8.ps1`
 / `remediate-vm-8.ps1` 3개 스크립트가 여전히 참조하므로 원래 위치에 그대로 남겨둬야 합니다.
 
