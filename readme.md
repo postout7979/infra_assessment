@@ -1,10 +1,7 @@
 # allinonevmw.ps1 사용법
 
 `postout7979/infra_assessment` 저장소의 VMware/VCF 인프라 점검 도구들을 하나의 메뉴에서
-실행할 수 있도록 통합한 올인원 런처 스크립트입니다. 원래 각 폴더(`vcf_9_upgrade`,
-`Operations`, `security-hardening`, `vcenter`, `vmsa`, `kisa_esx`)에 흩어져 있던 스크립트
-로직이 전부 이 파일 하나에 함수로 인라인되어 있어서, 실행 시 별도 하위 스크립트를 호출하지
-않습니다.
+실행할 수 있도록 통합한 올인원 런처 스크립트입니다.
 
 ## 1. 사전 준비물
 
