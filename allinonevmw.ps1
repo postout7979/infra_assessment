@@ -80,6 +80,101 @@ if (Test-Path -LiteralPath $RepoRoot) {
     catch { }
 }
 
+# ============================================================
+# 0.6 Shared helper: optional Excel companion for CSV outputs
+#   (every tool below that writes one or more CSV files also calls this once,
+#   at the end, to combine them into ONE companion .xlsx workbook - one
+#   worksheet per CSV - but ONLY when the ImportExcel module is installed.
+#   New, global-scope code added for this specific enhancement (not sourced
+#   from any of the 14 original tool scripts), so - unlike the duplicated
+#   per-tool helpers described in the collision-handling notes - it is
+#   defined once here and simply called by name from every tool below.)
+# ============================================================
+function Test-ExcelExportAvailable {
+    [CmdletBinding()]
+    param()
+    return [bool](Get-Module -ListAvailable -Name ImportExcel | Select-Object -First 1)
+}
+
+function Get-SafeExcelSheetName {
+    param([string]$Name)
+    if ([string]::IsNullOrWhiteSpace($Name)) { return "Sheet1" }
+    $clean = ($Name -replace '[\[\]\*\?/\\:]', '_')
+    if ($clean.Length -gt 31) { $clean = $clean.Substring(0, 31) }
+    return $clean
+}
+
+function Export-CsvSetAsExcelWorkbook {
+    <#
+        Combines one or more already-written CSV files into ONE .xlsx workbook
+        (one worksheet per CSV) - only if the ImportExcel module is installed.
+        Silently returns $false (does nothing else) when the module isn't
+        available, so every call site below can call this unconditionally
+        right after writing its own CSV(s), with no module-availability check
+        of its own. A stale .xlsx from a previous run at the same fixed path
+        is removed first so sheets are never appended onto old data.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string]$XlsxPath,
+        [Parameter(Mandatory)] [System.Collections.IEnumerable]$Sheets   # array of @{ Name = '...'; Path = '...' }
+    )
+    if (-not (Test-ExcelExportAvailable)) { return $false }
+    try { Import-Module ImportExcel -ErrorAction Stop } catch { return $false }
+    if (Test-Path -LiteralPath $XlsxPath) {
+        try { Remove-Item -LiteralPath $XlsxPath -Force -ErrorAction Stop } catch { }
+    }
+    $wroteAny = $false
+    $usedNames = @{}
+    foreach ($sheet in $Sheets) {
+        if (-not $sheet.Path -or -not (Test-Path -LiteralPath $sheet.Path)) { continue }
+        try {
+            $rows = @(Import-Csv -LiteralPath $sheet.Path)
+            if ($rows.Count -eq 0) { continue }
+            $sheetName = Get-SafeExcelSheetName $sheet.Name
+            if ($usedNames.ContainsKey($sheetName)) {
+                $usedNames[$sheetName]++
+                $suffix = "_$($usedNames[$sheetName])"
+                $sheetName = (Get-SafeExcelSheetName ($sheetName.Substring(0, [Math]::Min($sheetName.Length, 31 - $suffix.Length)))) + $suffix
+            } else {
+                $usedNames[$sheetName] = 0
+            }
+            $rows | Export-Excel -Path $XlsxPath -WorksheetName $sheetName -AutoSize -BoldTopRow -FreezeTopRow -ErrorAction Stop
+            $wroteAny = $true
+        }
+        catch {
+            Write-Warning "Could not add Excel sheet '$($sheet.Name)' from '$($sheet.Path)': $($_.Exception.Message)"
+        }
+    }
+    if ($wroteAny) {
+        Write-Host "    -> Excel: $XlsxPath" -ForegroundColor Gray
+    }
+    return $wroteAny
+}
+
+function Export-CsvFolderAsExcelWorkbook {
+    <#
+        Combines every *.csv file directly inside $FolderPath (non-recursive)
+        into ONE .xlsx workbook at $XlsxPath - one worksheet per CSV file,
+        named after that file's own name. Use this (instead of
+        Export-CsvSetAsExcelWorkbook) when a tool writes a variable/conditional
+        set of CSVs into a folder that is freshly created for this run alone
+        (so every *.csv found there is guaranteed to belong to this run).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string]$FolderPath,
+        [Parameter(Mandatory)] [string]$XlsxPath,
+        [string[]]$Exclude = @()
+    )
+    if (-not (Test-Path -LiteralPath $FolderPath)) { return $false }
+    $csvFiles = Get-ChildItem -LiteralPath $FolderPath -Filter "*.csv" -File -ErrorAction SilentlyContinue |
+        Where-Object { $Exclude -notcontains $_.Name }
+    if (-not $csvFiles -or @($csvFiles).Count -eq 0) { return $false }
+    $sheets = @($csvFiles | ForEach-Object { @{ Name = $_.BaseName; Path = $_.FullName } })
+    return Export-CsvSetAsExcelWorkbook -XlsxPath $XlsxPath -Sheets $sheets
+}
+
 function Invoke-Vcf9PrecheckToolkitTool {
 param(
     [string]$MenuChoice,
@@ -1015,6 +1110,7 @@ foreach ($H in $VMHosts) {
 }
 Write-Progress -Activity "ESX Memory Page" -Completed
 if ($MemPageReport) { $MemPageReport | Export-Csv -Path "$ReportDir\ESX_Memory_Page.csv" -NoTypeInformation -Encoding UTF8 }
+Export-CsvFolderAsExcelWorkbook -FolderPath $ReportDir -XlsxPath (Join-Path $ReportDir "$DirName.xlsx") | Out-Null
 
 # ----------------------------------------------------
 # 11 & 12. Finalize
@@ -1780,6 +1876,7 @@ if ($SkippedReport) {
     $SkippedReport | Export-Csv -Path "$ReportDir\Compatibility_Skipped_USB.csv" -NoTypeInformation -Encoding UTF8
     Write-Host "[INFO] USB excluded items saved to: Compatibility_Skipped_USB.csv ($(@($SkippedReport).Count) items)" -ForegroundColor DarkGray
 }
+Export-CsvFolderAsExcelWorkbook -FolderPath $ReportDir -XlsxPath (Join-Path $ReportDir "Compatibility_Summary.xlsx") | Out-Null
 
 # -- HTML report --
 # HTML helper functions
@@ -3200,6 +3297,10 @@ $ClusterSummary | Format-Table @{L='클러스터';E={$_.Cluster}},
 Write-Host "===============================================================================" -ForegroundColor Yellow
 Write-Host " CSV (per host)       : $CsvPath" -ForegroundColor Gray
 Write-Host " CSV (cluster summary): $ClusterCsvPath" -ForegroundColor Gray
+Export-CsvSetAsExcelWorkbook -XlsxPath (Join-Path $OutDir "NVMe_Tiering_Report_$TimeStamp.xlsx") -Sheets @(
+    @{ Name = "Per_Host_Analysis"; Path = $CsvPath },
+    @{ Name = "Cluster_Summary"; Path = $ClusterCsvPath }
+) | Out-Null
 Write-Host " HTML: $HtmlPath" -ForegroundColor Gray
 Write-Host "===============================================================================" -ForegroundColor Yellow
 }
@@ -10962,6 +11063,8 @@ function Invoke-ComprehensiveVCenterReport {
         }
     }
 
+    Export-CsvFolderAsExcelWorkbook -FolderPath $OutputFolder -XlsxPath "$OutputFolder\DailyReport_Summary_$dateStr.xlsx" | Out-Null
+
     Write-Host "`n[Export] Generating HTML summary..."
     $htmlPath = "$OutputFolder\VCenterReport_$dateStr.html"
 
@@ -11321,8 +11424,8 @@ $CurrentDir = Join-Path $OutputRoot "vmsa"
 if (-not (Test-Path $CurrentDir)) { New-Item -ItemType Directory -Force -Path $CurrentDir | Out-Null }
 
 $Timestamp      = Get-Date -Format "yyyyMMdd-HHmm"
-$CsvAllPath     = Join-Path $CurrentDir "VMSA_All_Advisories_$Timestamp.csv"
-$CsvCveListPath = Join-Path $CurrentDir "VMSA_CVE_List_$Timestamp.csv"
+$CsvAllPath     = Join-Path $CurrentDir "VMSA_All_Advisories.csv"   # fixed name, no timestamp - overwritten in place each run
+$CsvCveListPath = Join-Path $CurrentDir "VMSA_CVE_List.csv"         # fixed name, no timestamp - overwritten in place each run
 $JsonPath       = Join-Path $RepoRoot "VMSA_FullList_Data.json"   # fixed name, kept at the repo root (not output\vmsa) - incremental cache, merged/re-saved in place on every run
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
@@ -11822,6 +11925,10 @@ $CveCsvRows | Export-Csv -LiteralPath $CsvCveListPath -NoTypeInformation -Encodi
 
 Write-Host "    -> All Advisories CSV : $($AllCsvRows.Count) rows -> $CsvAllPath" -ForegroundColor Gray
 Write-Host "    -> CVE List CSV       : $($CveCsvRows.Count) rows -> $CsvCveListPath" -ForegroundColor Gray
+Export-CsvSetAsExcelWorkbook -XlsxPath (Join-Path $CurrentDir "VMSA_FullList_Report.xlsx") -Sheets @(
+    @{ Name = "All_Advisories"; Path = $CsvAllPath },
+    @{ Name = "CVE_List"; Path = $CsvCveListPath }
+) | Out-Null
 
 # =============================================================================
 # 5. Write/update the JSON file (fixed filename - this IS the incremental cache)
@@ -13133,6 +13240,9 @@ $OutRows = $CveIds | ForEach-Object {
 }
 $OutRows | Export-Csv -LiteralPath $OutCsvPath -NoTypeInformation -Encoding UTF8
 Write-Host "    -> CSV: $OutCsvPath ($($OutRows.Count) rows)" -ForegroundColor Gray
+Export-CsvSetAsExcelWorkbook -XlsxPath ([System.IO.Path]::ChangeExtension($OutCsvPath, "xlsx")) -Sheets @(
+    @{ Name = "CVE_Lookup_Results"; Path = $OutCsvPath }
+) | Out-Null
 
 # =============================================================================
 # 5. Write the searchable HTML report (English UI) - type a CVE ID into the
@@ -14159,6 +14269,9 @@ $VcfVvfCsvRows = foreach ($v in $VcfVvfResults) {
 $CsvRows = @($MatchCsvRows) + @($ToolsCsvRows) + @($VcfVvfCsvRows)
 $CsvRows | Export-Csv -LiteralPath $CsvPath -NoTypeInformation -Encoding UTF8
 Write-Host "    -> CSV: $CsvPath ($($CsvRows.Count) rows: $($MatchCsvRows.Count) version-matched + $($ToolsCsvRows.Count) VMware Tools reference + $($VcfVvfCsvRows.Count) VCF/VVF reference)" -ForegroundColor Gray
+Export-CsvSetAsExcelWorkbook -XlsxPath ([System.IO.Path]::ChangeExtension($CsvPath, "xlsx")) -Sheets @(
+    @{ Name = "VMSA_Environment_Match"; Path = $CsvPath }
+) | Out-Null
 
 # =============================================================================
 # 6. Write the HTML report
@@ -15144,6 +15257,10 @@ try {
     # Export-Csv -Encoding UTF8 이 BOM 없이 저장되어 Excel에서 한글이 깨지는 문제를 방지)
     $csvLines = $sortedResults | ConvertTo-Csv -NoTypeInformation
     [System.IO.File]::WriteAllLines($CsvPath, $csvLines, (New-Object System.Text.UTF8Encoding($true)))
+    $KisaXlsxPath = [System.IO.Path]::ChangeExtension($CsvPath, "xlsx")
+    Export-CsvSetAsExcelWorkbook -XlsxPath $KisaXlsxPath -Sheets @(
+        @{ Name = "KISA_Results"; Path = $CsvPath }
+    ) | Out-Null
 
     New-KisaHtmlReport -Results $sortedResults -Path $HtmlPath -ServerName $Server -HostCount $VMHosts.Count
 
@@ -15152,6 +15269,7 @@ try {
     Write-Log "Detailed results were saved to the following files:"
     Write-Log "  - Text  : $ReportPath"
     Write-Log "  - CSV   : $CsvPath"
+    if (Test-Path -LiteralPath $KisaXlsxPath) { Write-Log "  - Excel : $KisaXlsxPath" }
     Write-Log "  - HTML  : $HtmlPath"
     #endregion
 }
@@ -15352,12 +15470,10 @@ function Invoke-OperationsConnect {
 # ============================================================
 function Invoke-VCenterConnectedAuditSuite {
     Write-Title "vCenter Security Suite (security-hardening + VMSA version check + KISA)"
-    Write-Host "Logs in to vCenter once, then runs all three checks below in sequence:" -ForegroundColor Gray
-    Write-Host "  1) Security hardening audit (audit_runner -> audit-reporter)" -ForegroundColor Gray
-    Write-Host "  2) VMSA version check (vmsa_environment_report)" -ForegroundColor Gray
-    Write-Host "  3) KISA virtualization security audit" -ForegroundColor Gray
-    Write-Host ""
 
+    # vCenter host/IP is asked for FIRST, before anything else - then the one
+    # set of credentials it's paired with. No submenu, no per-step choices:
+    # once both are given, all 3 checks below run back-to-back automatically.
     $vc = Read-Host "Enter vCenter Server IP or FQDN"
     if ([string]::IsNullOrWhiteSpace($vc)) {
         Write-Host "A vCenter address is required." -ForegroundColor Yellow
@@ -15368,6 +15484,9 @@ function Invoke-VCenterConnectedAuditSuite {
         Write-Host "Credentials are required." -ForegroundColor Yellow
         return
     }
+
+    Write-Host ""
+    Write-Host "Logged in - running all 3 checks now with no further prompts: security hardening audit -> VMSA version check -> KISA audit." -ForegroundColor Gray
 
     Write-Host ""
     Write-Host "[1/3] Security hardening audit..." -ForegroundColor Cyan
@@ -15387,8 +15506,9 @@ function Invoke-VCenterConnectedAuditSuite {
 
 # ============================================================
 # Change E: VMSA full-list download + CVE detail lookup, combined into one
-# chained action - the downloader's VMSA_CVE_List_*.csv output is located
-# automatically and fed straight into the CVE lookup step.
+# chained action - the downloader's VMSA_CVE_List.csv output (fixed name, no
+# timestamp - see the 2026-09-08 follow-up) is located automatically and fed
+# straight into the CVE lookup step.
 # ============================================================
 function Invoke-VmsaDownloadAndCveLookup {
     Write-Title "VMSA Vulnerability Management Toolkit (vmsa)"
@@ -15399,17 +15519,16 @@ function Invoke-VmsaDownloadAndCveLookup {
     Invoke-VmsaDownloaderTool
 
     $vmsaDir = Join-Path $OutputRoot "vmsa"
-    $csvFile = Get-ChildItem -Path $vmsaDir -Filter "VMSA_CVE_List_*.csv" -File -ErrorAction SilentlyContinue |
-        Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    $csvFile = Join-Path $vmsaDir "VMSA_CVE_List.csv"
 
-    if ($csvFile) {
+    if (Test-Path -LiteralPath $csvFile) {
         Write-Host ""
-        Write-Host "[2/2] Running the CVE detail lookup against '$($csvFile.Name)'..." -ForegroundColor Cyan
-        Invoke-VmsaCveLookupTool -CveListCsv $csvFile.FullName
+        Write-Host "[2/2] Running the CVE detail lookup against 'VMSA_CVE_List.csv'..." -ForegroundColor Cyan
+        Invoke-VmsaCveLookupTool -CveListCsv $csvFile
     }
     else {
         Write-Host ""
-        Write-Host "[ERROR] Could not find a VMSA_CVE_List_*.csv produced by the downloader - skipping the CVE lookup step." -ForegroundColor Red
+        Write-Host "[ERROR] Could not find VMSA_CVE_List.csv (should have been produced by the downloader just now) - skipping the CVE lookup step." -ForegroundColor Red
     }
 }
 
@@ -15425,7 +15544,6 @@ function Show-MainMenu {
         Write-Host "                                                                  (single vCenter login)"
         Write-Host "  [4] vCenter Daily Comprehensive Report                          (vcenter)"
         Write-Host "  [5] VMSA Full List Download + CVE Lookup  (Internet connection required - takes a long time)"
-        Write-Host "  [6] Regenerate Security Hardening Report (existing logs, no vCenter needed)"
         Write-Host ""
         Write-Host "  [0] Exit"
         Write-Host ""
@@ -15446,7 +15564,6 @@ function Show-MainMenu {
                 Invoke-ToolFunction -FunctionName 'Invoke-VCenterDailyReportTool' -BoundParameters $bp
             }
             "5" { Invoke-ToolFunction -FunctionName 'Invoke-VmsaDownloadAndCveLookup' }
-            "6" { Invoke-ToolFunction -FunctionName 'Invoke-AuditReporterTool' }
             "0" { return }
             default { Write-Host "Invalid selection." -ForegroundColor Yellow }
         }
@@ -15454,3 +15571,5 @@ function Show-MainMenu {
 }
 
 Show-MainMenu
+
+
