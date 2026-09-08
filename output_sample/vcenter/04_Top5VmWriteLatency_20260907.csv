@@ -1,6 +1,0 @@
-"ClusterName","HostName","VmName","Datastore","WriteLatencyMs"
-"epa-cl01","fu-04.***.***","Avi-se-jeaxv","HCS-TrueNAS-iSCSI","5"
-"epa-cl01","fu-06.***.***","VCSA","vsanDatastore","1"
-"epa-cl01","fu-06.***.***","epa-nsx-03","vsanDatastore","1"
-"epa-cl01","fu-06.***.***","edge01","vsanDatastore","1"
-"epa-cl01","fu-04.***.***","edge02","vsanDatastore","1"

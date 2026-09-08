@@ -1,6 +1,0 @@
-"ClusterName","HostName","VmName","NumCpu","CpuUsagePct"
-"epa-cl01","fu-04.***.***","Avi-se-jeaxv","1","29.62"
-"epa-cl01","fu-06.***.***","epa-nsx-01","6","27.32"
-"epa-cl01","fu-02.***.***","md-esxi03","48","24.3"
-"epa-cl01","fu-06.***.***","epa-nsx-03","6","21.69"
-"epa-cl01","fu-05.***.***","epa-nsx-02","6","20.01"

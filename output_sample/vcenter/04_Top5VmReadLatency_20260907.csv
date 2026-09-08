@@ -1,6 +1,0 @@
-"ClusterName","HostName","VmName","Datastore","ReadLatencyMs"
-"epa-cl01","fu-06.***.***","VCSA","vsanDatastore","1"
-"epa-cl01","fu-01.***.***","inha-esx02","vsanDatastore","1"
-"epa-cl01","fu-02.***.***","md-esxi03","HCS-TrueNAS-iSCSI","1"
-"epa-cl01","fu-03.***.***","md-esxi04","HCS-TrueNAS-iSCSI","1"
-"epa-cl01","fu-01.***.***","insung-linuxhost","vsanDatastore","0"

@@ -1,6 +1,0 @@
-"ClusterName","HostName","VmName","DeviceType","MediaPath"
-"epa-cl01","fu-01.***.***","ssk-ako-test","CD/DVD","[HCS-TrueNAS-iSCSI] ISO-Archive/Linux/Ubuntu/26.04/ubuntu-26.04-live-server-amd64.iso"
-"epa-cl01","fu-03.***.***","md-esxi04","CD/DVD","[HCS-TrueNAS-iSCSI] ISO-Archive/8.0.2-23305546-synergy-custom.iso"
-"epa-cl01","fu-02.***.***","md-esxi03","CD/DVD","[HCS-TrueNAS-iSCSI] ISO-Archive/8.0.2-23305546-synergy-custom.iso"
-"epa-cl01","fu-01.***.***","md-esxi02","CD/DVD","[HCS-TrueNAS-iSCSI] ISO-Archive/8.0.2-23305546-synergy-custom.iso"
-"epa-cl01","fu-04.***.***","md-esxi01","CD/DVD","[HCS-TrueNAS-iSCSI] ISO-Archive/8.0.2-23305546-synergy-custom.iso"

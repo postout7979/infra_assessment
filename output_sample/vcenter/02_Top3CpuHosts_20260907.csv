@@ -1,4 +1,0 @@
-"HostName","ClusterName","CpuUsagePct","CpuUsageGHz","CpuCapacityGHz","MemUsagePct","MemUsageGB","CpuContentionPct"
-"fu-02.***.***","epa-cl01","53.32","30.65","57.46","60.06","230.3","312.83"
-"fu-01.***.***","epa-cl01","34.05","19.57","57.46","70.62","270.78","376.51"
-"fu-03.***.***","epa-cl01","31.9","18.33","57.46","69.98","268.33","419.41"
