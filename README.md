@@ -1,3 +1,5 @@
+# 업데이트: 2026.09.08
+
 # allinonevmw.ps1 사용법
 
 `postout7979/infra_assessment` 저장소의 VMware/VCF 인프라 점검 도구들을 하나의 메뉴에서
