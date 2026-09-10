@@ -13907,102 +13907,38 @@ Write-Host "    Detected versions:" -ForegroundColor Gray
 foreach ($t in $DetectedTargets) { Write-Host "       [$($t.Category)] $($t.Label)" -ForegroundColor Gray }
 
 # =============================================================================
-# 3. Optional CVE Lookup enrichment - most recent CVE_Lookup_<yyyyMMdd-HHmm>
-#    folder next to this script, if any.
+# 3. CVE Lookup enrichment - from the persistent CVE_Lookup_Cache.json cache at
+#    the repo root (built/updated by Invoke-VmsaCveLookupTool, menu [5]).
 # =============================================================================
-Write-Host "`n[3] CVE Lookup folder" -ForegroundColor Cyan
-$CveLookupData   = $null
-$CveLookupFolder = $null
+Write-Host "`n[3] CVE Lookup cache (repo-root CVE_Lookup_Cache.json)" -ForegroundColor Cyan
+$CveLookupData      = $null
+$CveLookupCachePath = Join-Path $RepoRoot "CVE_Lookup_Cache.json"
 
 if ($SkipCveLookup) {
     Write-Host "    -> -SkipCveLookup specified - CVE Lookup detail will be omitted." -ForegroundColor Gray
+} elseif (-not (Test-Path -LiteralPath $CveLookupCachePath)) {
+    Write-Host "    -> $CveLookupCachePath not found - CVE Lookup detail will be omitted from the report. (Run menu [5] - VMSA Full List Download + CVE Lookup - at least once to build this cache.)" -ForegroundColor Gray
 } else {
-    $CveLookupCandidates = @(
-        Get-ChildItem -Path $ScriptDir -Directory -Filter "CVE_Lookup_*" -ErrorAction SilentlyContinue |
-            ForEach-Object {
-                if ($_.Name -match '^CVE_Lookup_(\d{8})-(\d{4})$') {
-                    $parsed = [DateTime]::MinValue
-                    $ok = [DateTime]::TryParseExact(
-                        "$($Matches[1])$($Matches[2])", "yyyyMMddHHmm", $null,
-                        [System.Globalization.DateTimeStyles]::None, [ref]$parsed)
-                    if ($ok) { [PSCustomObject]@{ Folder = $_; Stamp = $parsed } }
-                }
-            } | Sort-Object Stamp -Descending
-    )
-
-    if ($CveLookupCandidates.Count -eq 0) {
-        Write-Host "    -> No CVE_Lookup_<yyyyMMdd-HHmm> folder found next to this script - CVE Lookup detail will be omitted from the report." -ForegroundColor Gray
-    } else {
-        $CveLookupFolder = $CveLookupCandidates[0].Folder
-        Write-Host "    -> Using most recent CVE Lookup folder: $($CveLookupFolder.Name) ($($CveLookupCandidates[0].Stamp))" -ForegroundColor Green
-
-        $CveLookupData = @{}   # CVE ID -> ordered hashtable of extra fields found for it
-        $LookupFiles = @(Get-ChildItem -Path $CveLookupFolder.FullName -File -Recurse -ErrorAction SilentlyContinue |
-            Where-Object { $_.Extension -ieq ".csv" -or $_.Extension -ieq ".json" })
-
-        foreach ($f in $LookupFiles) {
-            try {
-                if ($f.Extension -ieq ".csv") {
-                    $rows = @(Import-Csv -LiteralPath $f.FullName)
-                    foreach ($row in $rows) {
-                        $cveCol = ($row.PSObject.Properties.Name | Where-Object { $_ -match '(?i)^cve' } | Select-Object -First 1)
-                        if (-not $cveCol) { continue }
-                        $cveVal = "$($row.$cveCol)".Trim()
-                        if ($cveVal -notmatch '^CVE-\d{4}-\d{4,7}$') { continue }
-                        if (-not $CveLookupData.ContainsKey($cveVal)) { $CveLookupData[$cveVal] = [ordered]@{} }
-                        foreach ($p in $row.PSObject.Properties) {
-                            if ($p.Name -eq $cveCol) { continue }
-                            if (Test-SkipCveLookupColumn -Name $p.Name) { continue }
-                            if (-not [string]::IsNullOrWhiteSpace("$($p.Value)")) { $CveLookupData[$cveVal]["NVD $($p.Name)"] = $p.Value }
-                        }
-                    }
-                } else {
-                    $jsonObj = Get-Content -LiteralPath $f.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
-                    if ($jsonObj -is [System.Array]) {
-                        foreach ($item in $jsonObj) {
-                            if (-not $item) { continue }
-                            $cveProp = $item.PSObject.Properties | Where-Object { $_.Name -match '(?i)^cve' } | Select-Object -First 1
-                            if (-not $cveProp) { continue }
-                            $cveVal = "$($cveProp.Value)".Trim()
-                            if ($cveVal -notmatch '^CVE-\d{4}-\d{4,7}$') { continue }
-                            if (-not $CveLookupData.ContainsKey($cveVal)) { $CveLookupData[$cveVal] = [ordered]@{} }
-                            foreach ($ip in $item.PSObject.Properties) {
-                                if ($ip.Name -eq $cveProp.Name) { continue }
-                                if (Test-SkipCveLookupColumn -Name $ip.Name) { continue }
-                                if ($null -ne $ip.Value -and "$($ip.Value)" -ne "") { $CveLookupData[$cveVal]["NVD $($ip.Name)"] = $ip.Value }
-                            }
-                        }
-                    } else {
-                        # Object form - either { "CVE-....": {...}, ... } (CVE ID as the
-                        # key itself) or { "items": [ {CVE:..., ...}, ... ] }-style; try
-                        # both: use the property name as the CVE ID if it looks like one,
-                        # otherwise look for a "cve*" property inside the value.
-                        foreach ($p in $jsonObj.PSObject.Properties) {
-                            $cveVal = $null
-                            if ($p.Name -match '^CVE-\d{4}-\d{4,7}$') {
-                                $cveVal = $p.Name
-                            } elseif ($p.Value -and ($p.Value.PSObject.Properties.Name -match '(?i)^cve')) {
-                                $innerCveProp = $p.Value.PSObject.Properties | Where-Object { $_.Name -match '(?i)^cve' } | Select-Object -First 1
-                                $candidate = "$($innerCveProp.Value)".Trim()
-                                if ($candidate -match '^CVE-\d{4}-\d{4,7}$') { $cveVal = $candidate }
-                            }
-                            if (-not $cveVal) { continue }
-                            if (-not $CveLookupData.ContainsKey($cveVal)) { $CveLookupData[$cveVal] = [ordered]@{} }
-                            if ($p.Value -is [System.Management.Automation.PSCustomObject]) {
-                                foreach ($ip in $p.Value.PSObject.Properties) {
-                                    if ($ip.Name -match '(?i)^cve') { continue }
-                                    if (Test-SkipCveLookupColumn -Name $ip.Name) { continue }
-                                    if ($null -ne $ip.Value -and "$($ip.Value)" -ne "") { $CveLookupData[$cveVal]["NVD $($ip.Name)"] = $ip.Value }
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch {
-                Write-Warning "    ! Could not parse $($f.Name) in $($CveLookupFolder.Name): $($_.Exception.Message)"
+    try {
+        $CveCacheJson = Get-Content -LiteralPath $CveLookupCachePath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $CveLookupData = @{}   # CVE ID -> ordered hashtable of extra fields found for it (from the cache)
+        foreach ($prop in $CveCacheJson.PSObject.Properties) {
+            $cveVal = $prop.Name
+            if ($cveVal -notmatch '^CVE-\d{4}-\d{4,7}$') { continue }
+            $entry  = $prop.Value
+            $fields = [ordered]@{}
+            foreach ($fieldName in @("Description", "Severity", "CVSSv3", "Published", "References")) {
+                if ($entry.PSObject.Properties.Name -notcontains $fieldName) { continue }
+                $fieldVal = "$($entry.$fieldName)"
+                if ([string]::IsNullOrWhiteSpace($fieldVal) -or $fieldVal -eq "N/A") { continue }
+                $fields[$fieldName] = $entry.$fieldName
             }
+            if ($fields.Count -gt 0) { $CveLookupData[$cveVal] = $fields }
         }
-        Write-Host "    -> Loaded lookup detail for $($CveLookupData.Count) unique CVE(s) from $($LookupFiles.Count) file(s)." -ForegroundColor Gray
+        Write-Host "    -> Loaded lookup detail for $($CveLookupData.Count) unique CVE(s) from $CveLookupCachePath" -ForegroundColor Green
+    } catch {
+        Write-Warning "    ! Could not read/parse $CveLookupCachePath - CVE Lookup detail will be omitted. ($($_.Exception.Message))"
+        $CveLookupData = $null
     }
 }
 
@@ -14279,7 +14215,7 @@ Export-CsvSetAsExcelWorkbook -XlsxPath ([System.IO.Path]::ChangeExtension($CsvPa
 Write-Host "`n[6] Writing HTML report ..." -ForegroundColor Cyan
 
 $GeneratedAtLabel    = Get-Date -Format "yyyy-MM-dd HH:mm"
-$CveLookupSourceText = if ($CveLookupFolder) { $CveLookupFolder.Name } else { "(none found - CVE Lookup detail omitted)" }
+$CveLookupSourceText = if ($CveLookupData) { "CVE_Lookup_Cache.json ($($CveLookupData.Count) CVE(s) with detail)" } else { "(CVE_Lookup_Cache.json not found/empty - CVE Lookup detail omitted)" }
 
 $CssBlock = @'
 <style>
@@ -14343,15 +14279,43 @@ $sb = New-Object System.Text.StringBuilder
 [void]$sb.Append('<div class="wrap">')
 
 # --- Detected versions summary ---
-[void]$sb.Append('<div class="card"><h2>Detected Versions</h2><table class="matrix-table"><thead><tr><th>Category</th><th>Version</th><th>Build</th><th>Source</th><th>Direct Matches</th><th>Possible (bundle product)</th></tr></thead><tbody>')
+# Severity buckets shown per detected category/version below - same 4
+# buckets/classes Get-SeverityBadgeClass already normalizes every advisory's
+# free-text Severity into, so this stays consistent with the badges shown
+# on each advisory card further down the page.
+$SevBucketOrder     = @('Critical', 'High', 'Medium', 'Low')
+$SevBucketBadgeClass = @{ Critical = 'badge-critical'; High = 'badge-high'; Medium = 'badge-medium'; Low = 'badge-low' }
+$SevBucketByClass    = @{ 'badge-critical' = 'Critical'; 'badge-high' = 'High'; 'badge-medium' = 'Medium'; 'badge-low' = 'Low' }
+
+$SevHeaderCellsHtml = ($SevBucketOrder | ForEach-Object { "<th>$_</th>" }) -join ''
+[void]$sb.Append("<div class=`"card`"><h2>Detected Versions</h2><table class=`"matrix-table`"><thead><tr><th>Category</th><th>Version</th><th>Build</th><th>Source</th><th>Direct Matches</th><th>Possible (bundle product)</th>$SevHeaderCellsHtml</tr></thead><tbody>")
 foreach ($target in $DetectedTargets) {
     $targetResults    = @($MatchResults | Where-Object { $_.Target -eq $target })
     $directCount      = @($targetResults | Where-Object { $_.MatchedRows.Count -gt 0 -or $_.MappedBundleRows.Count -gt 0 }).Count
     $bundleOnlyCount   = @($targetResults | Where-Object { $_.MatchedRows.Count -eq 0 -and $_.MappedBundleRows.Count -eq 0 -and $_.PossibleBundleRows.Count -gt 0 }).Count
     $sourceLabel = ($target.SourceHosts -join ", ")
-    [void]$sb.Append("<tr><td>$(Esc-Html $target.Category)</td><td>$(Esc-Html $target.Version)</td><td>$(Esc-Html $target.Build)</td><td>$(Esc-Html $sourceLabel)</td><td>$directCount</td><td>$bundleOnlyCount</td></tr>")
+
+    # Per-severity advisory count for this specific detected category/version
+    # (Critical/High/Medium/Low) - counted across every advisory matched
+    # against this target (direct or possible-bundle alike), one advisory
+    # counted once even if it has multiple Response Matrix rows for this
+    # target. Anything Get-SeverityBadgeClass can't classify (badge-default -
+    # an unrecognized/blank Severity string) isn't shown as its own column
+    # here, same as the per-advisory badges elsewhere in this report.
+    $targetSevCounts = @{}
+    foreach ($b in $SevBucketOrder) { $targetSevCounts[$b] = 0 }
+    foreach ($tr in $targetResults) {
+        $sevBucket = $SevBucketByClass[(Get-SeverityBadgeClass -Severity $tr.Advisory.Severity)]
+        if ($sevBucket) { $targetSevCounts[$sevBucket]++ }
+    }
+    $sevCellsHtml = ($SevBucketOrder | ForEach-Object {
+        $cnt = $targetSevCounts[$_]
+        if ($cnt -gt 0) { "<td><span class=`"badge $($SevBucketBadgeClass[$_])`">$cnt</span></td>" } else { '<td><span class="muted">0</span></td>' }
+    }) -join ''
+
+    [void]$sb.Append("<tr><td>$(Esc-Html $target.Category)</td><td>$(Esc-Html $target.Version)</td><td>$(Esc-Html $target.Build)</td><td>$(Esc-Html $sourceLabel)</td><td>$directCount</td><td>$bundleOnlyCount</td>$sevCellsHtml</tr>")
 }
-[void]$sb.Append('</tbody></table><p class="muted" style="margin:10px 0 0;">"Possible (bundle product)" = advisories that list this component only under a wrapper row - VMware Cloud Foundation or VMware vSphere Foundation (only the bundle-version line relevant to the detected major version - e.g. 5.x for a detected 8.x build, 9.x for a detected 9.x build; other VCF/VVF majors are not surfaced), or VMware Tools shipped with a given ESXi release - whose own version number does not line up with the detected build (normal for pre-9.x VCF/VVF, whose bundle version differs from the vCenter/ESXi version it ships) - verify these against your actual VCF/VVF release or Tools/ESXi pairing. See the click-to-expand "Also Listed Under a Bundle Product" section under each advisory below for the details.</p></div>')
+[void]$sb.Append('</tbody></table><p class="muted" style="margin:10px 0 0;">"Possible (bundle product)" = advisories that list this component only under a wrapper row - VMware Cloud Foundation or VMware vSphere Foundation (only the bundle-version line relevant to the detected major version - e.g. 5.x for a detected 8.x build, 9.x for a detected 9.x build; other VCF/VVF majors are not surfaced), or VMware Tools shipped with a given ESXi release - whose own version number does not line up with the detected build (normal for pre-9.x VCF/VVF, whose bundle version differs from the vCenter/ESXi version it ships) - verify these against your actual VCF/VVF release or Tools/ESXi pairing. See the click-to-expand "Also Listed Under a Bundle Product" section under each advisory below for the details. The Critical/High/Medium/Low columns count matched advisories per severity for that specific category/version (one advisory counted once, regardless of how many Response Matrix rows it has for this target).</p></div>')
 
 # --- Matched advisories, grouped by detected version ---
 foreach ($target in $DetectedTargets) {
@@ -15319,111 +15283,14 @@ function Invoke-ToolFunction {
     Pause-Return
 }
 
-# Lists the vSphere_Inventory_* folders under output\vcf_9_upgrade and lets
-# the user pick one (or type a path directly).
-function Select-Vcf9InventoryFolder {
-    $vcfDir = Join-Path $OutputRoot "vcf_9_upgrade"
-    $invFolders = @(Get-ChildItem -Path $vcfDir -Directory -Filter "vSphere_Inventory_*" -ErrorAction SilentlyContinue |
-        Sort-Object LastWriteTime -Descending)
-
-    if ($invFolders.Count -eq 0) {
-        Write-Host ""
-        Write-Host "[INFO] No vSphere_Inventory_* folder was found under $vcfDir." -ForegroundColor Yellow
-        $manual = Read-Host "Enter the inventory folder path directly (Enter to cancel)"
-        if ([string]::IsNullOrWhiteSpace($manual)) { return $null }
-        return $manual
-    }
-
-    Write-Host ""
-    Write-Host "Inventory folders under [vcf_9_upgrade] (most recently modified first):" -ForegroundColor Cyan
-    for ($i = 0; $i -lt $invFolders.Count; $i++) {
-        Write-Host ("  [{0}] {1}  (modified: {2})" -f ($i + 1), $invFolders[$i].Name, $invFolders[$i].LastWriteTime)
-    }
-    Write-Host "  [0] Enter a path directly"
-
-    $choice = Read-Host "`nSelection"
-    if ($choice -eq "0") {
-        $manual = Read-Host "Enter the inventory folder path"
-        if ([string]::IsNullOrWhiteSpace($manual)) { return $null }
-        return $manual
-    }
-
-    $idx = 0
-    if ([int]::TryParse($choice, [ref]$idx) -and $idx -ge 1 -and $idx -le $invFolders.Count) {
-        return $invFolders[$idx - 1].FullName
-    }
-
-    Write-Host "Invalid selection." -ForegroundColor Yellow
-    return $null
-}
-
-# ============================================================
-# Sub-menu: VCF 9 Upgrade (vcf_9_upgrade)
-#   [1] is the new automatic chain (Change A): inventory collection + HCL
-#       compatibility check run back-to-back, then the resulting
-#       vSphere_Inventory_* folder is fed straight into the NVMe memory
-#       tiering analysis - no submenu, no manual folder selection.
-#   [2]-[5] expose the same standalone operations the tool's own internal
-#   menu used to offer (NVMe-tiering-only / inventory-only / HCL-check-only /
-#   performance-report-only), unchanged - only [1]'s flow is new.
-# ============================================================
-function Show-Vcf9UpgradeMenu {
-    while ($true) {
-        Write-Title "VCF 9 Upgrade (vcf_9_upgrade)"
-        Write-Host "  [1] Auto: inventory collection + HCL check + NVMe tiering analysis (fully automatic)"
-        Write-Host "  [2] NVMe memory tiering analysis only (choose an existing inventory folder)"
-        Write-Host "  [3] Inventory collection only"
-        Write-Host "  [4] HCL compatibility check only (existing inventory folder)"
-        Write-Host "  [5] Performance report only (existing inventory folder)"
-        Write-Host "  [0] Back to the main menu"
-        $sel = Read-Host "`nSelection"
-
-        switch ($sel) {
-            "1" { Invoke-ToolFunction -FunctionName 'Invoke-Vcf9PrecheckToolkitTool' -BoundParameters @{ MenuChoice = '1'; AutoChainToNvmeTiering = $true } }
-            "2" {
-                $inv = Select-Vcf9InventoryFolder
-                if ([string]::IsNullOrWhiteSpace($inv)) {
-                    Write-Host "No inventory folder was selected." -ForegroundColor Yellow
-                }
-                else {
-                    $bp = @{ InventoryPath = $inv }
-
-                    $cpu = Read-Host "Max CPU % (Enter = default 80)"
-                    if (-not [string]::IsNullOrWhiteSpace($cpu)) { $bp.MaxCpuPct = [double]$cpu }
-
-                    $ratio = Read-Host "Max Active/Alloc memory ratio % (Enter = default 40)"
-                    if (-not [string]::IsNullOrWhiteSpace($ratio)) { $bp.MaxActiveRatioPct = [double]$ratio }
-
-                    $factor = Read-Host "Physical/Active memory minimum ratio (Enter = default 2.0)"
-                    if (-not [string]::IsNullOrWhiteSpace($factor)) { $bp.PhysMemFactor = [double]$factor }
-
-                    Invoke-ToolFunction -FunctionName 'Invoke-Vcf9NvmeTieringTool' -BoundParameters $bp
-                }
-            }
-            "3" { Invoke-ToolFunction -FunctionName 'Invoke-Vcf9PrecheckToolkitTool' -BoundParameters @{ MenuChoice = '2' } }
-            "4" {
-                $inv = Select-Vcf9InventoryFolder
-                if ([string]::IsNullOrWhiteSpace($inv)) {
-                    Write-Host "No inventory folder was selected." -ForegroundColor Yellow
-                }
-                else {
-                    Invoke-ToolFunction -FunctionName 'Invoke-Vcf9PrecheckToolkitTool' -BoundParameters @{ MenuChoice = '3'; ExistingInventoryPath = $inv }
-                }
-            }
-            "5" {
-                $inv = Select-Vcf9InventoryFolder
-                if ([string]::IsNullOrWhiteSpace($inv)) {
-                    Write-Host "No inventory folder was selected." -ForegroundColor Yellow
-                }
-                else {
-                    Invoke-ToolFunction -FunctionName 'Invoke-Vcf9PrecheckToolkitTool' -BoundParameters @{ MenuChoice = '4'; ExistingInventoryPath = $inv }
-                }
-            }
-            "0" { return }
-            default { Write-Host "Invalid selection." -ForegroundColor Yellow }
-        }
-    }
-}
+# CHANGE (2026-09-08 follow-up): menu [1] used to open this tool's own
+# submenu (Show-Vcf9UpgradeMenu) with 5 choices - [1] the automatic
+# inventory+HCL+NVMe chain, [2]-[5] standalone NVMe/inventory/HCL/
+# performance-report-only operations. Per a follow-up request, menu [1]
+# now always runs choice [1] (the automatic chain) directly with no
+# submenu shown at all - so that submenu (and its now-unreachable
+# Select-Vcf9InventoryFolder helper, which only [2]/[4]/[5] used) was
+# removed. See Show-MainMenu below for the direct call.
 
 # Strips the scheme (http://, https://) off whatever the user typed, then
 # re-adds https:// (so the user can type just the host/address, no scheme).
@@ -15552,7 +15419,7 @@ function Show-MainMenu {
         $sel = Read-Host "`nSelection"
 
         switch ($sel.ToUpper()) {
-            "1" { Show-Vcf9UpgradeMenu }
+            "1" { Invoke-ToolFunction -FunctionName 'Invoke-Vcf9PrecheckToolkitTool' -BoundParameters @{ MenuChoice = '1'; AutoChainToNvmeTiering = $true } }
             "2" { Invoke-OperationsConnect }
             "3" { Invoke-ToolFunction -FunctionName 'Invoke-VCenterConnectedAuditSuite' }
             "4" {

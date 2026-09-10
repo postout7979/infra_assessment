@@ -1,5 +1,3 @@
-# 업데이트: 2026.09.08
-
 # allinonevmw.ps1 사용법
 
 `postout7979/infra_assessment` 저장소의 VMware/VCF 인프라 점검 도구들을 하나의 메뉴에서
@@ -92,10 +90,10 @@ Get-ChildItem -Path . -Recurse | Unblock-File
 
 ### [1] VCF 9 Upgrade (사전 점검 / NVMe 티어링 분석)
 
-인벤토리 수집 + HCL 호환성 점검이 끝나면, 별도 확인 없이 곧바로 NVMe 메모리 티어링 분석까지
-자동으로 이어서 실행됩니다(하위 메뉴 없이 한 번에 진행). NVMe 분석만 단독으로 돌리거나
-인벤토리/HCL 점검만 따로 실행하고 싶다면, 이 메뉴 진입 후 나오는 하위 옵션에서 개별 선택도
-가능합니다.
+메뉴 `[1]`을 선택하면 하위 메뉴 없이 곧바로 인벤토리 수집 → HCL 호환성 점검 → NVMe 메모리
+티어링 분석까지 자동으로 한 번에 실행됩니다. (예전에는 진입 시 5개 항목의 하위 메뉴가
+나타나 NVMe 분석만 단독 실행/인벤토리만 실행/HCL 점검만 실행 등을 선택할 수 있었지만,
+이제 그 하위 메뉴는 없어졌고 항상 자동 전체 흐름만 실행됩니다.)
 
 - 결과: `output\vcf_9_upgrade\vSphere_Inventory_<타임스탬프>\`,
   `output\vcf_9_upgrade\compatibility_<타임스탬프>\`,
@@ -123,6 +121,12 @@ vCenter 주소를 먼저 입력받고, 그 다음 계정/암호를 한 번만 �
 
 - 결과: `output\security-hardening\`, `output\vmsa\` (버전 점검 CSV/HTML),
   `output\kisa_esx\output_esxi\`
+- VMSA 버전 점검 HTML 리포트의 각 CVE 항목에는, 저장소 루트의 `CVE_Lookup_Cache.json`에
+  해당 CVE ID가 있으면 그 안의 상세 설명(Description)과 심각도(Severity), CVSS 점수,
+  공개일, 참고 링크가 함께 표시됩니다. 이 캐시 파일은 메뉴 `[5]`(VMSA 다운로드 + CVE
+  조회)를 실행하면 생성/갱신되므로, 상세 설명을 보려면 `[5]`를 한 번 이상 먼저 실행해
+  두는 것이 좋습니다. 캐시가 없거나 해당 CVE가 캐시에 없으면 "CVE Lookup 매치 없음"으로
+  표시되고 나머지 리포트 내용에는 영향이 없습니다.
 
 ### [4] vCenter Daily Comprehensive Report
 
@@ -166,5 +170,26 @@ vCenter 하나 또는 여러 대(쉼표로 구분 입력 가능)에 대한 일�
 | [3] vCenter Security Suite | `output\security-hardening\`, `output\vmsa\`, `output\kisa_esx\` |
 | [4] vCenter Daily Report | `output\vcenter\` |
 | [5] VMSA 다운로드 + CVE 조회 | 저장소 루트(캐시 2개) + `output\vmsa\` (그 외 전부) |
+
+## 7. (별도 도구) 보안 점검 결과 PowerPoint 요약본 생성 (Python)
+
+메뉴 `[3]`(vCenter Security Suite) 실행 결과 CSV 파일들을 경영진 보고용 PowerPoint
+슬라이드(.pptx)로 요약 정리해주는 별도의 Python 도구가 `pptx-reports\` 폴더에
+함께 포함되어 있습니다. `allinonevmw.ps1`과는 완전히 독립적인 도구로, 서로 호출하지
+않습니다.
+
+- 한 번 실행하면 KISA 점검, Security Compliance Guide(하드닝 감사), VMSA 버전 매핑
+  결과에 대해 **각각 별도의 .pptx 파일 3개**가 생성됩니다.
+- PowerShell이 아닌 Python(`python-pptx` 라이브러리)으로 만들어져 있어, Microsoft
+  Office/PowerPoint 설치 없이도(Windows/macOS/Linux 어디서든) 실행할 수 있습니다.
+- 밝은 색조, `allinonevmw.ps1`의 HTML 리포트와 통일된 색상 체계, 컴팩트한 카드/표
+  레이아웃으로 경영진 보고에 적합하도록 디자인되어 있습니다.
+
+사용 방법, 옵션, 요구 사항(`pip install python-pptx`)은 `pptx-reports\README.md`에
+자세히 정리되어 있습니다. 간단한 예시:
+
+```bash
+python pptx-reports/generate_security_decks.py --input-folder output --output-dir reports
+```
 
 자세한 변경 이력은 함께 전달된 `CHANGE-NOTES.md`(영문)를 참고하세요.
